@@ -160,38 +160,6 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         setupWeissLocation();
     }
 
-    public void setupDiarySpecificTeleports() {
-        int ardyCloak = plugin.CheckArdyDiaryAndReturnItemID();
-
-        WorldPoint ardougneHerbPatchPoint = new WorldPoint(
-            2670,
-            3374,
-            0
-        );
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
-            ardyCloak,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Arrays.asList(
-                new ItemRequirement(
-                    ardyCloak,
-                    1
-                )
-            )
-        ));
-
-        System.out.print(ardyCloak);
-
-        locations.add(ardougneLocation);
-    }
-
     private void setupArdougneLocation()
     {
         WorldPoint ardougneHerbPatchPoint = new WorldPoint(
@@ -258,52 +226,23 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             ))
         ));
 
+        int ardyCloak = plugin.CheckArdyDiaryAndReturnItemID();
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_2",
+            "Ardy_Cloak",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_2,
+            ardyCloak,
             "Farm Teleport",
             0,
             0,
             10548,
             ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_2,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_3",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_3,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_3,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_4",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_4,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_4,
-                1
-            ))
+            Arrays.asList(
+                new ItemRequirement(
+                    ardyCloak,
+                    1
+                )
+            )
         ));
 
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(

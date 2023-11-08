@@ -348,10 +348,7 @@ public interface FarmingHelperConfig extends Config
 		Portal_Nexus,
 		Ardougne_teleport,
 		Ardougne_tele_tab,
-		Ardy_cloak,
-		Ardy_cloak_2,
-		Ardy_cloak_3,
-		Ardy_cloak_4,
+		Ardy_Cloak,
 		Skills_Necklace
 	}
 	@ConfigItem(
@@ -361,7 +358,7 @@ public interface FarmingHelperConfig extends Config
 			description = "Desired way to teleport to Ardougne",
 			section = teleportOptionList
 	)
-	default OptionEnumArdougneTeleport enumOptionEnumArdougneTeleport() { return OptionEnumArdougneTeleport.Ardy_cloak_3; }
+	default OptionEnumArdougneTeleport enumOptionEnumArdougneTeleport() { return OptionEnumArdougneTeleport.Ardy_Cloak; }
 	enum OptionEnumCatherbyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus_Catherby,
