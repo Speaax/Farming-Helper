@@ -160,6 +160,38 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         setupWeissLocation();
     }
 
+    public void setupDiarySpecificTeleports() {
+        int ardyCloak = plugin.CheckArdyDiaryAndReturnItemID();
+
+        WorldPoint ardougneHerbPatchPoint = new WorldPoint(
+            2670,
+            3374,
+            0
+        );
+
+        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
+            "Ardy_Cloak",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Ardougne with Ardougne cloak.",
+            ardyCloak,
+            "Farm Teleport",
+            0,
+            0,
+            10548,
+            ardougneHerbPatchPoint,
+            Arrays.asList(
+                new ItemRequirement(
+                    ardyCloak,
+                    1
+                )
+            )
+        ));
+
+        System.out.print(ardyCloak);
+
+        locations.add(ardougneLocation);
+    }
+
     private void setupArdougneLocation()
     {
         WorldPoint ardougneHerbPatchPoint = new WorldPoint(

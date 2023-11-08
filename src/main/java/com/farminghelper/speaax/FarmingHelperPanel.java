@@ -1,5 +1,8 @@
 package com.farminghelper.speaax;
 
+import com.farminghelper.speaax.ItemsAndLocations.ItemAndLocation;
+import net.runelite.api.Item;
+import net.runelite.api.Varbits;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.overlay.OverlayManager;
 
@@ -22,6 +25,7 @@ public class FarmingHelperPanel extends PluginPanel
 	private final FarmingHelperPlugin plugin;
     private final OverlayManager overlayManager;
     private final FarmingTeleportOverlay farmingTeleportOverlay;
+    public ItemAndLocation itemAndLocation;
 
     public StartStopJButton herbButton;
     public StartStopJButton treeButton;
@@ -90,6 +94,7 @@ public class FarmingHelperPanel extends PluginPanel
             @Override
             public void actionPerformed(ActionEvent e) {
                 plugin.runOnClientThread(() -> {
+                    herbRunItemAndLocation.setupDiarySpecificTeleports();
                     Map<Integer, Integer> herbItems = herbRunItemAndLocation.getHerbItems();
                     plugin.updateHerbOverlay(herbItems);
                     plugin.setOverlayActive(!plugin.isOverlayActive());

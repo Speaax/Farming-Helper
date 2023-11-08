@@ -328,6 +328,34 @@ public class FarmingHelperPlugin extends Plugin
 		}
 	}
 
+
+	public Integer CheckArdyDiaryAndReturnItemID()
+	{
+		System.out.print(" \n Checking for diary completion: \n");
+		System.out.print(client.getVarbitValue(Varbits.DIARY_ARDOUGNE_EASY) + "\n" + client.getVarbitValue(Varbits.DIARY_ARDOUGNE_MEDIUM) + "\n" + client.getVarbitValue(Varbits.DIARY_ARDOUGNE_HARD) + "\n" + client.getVarbitValue(Varbits.DIARY_ARDOUGNE_ELITE) + "\n");
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_ELITE) == 1)
+		{
+			System.out.print("Elite completed \n");
+			return (ItemID.ARDOUGNE_CLOAK_4);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_HARD) == 1)
+		{
+			System.out.print("Hard completed \n");
+			return (ItemID.ARDOUGNE_CLOAK_3);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_MEDIUM) == 1)
+		{
+			System.out.print("Medium completed \n");
+			return (ItemID.ARDOUGNE_CLOAK_2);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_EASY) == 1)
+		{
+			System.out.print("Easy completed \n");
+			return (ItemID.ARDOUGNE_CLOAK_1);
+		}
+		return null;
+	}
+
 	@Override
 	protected void startUp()
 	{

@@ -348,6 +348,7 @@ public interface FarmingHelperConfig extends Config
 		Portal_Nexus,
 		Ardougne_teleport,
 		Ardougne_tele_tab,
+		Ardy_cloak,
 		Ardy_cloak_2,
 		Ardy_cloak_3,
 		Ardy_cloak_4,
