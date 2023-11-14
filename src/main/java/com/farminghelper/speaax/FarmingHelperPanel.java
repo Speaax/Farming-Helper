@@ -13,12 +13,14 @@ import java.util.Map;
 import com.farminghelper.speaax.ItemsAndLocations.HerbRunItemAndLocation;
 import com.farminghelper.speaax.ItemsAndLocations.TreeRunItemAndLocation;
 import com.farminghelper.speaax.ItemsAndLocations.FruitTreeRunItemAndLocation;
+import com.farminghelper.speaax.ItemsAndLocations.HardwoodRunItemAndLocation;
 
 public class FarmingHelperPanel extends PluginPanel
 {
     private final HerbRunItemAndLocation herbRunItemAndLocation;
     private final TreeRunItemAndLocation treeRunItemAndLocation;
     private  final FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
+    private  final HardwoodRunItemAndLocation hardwoodRunItemAndLocation;
 	private final FarmingHelperPlugin plugin;
     private final OverlayManager overlayManager;
     private final FarmingTeleportOverlay farmingTeleportOverlay;
@@ -26,13 +28,15 @@ public class FarmingHelperPanel extends PluginPanel
     public StartStopJButton herbButton;
     public StartStopJButton treeButton;
     public StartStopJButton fruitTreeButton;
+    public StartStopJButton hardwoodButton;
 
-    public FarmingHelperPanel(FarmingHelperPlugin plugin, OverlayManager overlayManager, FarmingTeleportOverlay farmingTeleportOverlay, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation)
+    public FarmingHelperPanel(FarmingHelperPlugin plugin, OverlayManager overlayManager, FarmingTeleportOverlay farmingTeleportOverlay, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation, HardwoodRunItemAndLocation hardwoodRunItemAndLocation)
     {
         this.herbRunItemAndLocation = herbRunItemAndLocation;
         this.treeRunItemAndLocation = treeRunItemAndLocation;
         this.farmingTeleportOverlay = farmingTeleportOverlay;
         this.fruitTreeRunItemAndLocation = fruitTreeRunItemAndLocation;
+        this.hardwoodRunItemAndLocation = hardwoodRunItemAndLocation;
 
         this.plugin = plugin;
         this.overlayManager = overlayManager;
@@ -146,6 +150,28 @@ public class FarmingHelperPanel extends PluginPanel
 //        farmRunButtonsPanel.add(fruitTreeButton, constraints);
         farmRunButtonsPanel.add(fruitTreeButton);
 
+        hardwoodButton = new StartStopJButton("Hardwood Run");
+        hardwoodButton.setFocusable(false);
+        hardwoodButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                plugin.runOnClientThread(() -> {
+                    hardwoodRunItemAndLocation.setupLocations();
+                    Map<Integer, Integer> hardwoodItems = hardwoodRunItemAndLocation.getHardwoodItems();
+                    plugin.updateFruitTreeOverlay(hardwoodItems);
+                    plugin.setOverlayActive(!plugin.isOverlayActive());
+
+                    hardwoodButton.setStartStopState(plugin.isOverlayActive());
+
+                    onHardwoodButtonClicked();
+                });
+            }
+        });
+        //        constraints.gridy = 2;
+        //        farmRunButtonsPanel.add(fruitTreeButton, constraints);
+        farmRunButtonsPanel.add(hardwoodButton);
+
         farmRunButtonsContainingPanel.add(farmRunButtonsPanel);
 
         return farmRunButtonsContainingPanel;
@@ -225,6 +251,28 @@ public class FarmingHelperPanel extends PluginPanel
                 } else {
                     System.out.println("Add overlay from button");
                     plugin.getFarmingTeleportOverlay().fruitTreeRun = true;
+                    overlayManager.add(overlay);
+                    overlayManager.add(farmingTeleportOverlay);
+                }
+            }
+        });
+    }
+
+    private void onHardwoodButtonClicked()
+    {
+        // Handle button click event here
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run() {
+                FarmingHelperOverlay overlay = plugin.getFarmingHelperOverlay();
+
+                if (!plugin.isOverlayActive()) {
+                    farmingTeleportOverlay.RemoveOverlay();
+                    System.out.println("Remove overlay from button");
+                } else {
+                    System.out.println("Add overlay from button");
+                    plugin.getFarmingTeleportOverlay().hardwoodRun = true;
                     overlayManager.add(overlay);
                     overlayManager.add(farmingTeleportOverlay);
                 }

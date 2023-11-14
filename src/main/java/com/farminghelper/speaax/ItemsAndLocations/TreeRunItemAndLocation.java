@@ -14,6 +14,9 @@ public class TreeRunItemAndLocation extends ItemAndLocation
 {
     public Location faladorTreeLocation;
     public Location farmingGuildTreeLocation;
+    public Location fossilIslandEastTreeLocation;
+    public Location fossilIslandSouthTreeLocation;
+    public Location fossilIslandWestTreeLocation;
     public Location gnomeStrongholdTreeLocation;
     public Location lumbridgeTreeLocation;
     public Location taverleyTreeLocation;

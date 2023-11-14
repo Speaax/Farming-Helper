@@ -16,6 +16,7 @@ public class Location {
         SPIRIT_TREE,
         JEWELLERY_BOX,
         MOUNTED_XERICS,
+        MOUNTED_DIGSITE,
         SPELLBOOK
     }
     private String name;
