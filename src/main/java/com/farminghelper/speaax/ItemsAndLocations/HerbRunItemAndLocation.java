@@ -390,50 +390,19 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             getHouseTeleportItemRequirements()
         ));
 
+        int explorerRing = plugin.CheckLumbridgeDiaryAndReturnItemID();
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_2",
+            "Explorers_ring",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_2,
+            explorerRing,
             "Teleport",
             0,
             0,
             12083,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_2,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_3",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_3,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_3,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_4",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_4,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_4,
+                explorerRing,
                 1
             ))
         ));

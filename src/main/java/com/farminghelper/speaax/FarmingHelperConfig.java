@@ -379,9 +379,7 @@ public interface FarmingHelperConfig extends Config
 	enum OptionEnumFaladorTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Explorers_ring_2,
-		Explorers_ring_3,
-		Explorers_ring_4,
+		Explorers_ring,
 		Falador_Teleport,
 		Falador_Tele_Tab,
 		Draynor_Tele_Tab
@@ -393,7 +391,7 @@ public interface FarmingHelperConfig extends Config
 			description = "Desired way to teleport to Falador",
 			section = teleportOptionList
 	)
-	default OptionEnumFaladorTeleport enumOptionEnumFaladorTeleport() { return OptionEnumFaladorTeleport.Explorers_ring_2; }
+	default OptionEnumFaladorTeleport enumOptionEnumFaladorTeleport() { return OptionEnumFaladorTeleport.Explorers_ring; }
 
 	enum OptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
