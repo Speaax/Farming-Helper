@@ -400,7 +400,9 @@ public interface FarmingHelperConfig extends Config
 	enum OptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
 		Jewellery_box,
-		Skills_Necklace
+		Skills_Necklace,
+		Farming_Cape,
+		Farming_Cape_T
 	}
 	@ConfigItem(
 			position = 5,
