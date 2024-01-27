@@ -572,6 +572,38 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             ))
         ));
 
+        farmingGuildLocation.addTeleportOption(farmingGuildLocation.new Teleport(
+            "Farming_Cape",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Farming guild using Farming Cape.",
+            ItemID.FARMING_CAPE,
+            "null",
+            0,
+            0,
+            4922,
+            farmingGuildHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.FARMING_CAPE,
+                1
+            ))
+        ));
+
+        farmingGuildLocation.addTeleportOption(farmingGuildLocation.new Teleport(
+            "Farming_Cape_T",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Farming guild using Farming Cape (t).",
+            ItemID.FARMING_CAPET,
+            "null",
+            0,
+            0,
+            4922,
+            farmingGuildHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.FARMING_CAPET,
+                1
+            ))
+        ));
+
         locations.add(farmingGuildLocation);
     }
 
