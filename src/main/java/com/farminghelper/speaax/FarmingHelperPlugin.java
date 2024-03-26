@@ -328,6 +328,48 @@ public class FarmingHelperPlugin extends Plugin
 		}
 	}
 
+
+	public Integer CheckArdyDiaryAndReturnItemID()
+	{
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_ELITE) == 1)
+		{
+			return (ItemID.ARDOUGNE_CLOAK_4);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_HARD) == 1)
+		{
+			return (ItemID.ARDOUGNE_CLOAK_3);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_MEDIUM) == 1)
+		{
+			return (ItemID.ARDOUGNE_CLOAK_2);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_ARDOUGNE_EASY) == 1)
+		{
+			return (ItemID.ARDOUGNE_CLOAK_1);
+		}
+		return null;
+	}
+	public Integer CheckLumbridgeDiaryAndReturnItemID()
+	{
+		if (client.getVarbitValue(Varbits.DIARY_LUMBRIDGE_ELITE) == 1)
+		{
+			return (ItemID.EXPLORERS_RING_4);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_LUMBRIDGE_HARD) == 1)
+		{
+			return (ItemID.EXPLORERS_RING_3);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_LUMBRIDGE_MEDIUM) == 1)
+		{
+			return (ItemID.EXPLORERS_RING_2);
+		}
+		if (client.getVarbitValue(Varbits.DIARY_LUMBRIDGE_EASY) == 1)
+		{
+			return (ItemID.EXPLORERS_RING_1);
+		}
+		return null;
+	}
+
 	@Override
 	protected void startUp()
 	{
@@ -354,8 +396,6 @@ public class FarmingHelperPlugin extends Plugin
 		// set overlay to inactive
 		isOverlayActive = false;
 		eventBus.register(this);
-
-		herbRunItemAndLocation.setupLocations();
 	}
 
 	@Override

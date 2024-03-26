@@ -1,5 +1,8 @@
 package com.farminghelper.speaax;
 
+import com.farminghelper.speaax.ItemsAndLocations.ItemAndLocation;
+import net.runelite.api.Item;
+import net.runelite.api.Varbits;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.overlay.OverlayManager;
 
@@ -22,6 +25,7 @@ public class FarmingHelperPanel extends PluginPanel
 	private final FarmingHelperPlugin plugin;
     private final OverlayManager overlayManager;
     private final FarmingTeleportOverlay farmingTeleportOverlay;
+    public ItemAndLocation itemAndLocation;
 
     public StartStopJButton herbButton;
     public StartStopJButton treeButton;
@@ -71,18 +75,8 @@ public class FarmingHelperPanel extends PluginPanel
         JPanel farmRunButtonsContainingPanel = new JPanel();
         farmRunButtonsContainingPanel.setLayout(new BoxLayout(farmRunButtonsContainingPanel, BoxLayout.Y_AXIS));
 
-        // With GridLayout, you can't set the button height.
-        // With GridBagLayout, you can't make the buttons the full width of the container.
-        // The height seemed like the better thing to let go of.
-//        JPanel farmRunButtonsPanel = new JPanel(new GridBagLayout());
         JPanel farmRunButtonsPanel = new JPanel(new GridLayout(0, 1, 0, 15));
         farmRunButtonsPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-//        GridBagConstraints constraints = new GridBagConstraints();
-//        constraints.insets = new Insets(5, 0, 5, 0);
-//        constraints.fill = GridBagConstraints.HORIZONTAL;
-//        constraints.gridwidth = 1;
-//        constraints.ipady = 10;
 
         herbButton = new StartStopJButton("Herb Run");
 		herbButton.setFocusable(false);
@@ -90,6 +84,7 @@ public class FarmingHelperPanel extends PluginPanel
             @Override
             public void actionPerformed(ActionEvent e) {
                 plugin.runOnClientThread(() -> {
+                    herbRunItemAndLocation.setupLocations();
                     Map<Integer, Integer> herbItems = herbRunItemAndLocation.getHerbItems();
                     plugin.updateHerbOverlay(herbItems);
                     plugin.setOverlayActive(!plugin.isOverlayActive());
@@ -100,8 +95,7 @@ public class FarmingHelperPanel extends PluginPanel
                 });
             }
         });
-//        constraints.gridy = 0;
-//        farmRunButtonsPanel.add(herbButton, constraints);
+
         farmRunButtonsPanel.add(herbButton);
 
         treeButton = new StartStopJButton("Tree Run");
@@ -121,8 +115,7 @@ public class FarmingHelperPanel extends PluginPanel
                 });
             }
         });
-//        constraints.gridy = 1;
-//        farmRunButtonsPanel.add(treeButton, constraints);
+
         farmRunButtonsPanel.add(treeButton);
 
         fruitTreeButton = new StartStopJButton("Fruit Tree Run");
@@ -142,8 +135,7 @@ public class FarmingHelperPanel extends PluginPanel
                 });
             }
         });
-//        constraints.gridy = 2;
-//        farmRunButtonsPanel.add(fruitTreeButton, constraints);
+
         farmRunButtonsPanel.add(fruitTreeButton);
 
         farmRunButtonsContainingPanel.add(farmRunButtonsPanel);

@@ -226,52 +226,23 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             ))
         ));
 
+        int ardyCloak = plugin.CheckArdyDiaryAndReturnItemID();
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_2",
+            "Ardy_Cloak",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_2,
+            ardyCloak,
             "Farm Teleport",
             0,
             0,
             10548,
             ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_2,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_3",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_3,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_3,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_4",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_4,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_4,
-                1
-            ))
+            Arrays.asList(
+                new ItemRequirement(
+                    ardyCloak,
+                    1
+                )
+            )
         ));
 
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
@@ -419,50 +390,19 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             getHouseTeleportItemRequirements()
         ));
 
+        int explorerRing = plugin.CheckLumbridgeDiaryAndReturnItemID();
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_2",
+            "Explorers_ring",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_2,
+            explorerRing,
             "Teleport",
             0,
             0,
             12083,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_2,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_3",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_3,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_3,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_4",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_4,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_4,
+                explorerRing,
                 1
             ))
         ));
