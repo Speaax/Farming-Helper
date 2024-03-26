@@ -107,12 +107,13 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                 }
             }
         }
-
-        allRequirements.merge(
-            ItemID.SEED_DIBBER,
-            1,
-            Integer::sum
-        );
+        if(config.generalSeedDibber()) {
+            allRequirements.merge(
+                ItemID.SEED_DIBBER,
+                1,
+                Integer::sum
+            );
+        }
 
         allRequirements.merge(
             ItemID.SPADE,

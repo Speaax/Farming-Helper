@@ -94,10 +94,18 @@ public interface FarmingHelperConfig extends Config
 	)
 	default boolean generalRake() { return false; }
 	@ConfigItem(
+		keyName = "booleanConfigSeedDibber",
+		name = "Seed dibber",
+		description = "Include seed dibber?",
+		position = 7,
+		section = generalList
+	)
+	default boolean generalSeedDibber() { return true; }
+	@ConfigItem(
 			keyName = "booleanConfigLimpwurt",
 			name = "Limpwurt",
 			description = "Want to include limpwurts in your farm run?",
-			position = 7,
+			position = 8,
 			section = generalList
 	)
 	default boolean generalLimpwurt() { return false; }
@@ -105,7 +113,7 @@ public interface FarmingHelperConfig extends Config
 			keyName = "booleanConfigAllotment",
 			name = "Allotment (No code written yet)",
 			description = "Want to include Allotment in your farm run?",
-			position = 8,
+			position = 9,
 			section = generalList
 	)
 	default boolean generalAllotment() { return false; }
@@ -114,7 +122,7 @@ public interface FarmingHelperConfig extends Config
 		keyName = "booleanConfigPayForProtection",
 		name = "Pay for protection",
 		description = "Want a reminder to pay for protection? (This currently doesn't check for the required items, only prompts you to pay the farmer.)",
-		position = 9,
+		position = 10,
 		section = generalList
 	)
 	default boolean generalPayForProtection() { return false; }
