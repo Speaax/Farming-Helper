@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.*;
 import javax.inject.Inject;
 
+import com.farminghelper.speaax.Patch.PatchType;
 import net.runelite.api.*;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -199,10 +200,10 @@ public class FarmingHelperOverlay extends Overlay {
         }
     }
     public Integer checkToolLep(Integer item) {
-        if(item == ItemID.COMPOST) {
+        if (item == ItemID.COMPOST) {
             return client.getVarbitValue(1442);
         }
-        if(item == ItemID.SUPERCOMPOST) {
+        if (item == ItemID.SUPERCOMPOST) {
             return client.getVarbitValue(1443);
         }
         if (item == ItemID.ULTRACOMPOST) {
@@ -223,17 +224,23 @@ public class FarmingHelperOverlay extends Overlay {
             if (!plugin.isOverlayActive()) {
                 return null;
             }
+
             plugin.addTextToInfoBox("Grab all the items needed");
-            // List of items to check
+
             Map<Integer, Integer> itemsToCheck = null;
-            if(plugin.getFarmingTeleportOverlay().herbRun) {
-                itemsToCheck = herbRunItemAndLocation.getHerbItems();
-            }
-            if(plugin.getFarmingTeleportOverlay().treeRun) {
-                itemsToCheck = treeRunItemAndLocation.getTreeItems();
-            }
-            if(plugin.getFarmingTeleportOverlay().fruitTreeRun) {
-                itemsToCheck = fruitTreeRunItemAndLocation.getFruitTreeItems();
+
+            switch (plugin.getFarmingTeleportOverlay().runPatchType) {
+                case HERB:
+                    itemsToCheck = herbRunItemAndLocation.getHerbItems();
+                    break;
+
+                case TREE:
+                    itemsToCheck = treeRunItemAndLocation.getTreeItems();
+                    break;
+
+                case FRUIT_TREE:
+                    itemsToCheck = fruitTreeRunItemAndLocation.getFruitTreeItems();
+                    break;
             }
 
             if (itemsToCheck == null || itemsToCheck.isEmpty()) {
@@ -244,6 +251,7 @@ public class FarmingHelperOverlay extends Overlay {
             Map<Integer, Integer> runePouchContents = getRunePouchContentsVarbits();
 
             Item[] items;
+
             if (inventory == null || inventory.getItems() == null) {
                 items = new Item[0];
             } else {
@@ -251,13 +259,16 @@ public class FarmingHelperOverlay extends Overlay {
             }
 
             int teleportCrystalCount = 0;
+
             for (Item item : items) {
                 if (isTeleportCrystal(item.getId())) {
                     teleportCrystalCount += item.getQuantity();
                     break;
                 }
             }
+
             int skillsNecklaceCount = 0;
+
             for (Item item : items) {
                 if (isSkillsNecklace(item.getId())) {
                     skillsNecklaceCount += item.getQuantity();
@@ -266,78 +277,93 @@ public class FarmingHelperOverlay extends Overlay {
             }
 
             int totalSeeds = 0;
-            if(plugin.getFarmingTeleportOverlay().herbRun) {
-                for (Item item : items) {
-                    if (isHerbSeed(item.getId())) {
-                        totalSeeds += item.getQuantity();
+
+            switch (plugin.getFarmingTeleportOverlay().runPatchType) {
+                case HERB:
+                    for (Item item : items) {
+                        if (isHerbSeed(item.getId())) {
+                            totalSeeds += item.getQuantity();
+                        }
                     }
-                }
-            }
-            if(plugin.getFarmingTeleportOverlay().treeRun) {
-                for (Item item : items) {
-                    if (isTreeSapling(item.getId())) {
-                        totalSeeds += item.getQuantity();
+                    break;
+
+                case TREE:
+                    for (Item item : items) {
+                        if (isTreeSapling(item.getId())) {
+                            totalSeeds += item.getQuantity();
+                        }
                     }
-                }
-            }
-            if(plugin.getFarmingTeleportOverlay().fruitTreeRun) {
-                for (Item item : items) {
-                    if (isFruitTreeSapling(item.getId())) {
-                        totalSeeds += item.getQuantity();
+                    break;
+
+                case FRUIT_TREE:
+                    for (Item item : items) {
+                        if (isFruitTreeSapling(item.getId())) {
+                            totalSeeds += item.getQuantity();
+                        }
                     }
-                }
+                    break;
             }
 
             panelComponent.getChildren().clear();
+
             int yOffset = 0;
 
             List<AbstractMap.SimpleEntry<Integer, Integer>> missingItemsWithCounts = new ArrayList<>();
+
             boolean allItemsCollected = true;
+
             for (Map.Entry<Integer, Integer> entry : itemsToCheck.entrySet()) {
                 int itemId = entry.getKey();
                 int count = entry.getValue();
 
                 int inventoryCount = 0;
-                if(plugin.getFarmingTeleportOverlay().herbRun) {
-                    if (itemId == BASE_SEED_ID) {
-                        inventoryCount = totalSeeds;
-                    } else {
-                        for (Item item : items) {
-                            if (item != null && item.getId() == itemId) {
-                                inventoryCount = item.getQuantity();
-                                break;
-                            }
-                        }
-                    }
-                }
+
                 // Check if the item is stored at the Tool Lep NPC
                 int toolLepCount = checkToolLep(itemId);
+
                 if (toolLepCount > 0) {
                     inventoryCount += toolLepCount;
                 }
-                if(plugin.getFarmingTeleportOverlay().treeRun) {
-                    if (itemId == BASE_SAPLING_ID) {
-                        inventoryCount = totalSeeds;
-                    } else {
-                        for (Item item : items) {
-                            if (item != null && item.getId() == itemId) {
-                                inventoryCount = item.getQuantity();
-                                break;
+
+                switch (plugin.getFarmingTeleportOverlay().runPatchType) {
+                    case HERB:
+                        if (itemId == BASE_SEED_ID) {
+                            inventoryCount = totalSeeds;
+                        } else {
+                            for (Item item : items) {
+                                if (item != null && item.getId() == itemId) {
+                                    inventoryCount = item.getQuantity();
+                                    break;
+                                }
                             }
                         }
-                    }
-                }
-                if(plugin.getFarmingTeleportOverlay().fruitTreeRun) {
-                    if (itemId == BASE_FRUIT_SAPLING_ID) {
-                        inventoryCount = totalSeeds;
-                    } else {
-                        for (Item item : items) {
-                            if (item != null && item.getId() == itemId) {
-                                inventoryCount = item.getQuantity();
-                                break;
+                        break;
+
+                    case TREE:
+                        if (itemId == BASE_SAPLING_ID) {
+                            inventoryCount = totalSeeds;
+                        } else {
+                            for (Item item : items) {
+                                if (item != null && item.getId() == itemId) {
+                                    inventoryCount = item.getQuantity();
+                                    break;
+                                }
                             }
                         }
-                    }
+                        break;
+
+                    case FRUIT_TREE:
+                        if (itemId == BASE_FRUIT_SAPLING_ID) {
+                            inventoryCount = totalSeeds;
+                        } else {
+                            for (Item item : items) {
+                                if (item != null && item.getId() == itemId) {
+                                    inventoryCount = item.getQuantity();
+                                    break;
+                                }
+                            }
+                        }
+                        break;
                 }
 
                 if (itemId == BASE_TELEPORT_CRYSTAL_ID) {

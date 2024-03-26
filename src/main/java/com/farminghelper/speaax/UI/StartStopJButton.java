@@ -1,16 +1,18 @@
-package com.farminghelper.speaax;
+package com.farminghelper.speaax.UI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.beans.ConstructorProperties;
 
-public class StartStopJButton extends JButton {
+public class StartStopJButton extends JButton
+{
     private String originalText;
 
-    public StartStopJButton(String text) {
+    public StartStopJButton(String text)
+    {
         super(text, null);
 
         this.originalText = text;
+
         this.setStartStopState(false);
     }
 
@@ -19,6 +21,7 @@ public class StartStopJButton extends JButton {
         String startOrStop = started ? "Stop " : "Start ";
 
         this.setText(startOrStop.concat(this.originalText));
-        this.setBackground(started  ? Color.RED : Color.BLACK);
+
+        this.setBackground(started ? Color.RED : Color.BLACK);
     }
 }

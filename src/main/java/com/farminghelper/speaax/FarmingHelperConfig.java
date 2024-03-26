@@ -28,7 +28,7 @@ public interface FarmingHelperConfig extends Config
 		String name();
 	}
 	@ConfigItem(
-			position = 10,
+			position = 11,
 			keyName = "enumConfigHouseTele",
 			name = "House teleport",
 			description = "Desired way to teleport to house",
@@ -126,6 +126,15 @@ public interface FarmingHelperConfig extends Config
 		section = generalList
 	)
 	default boolean generalPayForProtection() { return false; }
+
+	@ConfigItem(
+		keyName = "booleanConfigPickFruit",
+		name = "Pick Fruit",
+		description = "Want a reminder to pick fruit before clearning fruit trees?",
+		position = 10,
+		section = generalList
+	)
+	default boolean generalPickFruit() { return false; }
 
 
 	@ConfigSection(
@@ -552,7 +561,8 @@ public interface FarmingHelperConfig extends Config
 	enum TreeOptionEnumTaverleyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Falador_teleport
+		Falador_teleport,
+		Teleport_to_house
 	}
 	@ConfigItem(
 			position = 4,
