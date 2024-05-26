@@ -95,11 +95,15 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             Integer::sum
         );
 
-        allRequirements.merge(
-            ItemID.BOTTOMLESS_COMPOST_BUCKET_22997,
-            1,
-            Integer::sum
-        );
+        // TODO: Will be tricky, but a reminder to take the required items for protection?
+        //       It will rely on knowing what saplings are in the inventory, and their quantity
+        if (!config.generalPayForProtection()) {
+            allRequirements.merge(
+                ItemID.BOTTOMLESS_COMPOST_BUCKET_22997,
+                1,
+                Integer::sum
+            );
+        }
 
         allRequirements.merge(
             ItemID.MAGIC_SECATEURS,
