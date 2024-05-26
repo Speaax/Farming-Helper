@@ -879,6 +879,7 @@ public class FarmingTeleportOverlay extends Overlay {
             if (!isAtDestination) {
                 int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
                 plugin.addTextToInfoBox(teleport.getDescription());
+                client.setHintArrow(teleport.getPoint());
                 switch (teleport.getCategory()) {
                     case ITEM:
                         if (teleport.getInterfaceGroupId() != 0) {
@@ -1088,6 +1089,7 @@ public class FarmingTeleportOverlay extends Overlay {
 
             } else {
                 farming(graphics, teleport);
+                client.clearHintArrow();
             }
         } else {
             herbRunIndex++;
@@ -1183,6 +1185,8 @@ public class FarmingTeleportOverlay extends Overlay {
         plugin.panel.herbButton.setStartStopState(false);
         plugin.panel.treeButton.setStartStopState(false);
         plugin.panel.fruitTreeButton.setStartStopState(false);
+
+        client.clearHintArrow();
     }
 
     public Boolean herbRun = false;
