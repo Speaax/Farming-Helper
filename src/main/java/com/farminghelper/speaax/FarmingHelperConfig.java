@@ -218,7 +218,7 @@ public interface FarmingHelperConfig extends Config
 
 	@ConfigItem(
 		position = 10,
-		keyName = "booleanCOnfigVarlamoreHerb",
+		keyName = "booleanConfigVarlamoreHerb",
 		name = "Varlamore",
 		description = "Include Varlamore? (Requires completion of Children of the Sun)",
 		section = herbList

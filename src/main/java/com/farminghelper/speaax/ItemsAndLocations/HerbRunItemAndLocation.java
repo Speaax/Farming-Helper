@@ -903,7 +903,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             0,
             "null",
             InterfaceID.MAGIC_SPELLBOOK,
-            43,
+            43, //Not sure if this is right, but I think it is?
             varlamorePatchRegionId,
             varlamoreHerbPatchPoint,
             Arrays.asList(
@@ -929,7 +929,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             0,
             "null",
             InterfaceID.TELENEXUS_TELEPORT,
-            13,
+            13, // No clue what this actually is
             11325,
             varlamoreHerbPatchPoint,
             getHouseTeleportItemRequirements()
