@@ -282,6 +282,8 @@ public class FarmingHelperPlugin extends Plugin
 				return config.trollStrongholdHerb();
 			case "Weiss":
 				return config.weissHerb();
+			case "Varlamore":
+				return config.varlamoreHerb();
 			// Add cases for other locations as needed
 			default:
 				return false;

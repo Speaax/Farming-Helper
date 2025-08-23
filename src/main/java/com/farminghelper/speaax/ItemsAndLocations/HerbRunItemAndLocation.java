@@ -7,6 +7,7 @@ import com.farminghelper.speaax.Location;
 import net.runelite.api.Client;
 import net.runelite.api.ItemID;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.gameval.InterfaceID;
 
 import java.util.*;
 
@@ -21,6 +22,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     public Location morytaniaLocation;
     public Location trollStrongholdLocation;
     public Location weissLocation;
+    public Location varlamoreLocation;
 
     public HerbRunItemAndLocation()
     {
@@ -159,6 +161,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         setupMorytaniaLocation();
         setupTrollStrongholdLocation();
         setupWeissLocation();
+        setupVarlamoreLocation();
     }
 
     private void setupArdougneLocation()
@@ -796,5 +799,142 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         locations.add(weissLocation);
+    }
+
+    private void setupVarlamoreLocation()
+    {
+        WorldPoint varlamoreHerbPatchPoint = new WorldPoint(
+            1582,
+            3095,
+            0
+        );
+        int varlamorePatchRegionId = 6192;
+
+        varlamoreLocation = new Location(
+            FarmingHelperConfig::enumOptionEnumVarlamoreTeleport,
+            config,
+            "Varlamore",
+            true
+        );
+
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Basic_Quetzal_Whistle",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Varlamore with a Basic Quetzal Whistle.",
+            ItemID.BASIC_QUETZAL_WHISTLE,
+            "null",
+            0,
+            0,
+            varlamorePatchRegionId,
+            varlamoreHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.BASIC_QUETZAL_WHISTLE,
+                1
+            ))
+        ));
+
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Enhanced_Quetzal_Whistle",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Varlamore with an Enhanced Quetzal Whistle.",
+            ItemID.ENHANCED_QUETZAL_WHISTLE,
+            "null",
+            0,
+            0,
+            varlamorePatchRegionId,
+            varlamoreHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.ENHANCED_QUETZAL_WHISTLE,
+                1
+            ))
+        ));
+
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Perfected_Quetzal_Whistle",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Varlamore with a Perfected Quetzal Whistle.",
+            ItemID.PERFECTED_QUETZAL_WHISTLE,
+            "null",
+            0,
+            0,
+            varlamorePatchRegionId,
+            varlamoreHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.PERFECTED_QUETZAL_WHISTLE,
+                1
+            ))
+        ));
+
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Hunter_Skillcape",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Hunter's Guild with a Hunter Skillcape and run East then North.",
+            ItemID.HUNTER_CAPE,
+            "Teleport",
+            0,
+            0,
+            varlamorePatchRegionId,
+            varlamoreHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.HUNTER_CAPE,
+                1
+            ))
+        ));
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Hunter_Skillcape_T",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Hunter's Guild with a Hunter Skillcape (t) and run East then North.",
+            ItemID.HUNTER_CAPET,
+            "Teleport",
+            0,
+            0,
+            varlamorePatchRegionId,
+            varlamoreHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.HUNTER_CAPET,
+                1
+            ))
+        ));
+
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Civitas_illa_Fortis_Teleport",
+            Location.TeleportCategory.SPELLBOOK,
+            "Teleport to Civitas illa Fortis with standard spellbook, and take the Quetzal.",
+            0,
+            "null",
+            InterfaceID.MAGIC_SPELLBOOK,
+            43,
+            varlamorePatchRegionId,
+            varlamoreHerbPatchPoint,
+            Arrays.asList(
+                new ItemRequirement(
+                    ItemID.LAW_RUNE,
+                    2
+                ),
+                new ItemRequirement(
+                    ItemID.FIRE_RUNE,
+                    1
+                ),
+                new ItemRequirement(
+                    ItemID.EARTH_RUNE,
+                    1
+                )
+            )
+        ));
+
+        varlamoreLocation.addTeleportOption(varlamoreLocation.new Teleport(
+            "Portal_Nexus",
+            Location.TeleportCategory.PORTAL_NEXUS,
+            "Teleport to Civitas illa Fortis with Portal Nexus, then take the Quetzal.",
+            0,
+            "null",
+            InterfaceID.TELENEXUS_TELEPORT,
+            13,
+            11325,
+            varlamoreHerbPatchPoint,
+            getHouseTeleportItemRequirements()
+        ));
+
+        locations.add(varlamoreLocation);
     }
 }

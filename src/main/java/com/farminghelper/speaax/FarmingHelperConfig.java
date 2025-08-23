@@ -216,6 +216,15 @@ public interface FarmingHelperConfig extends Config
 	)
 	default boolean weissHerb() { return false; }
 
+	@ConfigItem(
+		position = 10,
+		keyName = "booleanCOnfigVarlamoreHerb",
+		name = "Varlamore",
+		description = "Include Varlamore? (Requires completion of Children of the Sun)",
+		section = herbList
+	)
+	default boolean varlamoreHerb() { return false; }
+
 	@ConfigSection(
 		name = "Tree",
 		description = "The highlighted and hidden item lists",
@@ -487,6 +496,25 @@ public interface FarmingHelperConfig extends Config
 			section = teleportOptionList
 	)
 	default OptionEnumWeissTeleport enumOptionEnumWeissTeleport() { return OptionEnumWeissTeleport.Portal_Nexus; }
+
+	enum OptionEnumVarlamoreTeleport implements OptionEnumTeleport
+	{
+		Basic_Quetzal_Whistle,
+		Enhanced_Quetzal_Whistle,
+		Perfected_Quetzal_Whistle,
+		Hunter_Skillcape,
+		Hunter_Skillcape_T,
+		Civitas_illa_Fortus_Teleport,
+		Portal_Nexus
+	}
+	@ConfigItem(
+		position = 11,
+		keyName = "enumOptionEnumVarlamoreTeleport",
+		name = "Varlamore",
+		description = "Desired way to teleport to Varlamore",
+		section = teleportOptionList
+	)
+	default OptionEnumVarlamoreTeleport enumOptionEnumVarlamoreTeleport() { return OptionEnumVarlamoreTeleport.Basic_Quetzal_Whistle; }
 
 	@ConfigSection(
 			name = "Tree teleport options",
