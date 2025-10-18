@@ -80,10 +80,17 @@ public class FarmingTeleportOverlay extends Overlay {
     public boolean patchIsComposted() {
         String regexCompost1 = "You treat the (herb patch|flower patch|tree patch|fruit tree patch) with (compost|supercompost|ultracompost)\\.";
         String regexCompost2 = "This (herb patch|flower patch|tree patch|fruit tree patch) has already been treated with (compost|supercompost|ultracompost)\\.";
+        String regexCompost3 = "You treat the patch with (compost|supercompost|ultracompost)\\.";
+        String regexCompost4 = "This patch has already been treated with (compost|supercompost|ultracompost)\\.";
+
+        String lastMessage = plugin.getLastMessage();
+        if (lastMessage == null || lastMessage.isEmpty()) {
+            return false;
+        }
 
         return Pattern
-            .compile(regexCompost1 + "|" + regexCompost2)
-            .matcher(plugin.getLastMessage())
+            .compile(regexCompost1 + "|" + regexCompost2 + "|" + regexCompost3 + "|" + regexCompost4)
+            .matcher(lastMessage)
             .matches();
     }
 
@@ -202,18 +209,45 @@ public class FarmingTeleportOverlay extends Overlay {
 
         if (inventory != null) {
             Item[] items = inventory.getItems();
-        // TODO: Replace deprecated WidgetInfo usage with InterfaceID
-        Widget inventoryWidget = client.getWidget(InterfaceID.INVENTORY);
+            
+            // Try multiple widget access methods
+            Widget inventoryWidget = client.getWidget(InterfaceID.INVENTORY);
+            if (inventoryWidget == null) {
+                // Fallback to direct widget access
+                inventoryWidget = client.getWidget(149, 0);
+            }
+            
+            if (inventoryWidget == null) {
+                // Another fallback - try the inventory interface directly
+                inventoryWidget = client.getWidget(149, 0);
+            }
 
-            for (int i = 0; i < items.length; i++) {
-                Item item = items[i];
+            if (inventoryWidget != null) {
+                // Try both children and dynamic children
+                Widget[] children = inventoryWidget.getChildren();
+                Widget[] dynamicChildren = inventoryWidget.getDynamicChildren();
+                
+                // Use dynamic children if available, otherwise use regular children
+                Widget[] childrenToUse = (dynamicChildren != null && dynamicChildren.length > 0) ? dynamicChildren : children;
+                
+                if (childrenToUse != null) {
+                    for (int i = 0; i < items.length && i < childrenToUse.length; i++) {
+                        Item item = items[i];
 
-                if (item.getId() == itemID) {
-                    Widget itemWidget = inventoryWidget.getChild(i);
-                    Rectangle bounds = itemWidget.getBounds();
-                    graphics.setColor(color);
-                    graphics.draw(bounds);
-                    graphics.fill(bounds);
+                        if (item != null && item.getId() == itemID) {
+                            Widget itemWidget = childrenToUse[i];
+                            if (itemWidget != null) {
+                                Rectangle bounds = itemWidget.getBounds();
+                                if (bounds != null && bounds.width > 0 && bounds.height > 0) {
+                                    // Use a more visible highlighting approach
+                                    graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
+                                    graphics.fill(bounds);
+                                    graphics.setColor(color);
+                                    graphics.draw(bounds);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -432,6 +466,12 @@ public class FarmingTeleportOverlay extends Overlay {
         // Check if player is very close to the farming patch (within 5 tiles)
         boolean nearPatch = areaCheck.isPlayerWithinArea(targetLocation, 5);
         
+        // Special case for Brimhaven: if player is in Ardougne region (10547) and going to Brimhaven,
+        // they need to take the ship first, so don't proceed to farming yet
+        if (location.getName().equals("Brimhaven") && currentRegionId == 10547) {
+            return false;
+        }
+        
         // Adaptive logic for different scenarios:
         
         // Scenario 1: Player is very close to the patch - proceed to farming regardless of teleport method
@@ -521,6 +561,13 @@ public class FarmingTeleportOverlay extends Overlay {
         boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
         boolean nearTarget = areaCheck.isPlayerWithinArea(targetLocation, 20);
         boolean nearPatch = areaCheck.isPlayerWithinArea(targetLocation, 5);
+        
+        // Special case for Brimhaven: if player is in Ardougne region and going to Brimhaven,
+        // highlight Captain Barnaby for the ship
+        if (location.getName().equals("Brimhaven") && currentRegionId == 10547) {
+            highlightCaptainBarnaby(graphics);
+            return;
+        }
         
         // If player is very close to patch, highlight the patch directly
         if (nearPatch) {
@@ -733,9 +780,17 @@ public class FarmingTeleportOverlay extends Overlay {
         ));
     }
 
+    public void highlightCaptainBarnaby(Graphics2D graphics)
+    {
+        highlightNpc(graphics, "Captain Barnaby");
+    }
+
     public void highlightHerbSeeds(Graphics2D graphics) {
+        // Use the configured color for herb seeds
+        Color seedColor = highlightUseItemWithAlpha != null ? highlightUseItemWithAlpha : new Color(0, 255, 0, 128);
+        
         for (Integer seedId : farmingHelperOverlay.getHerbSeedIds()) {
-            itemHighlight(graphics, seedId, highlightUseItemWithAlpha);
+            itemHighlight(graphics, seedId, seedColor);
         }
     }
 
@@ -1195,7 +1250,14 @@ public class FarmingTeleportOverlay extends Overlay {
                 } else {
                     // Use adaptive highlighting based on current situation
                     adaptiveHighlighting(location, teleport, graphics);
-                    plugin.addTextToInfoBox(teleport.getDescription());
+                    
+                    // Special case for Brimhaven: if player is in Ardougne region and going to Brimhaven,
+                    // show message about taking the ship
+                    if (location.getName().equals("Brimhaven") && currentRegionId == 10547) {
+                        plugin.addTextToInfoBox("Take the ship to Brimhaven with Captain Barnaby.");
+                    } else {
+                        plugin.addTextToInfoBox(teleport.getDescription());
+                    }
                     return;
                 }
                 
