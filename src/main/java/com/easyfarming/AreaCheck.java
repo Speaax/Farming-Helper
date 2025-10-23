@@ -6,7 +6,7 @@ import net.runelite.api.coords.WorldPoint;
 import javax.inject.Inject;
 
 public class AreaCheck {
-    private Client client;
+    private final Client client;
 
     @Inject
     public AreaCheck(Client client) {

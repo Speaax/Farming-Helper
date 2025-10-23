@@ -4,16 +4,17 @@ import java.awt.*;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
+import net.runelite.api.Menu;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
-import net.runelite.client.ui.overlay.components.PanelComponent;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.client.util.ColorUtil;
 import net.runelite.api.Tile;
@@ -30,7 +31,6 @@ import java.util.regex.Pattern;
 public class FarmingTeleportOverlay extends Overlay {
     private final Client client;
     private final EasyFarmingPlugin plugin;
-    private boolean clicked = false;
     @Inject
     private EasyFarmingConfig config;
     @Inject
@@ -40,8 +40,6 @@ public class FarmingTeleportOverlay extends Overlay {
     @Inject
     private AreaCheck areaCheck;
 
-    private final PanelComponent panelComponent = new PanelComponent();
-    public boolean patchCleared = false;
 
     private Color leftClickColorWithAlpha;
     private Color rightClickColorWithAlpha;
@@ -68,15 +66,6 @@ public class FarmingTeleportOverlay extends Overlay {
         );
     }
 
-
-    public Map<String, Boolean> herbConfigMap = new HashMap<>();
-
-
-    private int previousRegionId;
-    public int inventoryTabValue = 0;
-
-
-
     public boolean patchIsComposted() {
         String regexCompost1 = "You treat the (herb patch|flower patch|tree patch|fruit tree patch) with (compost|supercompost|ultracompost)\\.";
         String regexCompost2 = "This (herb patch|flower patch|tree patch|fruit tree patch) has already been treated with (compost|supercompost|ultracompost)\\.";
@@ -95,8 +84,8 @@ public class FarmingTeleportOverlay extends Overlay {
     }
 
     public boolean patchIsProtected() {
-        String standardResponse = "You pay the gardener ([0-9A-Za-z\\ ]+) to protect the patch\\.";
-        String faladorEliteResponse = "The gardener protects your tree for you, free of charge, as a token of gratitude for completing the ([A-Za-z\\ ]+)\\.";
+        String standardResponse = "You pay the gardener ([0-9A-Za-z ]+) to protect the patch\\.";
+        String faladorEliteResponse = "The gardener protects your tree for you, free of charge, as a token of gratitude for completing the ([A-Za-z ]+)\\.";
 
         return Pattern
             .compile(standardResponse + "|" + faladorEliteResponse)
@@ -255,10 +244,10 @@ public class FarmingTeleportOverlay extends Overlay {
 
     private List<GameObject> findGameObjectsByID(int objectID) {
         List<GameObject> gameObjects = new ArrayList<>();
+        WorldView top_wv = client.getTopLevelWorldView();
         for (int x = 0; x < Constants.SCENE_SIZE; x++) {
             for (int y = 0; y < Constants.SCENE_SIZE; y++) {
-                // TODO: Replace deprecated getScene() and getPlane() with getTopLevelWorldView() API
-                Tile tile = client.getScene().getTiles()[client.getPlane()][x][y];
+                Tile tile = top_wv.getScene().getTiles()[top_wv.getPlane()][x][y];
                 if (tile == null) {
                     continue;
                 }
@@ -304,12 +293,10 @@ public class FarmingTeleportOverlay extends Overlay {
         List<DecorativeObject> foundDecorativeObjects = new ArrayList<>();
 
         if (client != null) {
-            // TODO: Replace deprecated getScene() with getTopLevelWorldView() API
-            Tile[][][] tiles = client.getScene().getTiles();
-            for (int plane = 0; plane < tiles.length; plane++) {
-                for (int x = 0; x < tiles[plane].length; x++) {
-                    for (int y = 0; y < tiles[plane][x].length; y++) {
-                        Tile tile = tiles[plane][x][y];
+            Tile[][][] tiles = client.getTopLevelWorldView().getScene().getTiles();
+            for (Tile[][] value : tiles) {
+                for (Tile[] item : value) {
+                    for (Tile tile : item) {
                         if (tile != null) {
                             DecorativeObject decorativeObject = tile.getDecorativeObject();
                             if (decorativeObject != null && decorativeObject.getId() == objectId) {
@@ -351,30 +338,27 @@ public class FarmingTeleportOverlay extends Overlay {
         }
     }
 
-    public void highlightRightClickOption(Graphics2D graphics, String option) {
+    public void highlightRightClickOption(String option) {
+        Menu menu = client.getMenu();
         // Get the menu entries
-        // TODO: Replace deprecated getMenuEntries() with MenuManager
-        MenuEntry[] menuEntries = client.getMenuEntries();
+        MenuEntry[] menuEntries = menu.getMenuEntries();
 
-        for (int i = 0; i < menuEntries.length; i++) {
-            MenuEntry entry = menuEntries[i];
+        for (MenuEntry entry : menuEntries) {
             String optionText = entry.getOption();
 
             // Check if the option text matches the desired option
             if (optionText.equalsIgnoreCase(option)) {
                 // Modify the menu entry to include a highlight
-                String highlightedText = ColorUtil.prependColorTag(">>> " + optionText, rightClickColorWithAlpha);
+                String highlightedText = ColorUtil.prependColorTag(optionText, rightClickColorWithAlpha);
                 entry.setOption(highlightedText);
-                // TODO: Replace deprecated setMenuEntries() with MenuManager
-                client.setMenuEntries(menuEntries);
+                menu.setMenuEntries(menuEntries);
                 break;
             }
         }
     }
 
     public void highlightNpc(Graphics2D graphics, String npcName) {
-        // TODO: Replace deprecated getNpcs() with getTopLevelWorldView().npcs()
-        List<NPC> npcs = client.getNpcs();
+        IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
 
         if (npcs != null) {
             for (NPC npc : npcs) {
@@ -415,9 +399,7 @@ public class FarmingTeleportOverlay extends Overlay {
         if (isInterfaceOpen(161, 58)) {
             return 58;
         }
-        if (isInterfaceOpen(164, 65)) {
-            return 65;
-        }
+        isInterfaceOpen(164, 65);
         // Default fallback to resizable classic mode
         return 65;
     }
@@ -454,14 +436,13 @@ public class FarmingTeleportOverlay extends Overlay {
      */
     private boolean shouldProceedToFarming(Location location, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         WorldPoint targetLocation = teleport.getPoint();
         
         // Check if player is in the correct region
         boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
         
         // Check if player is near the target location (within 20 tiles)
-        boolean nearTarget = areaCheck.isPlayerWithinArea(targetLocation, 20);
+        boolean nearTarget = areaCheck.isPlayerWithinArea(targetLocation, 22);
         
         // Check if player is very close to the farming patch (within 5 tiles)
         boolean nearPatch = areaCheck.isPlayerWithinArea(targetLocation, 5);
@@ -486,7 +467,7 @@ public class FarmingTeleportOverlay extends Overlay {
         
         // Scenario 3: Player is in correct region but far from target - might have skipped teleport step
         // Check if there are any farming patches nearby that match this location type
-        if (inCorrectRegion && !nearTarget) {
+        if (inCorrectRegion) {
             // Check if player is near any farming patches of the same type
             if (isNearAnyFarmingPatch(location.getName())) {
                 return true;
@@ -494,12 +475,9 @@ public class FarmingTeleportOverlay extends Overlay {
         }
         
         // Scenario 4: Player is in wrong region but very close to target - might have used different teleport
-        if (!inCorrectRegion && nearTarget) {
-            return true;
-        }
+        return !inCorrectRegion && nearTarget;
         
         // Default: Continue with normal navigation
-        return false;
     }
     
     /**
@@ -508,7 +486,6 @@ public class FarmingTeleportOverlay extends Overlay {
      * @return true if player is near any farming patch of this type
      */
     private boolean isNearAnyFarmingPatch(String locationName) {
-        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         
         // Define farming patch locations for each area
         switch (locationName) {
@@ -555,7 +532,6 @@ public class FarmingTeleportOverlay extends Overlay {
      */
     private void adaptiveHighlighting(Location location, Location.Teleport teleport, Graphics2D graphics) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         WorldPoint targetLocation = teleport.getPoint();
         
         boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
@@ -638,12 +614,11 @@ public class FarmingTeleportOverlay extends Overlay {
             case ITEM:
                 itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
                 if (!teleport.getRightClickOption().equals("null")) {
-                    highlightRightClickOption(graphics, teleport.getRightClickOption());
+                    highlightRightClickOption(teleport.getRightClickOption());
                 }
                 break;
             case SPELLBOOK:
-                // TODO: Replace deprecated VarClientInt.INVENTORY_TAB with VarClientID.INVENTORY_TAB
-                InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
+                InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, InterfaceID.INVENTORY);
                 if (tabState == InventoryTabChecker.TabState.SPELLBOOK) {
                     interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
                 } else {
@@ -837,9 +812,10 @@ public class FarmingTeleportOverlay extends Overlay {
         ItemContainer inventory = client.getItemContainer(InventoryID.INV);
 
         Item[] items;
-        if (inventory == null || inventory.getItems() == null) {
+        if (inventory == null) {
             items = new Item[0];
         } else {
+            inventory.getItems();
             items = inventory.getItems();
         }
 
@@ -882,23 +858,19 @@ public class FarmingTeleportOverlay extends Overlay {
 
         //Farming guild herb patch uses Varbits.FARMING_4775
         if (currentRegionId == 4922) {
-            // TODO: Replace deprecated Varbits.FARMING_4775 with direct integer value
-            plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4775);
+            plantState = HerbPatchChecker.checkHerbPatch(client, 4775);
         }
         //Harmony herb patch uses Varbits.FARMING_4772
         else if (currentRegionId == 15148) {
-            // TODO: Replace deprecated Varbits.FARMING_4772 with direct integer value
-            plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4772);
+            plantState = HerbPatchChecker.checkHerbPatch(client, 4772);
         }
         //Troll Stronghold and Weiss herb patch uses Varbits.FARMING_4771
         else if (currentRegionId == 11321 || currentRegionId == 11325) {
-            // TODO: Replace deprecated Varbits.FARMING_4771 with direct integer value
-            plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4771);
+            plantState = HerbPatchChecker.checkHerbPatch(client, 4771);
         }
         //Rest uses Varbits.FARMING_4774
         else {
-            // TODO: Replace deprecated Varbits.FARMING_4774 with direct integer value
-            plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4774);
+            plantState = HerbPatchChecker.checkHerbPatch(client, 4774);
         }
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15))
         {
@@ -952,11 +924,9 @@ public class FarmingTeleportOverlay extends Overlay {
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
             FlowerPatchChecker.PlantState plantState;
             if (currentRegionId == 4922) {
-                // TODO: Replace deprecated Varbits.FARMING_7906 with direct integer value
-                plantState = FlowerPatchChecker.checkFlowerPatch(client, Varbits.FARMING_7906);
+                plantState = FlowerPatchChecker.checkFlowerPatch(client, 7906);
             } else {
-                // TODO: Replace deprecated Varbits.FARMING_4773 with direct integer value
-                plantState = FlowerPatchChecker.checkFlowerPatch(client, Varbits.FARMING_4773);
+                plantState = FlowerPatchChecker.checkFlowerPatch(client, 4773);
             }
             switch (plantState) {
                 case HARVESTABLE:
@@ -999,11 +969,9 @@ public class FarmingTeleportOverlay extends Overlay {
         //4771 falador, gnome stronghold, lumbridge, Taverly, Varrock
         //7905 farming guild
         if (currentRegionId == 4922) {
-            // TODO: Replace deprecated Varbits.FARMING_7905 with direct integer value
-            plantState = TreePatchChecker.checkTreePatch(client, Varbits.FARMING_7905);
+            plantState = TreePatchChecker.checkTreePatch(client, 7905);
         } else {
-            // TODO: Replace deprecated Varbits.FARMING_4771 with direct integer value
-            plantState = TreePatchChecker.checkTreePatch(client, Varbits.FARMING_4771);
+            plantState = TreePatchChecker.checkTreePatch(client, 4771);
         }
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15))
         {
@@ -1075,14 +1043,11 @@ public class FarmingTeleportOverlay extends Overlay {
         //Varbits.FARMING_7909 farming guild
         //Varbits.FARMING_4772 gnome stronghold
         if (currentRegionId == 4922) {
-            // TODO: Replace deprecated Varbits.FARMING_7909 with direct integer value
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Varbits.FARMING_7909);
+            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, 7909);
         } else if (currentRegionId == 9782 || currentRegionId == 9781) {
-            // TODO: Replace deprecated Varbits.FARMING_4772 with direct integer value
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Varbits.FARMING_4772);
+            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, 4772);
         } else {
-            // TODO: Replace deprecated Varbits.FARMING_4771 with direct integer value
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Varbits.FARMING_4771);
+            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, 4771);
         }
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
             //should be replaced with a pathing system, point arrow or something else eventually
@@ -1144,15 +1109,14 @@ public class FarmingTeleportOverlay extends Overlay {
     }
 
     private List<Integer> getGameObjectIdsByName(String name) {
+        WorldView top_wv = client.getTopLevelWorldView();
         List<Integer> foundObjectIds = new ArrayList<>();
-        // TODO: Replace deprecated getScene() with getTopLevelWorldView() API
-        Scene scene = client.getScene();
+        Scene scene = top_wv.getScene();
         Tile[][][] tiles = scene.getTiles();
 
         for (int x = 0; x < Constants.SCENE_SIZE; x++) {
             for (int y = 0; y < Constants.SCENE_SIZE; y++) {
-                // TODO: Replace deprecated getPlane() with getTopLevelWorldView() API
-                Tile tile = tiles[client.getPlane()][x][y];
+                Tile tile = tiles[top_wv.getPlane()][x][y];
                 if (tile == null) {
                     continue;
                 }
@@ -1183,8 +1147,7 @@ public class FarmingTeleportOverlay extends Overlay {
         switch (teleportOption) {
             case Law_air_earth_runes:
                 InventoryTabChecker.TabState tabState;
-                // TODO: Replace deprecated VarClientInt.INVENTORY_TAB with VarClientID.INVENTORY_TAB
-                tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
+                tabState = InventoryTabChecker.checkTab(client, VarClientID.TOPLEVEL_PANEL);
                 switch (tabState) {
                             case INVENTORY:
                             case REST:
@@ -1224,7 +1187,7 @@ public class FarmingTeleportOverlay extends Overlay {
     public void gettingToLocation(Graphics2D graphics, Location location) {
         updateColors();
         Location.Teleport teleport = location.getSelectedTeleport();
-        Boolean locationEnabledBool = false;
+        boolean locationEnabledBool = false;
         if (plugin.getFarmingTeleportOverlay().herbRun) {
             locationEnabledBool = plugin.getHerbLocationEnabled(location.getName());
         }
@@ -1267,24 +1230,16 @@ public class FarmingTeleportOverlay extends Overlay {
                             if (!isInterfaceOpen(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId())) {
                                 itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
                                 if (!teleport.getRightClickOption().equals("null")) {
-                                    highlightRightClickOption(graphics, teleport.getRightClickOption());
+                                    highlightRightClickOption(teleport.getRightClickOption());
                                 }
                             } else {
                                 Widget widget = client.getWidget(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId());
                                 highlightDynamicComponent(graphics, widget, 1);
                             }
-                            if (currentRegionId == teleport.getRegionId()) {
-                                this.currentTeleportCase = 1;
-                                isAtDestination = true;
-                                this.startSubCases = true;
-                                if (location.getFarmLimps()) {
-                                    this.farmLimps = true;
-                                }
-                            }
                         } else {
                             if (!teleport.getRightClickOption().equals("null")) {
                                 itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
-                                highlightRightClickOption(graphics, teleport.getRightClickOption());
+                                highlightRightClickOption(teleport.getRightClickOption());
                             } else {
                                 if(plugin.getEasyFarmingOverlay().isTeleportCrystal(teleport.getId())) {
                                     highlightTeleportCrystal(graphics);
@@ -1293,13 +1248,13 @@ public class FarmingTeleportOverlay extends Overlay {
                                     String index = location.getName();
                                     if(Objects.equals(index, "Ardougne")) {
                                         highlightSkillsNecklace(graphics);
-                                        highlightRightClickOption(graphics, "Rub");
+                                        highlightRightClickOption("Rub");
                                         Widget widget = client.getWidget(187, 3);
                                         highlightDynamicComponent(graphics, widget, 0);
                                     }
                                     if(Objects.equals(index, "Farming Guild")) {
                                         highlightSkillsNecklace(graphics);
-                                        highlightRightClickOption(graphics, "Rub");
+                                        highlightRightClickOption("Rub");
                                         Widget widget = client.getWidget(187, 3);
                                         highlightDynamicComponent(graphics, widget, 5);
                                     }
@@ -1309,13 +1264,13 @@ public class FarmingTeleportOverlay extends Overlay {
                                     itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
                                 }
                             }
-                            if (currentRegionId == teleport.getRegionId()) {
-                                this.currentTeleportCase = 1;
-                                isAtDestination = true;
-                                this.startSubCases = true;
-                                if (location.getFarmLimps()) {
-                                    this.farmLimps = true;
-                                }
+                        }
+                        if (currentRegionId == teleport.getRegionId()) {
+                            this.currentTeleportCase = 1;
+                            isAtDestination = true;
+                            this.startSubCases = true;
+                            if (location.getFarmLimps()) {
+                                this.farmLimps = true;
                             }
                         }
                         break;
@@ -1331,7 +1286,6 @@ public class FarmingTeleportOverlay extends Overlay {
                                         gameObjectOverlay(objectId, leftClickColorWithAlpha).render(graphics);
                                     }
                                 } else {
-                                    // TODO: The location doesn't always align with the Teleport option, meaning it won't be highlighted, such as using the Camelot teleport for Catherby
                                     Widget widget = client.getWidget(17, 13);
                                     int index = getChildIndexPortalNexus(location.getName());
                                     highlightDynamicComponent(graphics, widget, index);
@@ -1443,8 +1397,7 @@ public class FarmingTeleportOverlay extends Overlay {
                         break;
                     case SPELLBOOK:
                         InventoryTabChecker.TabState tabState;
-                        // TODO: Replace deprecated VarClientInt.INVENTORY_TAB with VarClientID.INVENTORY_TAB
-                        tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
+                        tabState = InventoryTabChecker.checkTab(client, VarClientID.TOPLEVEL_PANEL);
                         switch (tabState) {
                             case REST:
                             case INVENTORY:
