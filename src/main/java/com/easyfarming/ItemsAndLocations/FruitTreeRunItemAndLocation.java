@@ -19,6 +19,10 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
     public Location lletyaFruitTreeLocation;
     public Location treeGnomeVillageFruitTreeLocation;
 
+    public FruitTreeRunItemAndLocation()
+    {
+    }
+
     public FruitTreeRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
     {
         super(
@@ -380,7 +384,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             3,
             9781,
             gnomeStrongholdFruitTreePatchPoint,
-            Collections.emptyList()
+            Collections.<ItemRequirement> emptyList()
         ));
 
         locations.add(gnomeStrongholdFruitTreeLocation);
@@ -461,7 +465,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             3,
             10033,
             treeGnomeVillageFruitTreePatchPoint,
-            Collections.emptyList()
+            Collections.<ItemRequirement> emptyList()
         ));
 
         locations.add(treeGnomeVillageFruitTreeLocation);

@@ -24,9 +24,9 @@ import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
 
 public class EasyFarmingOverlay extends Overlay {
 
-    private final HerbRunItemAndLocation herbRunItemAndLocation;
-    private final TreeRunItemAndLocation treeRunItemAndLocation;
-    private final FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
+    private HerbRunItemAndLocation herbRunItemAndLocation;
+    private TreeRunItemAndLocation treeRunItemAndLocation;
+    private FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
     private final Client client;
     private final EasyFarmingPlugin plugin;
     private final PanelComponent panelComponent = new PanelComponent();

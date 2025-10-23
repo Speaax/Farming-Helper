@@ -19,6 +19,10 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     public Location taverleyTreeLocation;
     public Location varrockTreeLocation;
 
+    public TreeRunItemAndLocation()
+    {
+    }
+
     public TreeRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
     {
         super(
@@ -282,7 +286,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             3,
             9781,
             gnomeStrongholdTreePatchPoint,
-            Collections.emptyList()
+            Collections.<ItemRequirement> emptyList()
         ));
 
         locations.add(gnomeStrongholdTreeLocation);

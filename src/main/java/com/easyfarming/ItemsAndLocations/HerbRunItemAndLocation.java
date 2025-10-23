@@ -4,6 +4,8 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.PatchState;
+import com.easyfarming.PatchFilteringService;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
@@ -22,6 +24,12 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     public Location trollStrongholdLocation;
     public Location weissLocation;
 
+    public HerbRunItemAndLocation()
+    {
+    }
+
+    private PatchFilteringService patchFilteringService;
+
     public HerbRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
     {
         super(
@@ -29,6 +37,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             client,
             plugin
         );
+        this.patchFilteringService = new PatchFilteringService(client);
     }
 
     public Map<Integer, Integer> getHerbItems()
@@ -44,7 +53,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
         // Add other items and merge them with allRequirements
         for (Location location : locations) {
-            if (plugin.getHerbLocationEnabled(location.getName())) {
+            if (plugin.getHerbLocationEnabled(location.getName()) && !shouldSkipPatch()) {
                 //ItemID.GUAM_SEED is default for herb seeds, code later will allow for any seed to be used, just needed a placeholder ID
                 allRequirements.merge(
                     ItemID.GUAM_SEED,
@@ -792,5 +801,12 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         locations.add(weissLocation);
+    }
+
+
+    // Helper method to check if a patch should be skipped
+    private boolean shouldSkipPatch() {
+        // Use centralized patch filtering service
+        return patchFilteringService.shouldSkipPatch(PatchFilteringService.PatchType.HERB);
     }
 }
