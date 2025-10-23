@@ -785,13 +785,13 @@ public class FarmingTeleportOverlay extends Overlay {
     }
 
     public void highlightTeleportCrystal(Graphics2D graphics) {
-        for (Integer seedId : farmingHelperOverlay.getTeleportCrystalIdsIds()) {
+        for (Integer seedId : farmingHelperOverlay.getTeleportCrystalIds()) {
             itemHighlight(graphics, seedId, leftClickColorWithAlpha);
         }
     }
 
     public void highlightSkillsNecklace(Graphics2D graphics) {
-        for (Integer seedId : farmingHelperOverlay.getSkillsNecklaceIdsIds()) {
+        for (Integer seedId : farmingHelperOverlay.getSkillsNecklaceIds()) {
             itemHighlight(graphics, seedId, leftClickColorWithAlpha);
         }
     }

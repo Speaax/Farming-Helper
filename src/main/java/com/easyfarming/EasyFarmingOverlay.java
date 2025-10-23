@@ -248,6 +248,19 @@ public class EasyFarmingOverlay extends Overlay {
         return 0;
     }
 
+    // Helper method to get charges from necklace ID
+    private int getSkillsNecklaceCharges(int itemId) {
+        switch (itemId) {
+            case ItemID.JEWL_NECKLACE_OF_SKILLS_1: return 1;
+            case ItemID.JEWL_NECKLACE_OF_SKILLS_2: return 2;
+            case ItemID.JEWL_NECKLACE_OF_SKILLS_3: return 3;
+            case ItemID.JEWL_NECKLACE_OF_SKILLS_4: return 4;
+            case ItemID.JEWL_NECKLACE_OF_SKILLS_5: return 5;
+            case ItemID.JEWL_NECKLACE_OF_SKILLS_6: return 6;
+            default: return 0;
+        }
+    }
+
     public Map<Integer, Integer> itemsToCheck;
     @Override
     public Dimension render(Graphics2D graphics) {
@@ -291,11 +304,11 @@ public class EasyFarmingOverlay extends Overlay {
                     break;
                 }
             }
-            int skillsNecklaceCount = 0;
+            int skillsNecklaceCharges = 0;
             for (Item item : items) {
                 if (isSkillsNecklace(item.getId())) {
-                    skillsNecklaceCount += item.getQuantity();
-                    break;
+                    int charges = getSkillsNecklaceCharges(item.getId());
+                    skillsNecklaceCharges += charges * item.getQuantity();
                 }
             }
 
@@ -325,12 +338,20 @@ public class EasyFarmingOverlay extends Overlay {
             panelComponent.getChildren().clear();
             int yOffset = 0;
 
-            // Single inventory scan to build item count map
+            // Single inventory scan to build comprehensive item count map (including rune pouch expansions)
             Map<Integer, Integer> inventoryItemCounts = new HashMap<>();
+            boolean hasRunePouch = false;
+            
+            // First pass: scan inventory for regular items and check for rune pouch
             for (Item item : items) {
                 if (item != null) {
                     int itemId = item.getId();
                     int itemQuantity = item.getQuantity();
+                    
+                    // Check if this is a rune pouch
+                    if (RUNE_POUCH_ID.contains(itemId)) {
+                        hasRunePouch = true;
+                    }
                     
                     if (COMBINATION_RUNE_SUBRUNES_MAP.containsKey(itemId)) {
                         // Handle combination runes
@@ -342,6 +363,15 @@ public class EasyFarmingOverlay extends Overlay {
                         // Handle regular items
                         inventoryItemCounts.put(itemId, itemQuantity);
                     }
+                }
+            }
+            
+            // Second pass: if rune pouch exists, add expanded rune map contents to inventory counts
+            if (hasRunePouch) {
+                for (Map.Entry<Integer, Integer> runeEntry : expandedRuneMap.entrySet()) {
+                    int runeId = runeEntry.getKey();
+                    int runeCount = runeEntry.getValue();
+                    inventoryItemCounts.put(runeId, inventoryItemCounts.getOrDefault(runeId, 0) + runeCount);
                 }
             }
 
@@ -370,16 +400,10 @@ public class EasyFarmingOverlay extends Overlay {
                 } else if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
                     inventoryCount = teleportCrystalCount;
                 } else if (itemId == BASE_SKILLS_NECKLACE_ID) {
-                    inventoryCount = skillsNecklaceCount;
+                    inventoryCount = skillsNecklaceCharges;
                 }
 
-                for (Item item: items) {
-                    if (item != null && RUNE_POUCH_ID.contains(item.getId())) {
-                        if (expandedRuneMap.containsKey(itemId)) {
-                            inventoryCount += expandedRuneMap.get(itemId);
-                        }
-                    }
-                }
+                // Rune pouch contents are already included in inventoryItemCounts
 
                 if (inventoryCount < count) {
                     allItemsCollected = false;
