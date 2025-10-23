@@ -35,19 +35,17 @@ public class EasyFarmingOverlay extends Overlay {
 
     public static final List<Integer> TELEPORT_CRYSTAL_IDS = Arrays.asList(ItemID.MOURNING_TELEPORT_CRYSTAL_1, ItemID.MOURNING_TELEPORT_CRYSTAL_2, ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4, ItemID.MOURNING_TELEPORT_CRYSTAL_5);
     private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
-    public List<Integer> getTeleportCrystalIdsIds() {
+    public List<Integer> getTeleportCrystalIds() {
         return TELEPORT_CRYSTAL_IDS;
-    }
-    public boolean isTeleportCrystal(int itemId) {
+    }    public boolean isTeleportCrystal(int itemId) {
         return TELEPORT_CRYSTAL_IDS.contains(itemId);
     }
 
     public static final List<Integer> SKILLS_NECKLACE_IDS = Arrays.asList(ItemID.JEWL_NECKLACE_OF_SKILLS_1, ItemID.JEWL_NECKLACE_OF_SKILLS_2, ItemID.JEWL_NECKLACE_OF_SKILLS_3, ItemID.JEWL_NECKLACE_OF_SKILLS_4, ItemID.JEWL_NECKLACE_OF_SKILLS_5, ItemID.JEWL_NECKLACE_OF_SKILLS_6);
     private static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
-    public List<Integer> getSkillsNecklaceIdsIds() {
+    public List<Integer> getSkillsNecklaceIds() {
         return SKILLS_NECKLACE_IDS;
-    }
-    public boolean isSkillsNecklace(int itemId) {
+    }    public boolean isSkillsNecklace(int itemId) {
         return SKILLS_NECKLACE_IDS.contains(itemId);
     }
 
@@ -331,7 +329,19 @@ public class EasyFarmingOverlay extends Overlay {
             Map<Integer, Integer> inventoryItemCounts = new HashMap<>();
             for (Item item : items) {
                 if (item != null) {
-                    inventoryItemCounts.put(item.getId(), item.getQuantity());
+                    int itemId = item.getId();
+                    int itemQuantity = item.getQuantity();
+                    
+                    if (COMBINATION_RUNE_SUBRUNES_MAP.containsKey(itemId)) {
+                        // Handle combination runes
+                        List<Integer> subRunes = COMBINATION_RUNE_SUBRUNES_MAP.get(itemId);
+                        for (int subRune : subRunes) {
+                            inventoryItemCounts.put(subRune, inventoryItemCounts.getOrDefault(subRune, 0) + itemQuantity);
+                        }
+                    } else {
+                        // Handle regular items
+                        inventoryItemCounts.put(itemId, itemQuantity);
+                    }
                 }
             }
 
@@ -363,7 +373,6 @@ public class EasyFarmingOverlay extends Overlay {
                     inventoryCount = skillsNecklaceCount;
                 }
 
-
                 for (Item item: items) {
                     if (item != null && RUNE_POUCH_ID.contains(item.getId())) {
                         if (expandedRuneMap.containsKey(itemId)) {
@@ -371,8 +380,6 @@ public class EasyFarmingOverlay extends Overlay {
                         }
                     }
                 }
-
-
 
                 if (inventoryCount < count) {
                     allItemsCollected = false;
