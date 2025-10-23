@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import net.runelite.api.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -57,8 +56,13 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getHerbPatchIds() {
         return HERB_PATCH_IDS;
     }
-    private static final List<Integer> HERB_SEED_IDS = Arrays.asList(5291, 5292, 5293, 5294, 5295, 5296, 5297, 5298, 5299, 5300, 5301, 5302, 5303, 5304  );
-    private static final int BASE_SEED_ID = 5291;
+    private static final List<Integer> HERB_SEED_IDS = Arrays.asList(
+        ItemID.GUAM_SEED, ItemID.MARRENTILL_SEED, ItemID.TARROMIN_SEED, ItemID.HARRALANDER_SEED,
+        ItemID.RANARR_SEED, ItemID.TOADFLAX_SEED, ItemID.IRIT_SEED, ItemID.AVANTOE_SEED,
+        ItemID.KWUARM_SEED, ItemID.SNAPDRAGON_SEED, ItemID.CADANTINE_SEED, ItemID.LANTADYME_SEED,
+        ItemID.DWARF_WEED_SEED, ItemID.TORSTOL_SEED, ItemID.HUASCA_SEED
+    );
+    private static final int BASE_SEED_ID = ItemID.GUAM_SEED;
     public List<Integer> getHerbSeedIds() {
         return HERB_SEED_IDS;
     }
