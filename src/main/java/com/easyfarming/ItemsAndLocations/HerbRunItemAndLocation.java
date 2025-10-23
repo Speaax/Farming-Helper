@@ -4,6 +4,8 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.PatchState;
+import com.easyfarming.PatchFilteringService;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
@@ -26,6 +28,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     {
     }
 
+    private PatchFilteringService patchFilteringService;
+
     public HerbRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
     {
         super(
@@ -33,6 +37,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             client,
             plugin
         );
+        this.patchFilteringService = new PatchFilteringService(client);
     }
 
     public Map<Integer, Integer> getHerbItems()
@@ -48,7 +53,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
         // Add other items and merge them with allRequirements
         for (Location location : locations) {
-            if (plugin.getHerbLocationEnabled(location.getName())) {
+            if (plugin.getHerbLocationEnabled(location.getName()) && !shouldSkipPatch()) {
                 //ItemID.GUAM_SEED is default for herb seeds, code later will allow for any seed to be used, just needed a placeholder ID
                 allRequirements.merge(
                     ItemID.GUAM_SEED,
@@ -179,7 +184,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
             "Portal_Nexus",
             Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Ardougne with Portal Nexus.",
+            "Teleport to Ardougne with Portal Nexus, and run north.",
             0,
             "null",
             17,
@@ -230,7 +235,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
             "Ardy_Cloak_2",
             Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
+            "Teleport to Ardougne Farm with Ardougne cloak.",
             ItemID.ARDY_CAPE_MEDIUM,
             "Farm Teleport",
             0,
@@ -246,7 +251,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
             "Ardy_Cloak_3",
             Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
+            "Teleport to Ardougne Farm with Ardougne cloak.",
             ItemID.ARDY_CAPE_HARD,
             "Farm Teleport",
             0,
@@ -262,7 +267,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
             "Ardy_Cloak_4",
             Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne cloak.",
+            "Teleport to Ardougne Farm with Ardougne cloak.",
             ItemID.ARDY_CAPE_ELITE,
             "Farm Teleport",
             0,
@@ -338,7 +343,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
             "Camelot_Teleport",
             Location.TeleportCategory.SPELLBOOK,
-            "Teleport to Camelot using the standard spellbook, and run east. (If you have configured the teleport to seers you need to right click and teleport to Camelot)",
+            "Teleport to Camelot using the standard spellbook, and run east to Catherby herb patch.",
             0,
             "null",
             218,
@@ -360,7 +365,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
             "Camelot_Tele_Tab",
             Location.TeleportCategory.ITEM,
-            "Teleport to Camelot using a Camelot tele tab, and run east.(If you have configured the teleport to seers you need to right click and teleport to Camelot)",
+            "Teleport to Camelot using a Camelot tele tab, and run east to Catherby herb patch.",
             ItemID.POH_TABLET_CAMELOTTELEPORT,
             "null",
             0,
@@ -410,7 +415,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
             "Portal_Nexus",
             Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Falador with Portal Nexus.",
+            "Teleport to Falador with Portal Nexus, and run south-east.",
             0,
             "null",
             17,
@@ -423,7 +428,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
             "Explorers_ring_2",
             Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
+            "Teleport to Falador with Explorers ring, and run slightly north.",
             ItemID.LUMBRIDGE_RING_MEDIUM,
             "Teleport",
             0,
@@ -439,7 +444,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
             "Explorers_ring_3",
             Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
+            "Teleport to Falador with Explorers ring, and run slightly north.",
             ItemID.LUMBRIDGE_RING_HARD,
             "Teleport",
             0,
@@ -455,7 +460,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
             "Explorers_ring_4",
             Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring.",
+            "Teleport to Falador with Explorers ring, and run slightly north.",
             ItemID.LUMBRIDGE_RING_ELITE,
             "Teleport",
             0,
@@ -796,5 +801,12 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         locations.add(weissLocation);
+    }
+
+
+    // Helper method to check if a patch should be skipped
+    private boolean shouldSkipPatch() {
+        // Use centralized patch filtering service
+        return patchFilteringService.shouldSkipPatch(PatchFilteringService.PatchType.HERB);
     }
 }
