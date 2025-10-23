@@ -26,7 +26,6 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     {
     }
 
-
     public HerbRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
     {
         super(
