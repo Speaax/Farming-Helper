@@ -216,6 +216,15 @@ public interface EasyFarmingConfig extends Config
 	)
 	default boolean weissHerb() { return false; }
 
+	@ConfigItem(
+		position = 10,
+		keyName = "booleanConfigCivitasHerb",
+		name = "Civitas illa Fortis",
+		description = "Include Civitas illa Fortis?",
+		section = herbList
+	)
+	default boolean civitasHerb() { return false; }
+
 	@ConfigSection(
 		name = "Tree",
 		description = "The highlighted and hidden item lists",
@@ -276,11 +285,6 @@ public interface EasyFarmingConfig extends Config
 		section = treeList
 	)
 	default boolean varrockTree() { return true; }
-	
-	
-	
-	
-	
 	
 	@ConfigSection(
 		name = "Fruit Tree",
@@ -487,6 +491,23 @@ public interface EasyFarmingConfig extends Config
 			section = teleportOptionList
 	)
 	default OptionEnumWeissTeleport enumOptionEnumWeissTeleport() { return OptionEnumWeissTeleport.Portal_Nexus; }
+
+	enum OptionEnumCivitasTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Civitas_Teleport,
+		Civitas_Tele_Tab,
+		Quetzal_whistle,
+		Hunter_Skillcape
+	}
+	@ConfigItem(
+		position = 11,
+		keyName = "enumOptionEnumCivitasTeleport",
+		name = "Civitas illa Fortis",
+		description = "Desired way to teleport to Civitas illa Fortis",
+		section = teleportOptionList
+	)
+	default OptionEnumCivitasTeleport enumOptionEnumCivitasTeleport() { return OptionEnumCivitasTeleport.Portal_Nexus; }
 
 	@ConfigSection(
 			name = "Tree teleport options",

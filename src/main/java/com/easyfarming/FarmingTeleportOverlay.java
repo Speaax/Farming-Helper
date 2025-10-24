@@ -206,6 +206,16 @@ public class FarmingTeleportOverlay extends Overlay {
         }
     }
 
+    private boolean isQuetzalWhistleHighlight(int itemId, int targetItemId) {
+        // If we're looking for a Quetzal whistle and this item is any Quetzal whistle variant
+        if (targetItemId == ItemID.HG_QUETZALWHISTLE_BASIC) {
+            return itemId == ItemID.HG_QUETZALWHISTLE_BASIC || 
+                   itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED || 
+                   itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED;
+        }
+        return false;
+    }
+
     public void itemHighlight(Graphics2D graphics, int itemID, Color color) {
         ItemContainer inventory = client.getItemContainer(InventoryID.INV);
 
@@ -236,7 +246,7 @@ public class FarmingTeleportOverlay extends Overlay {
                     for (int i = 0; i < items.length && i < childrenToUse.length; i++) {
                         Item item = items[i];
 
-                        if (item != null && item.getId() == itemID) {
+                        if (item != null && (item.getId() == itemID || isQuetzalWhistleHighlight(item.getId(), itemID))) {
                             Widget itemWidget = childrenToUse[i];
                             if (itemWidget != null) {
                                 Rectangle bounds = itemWidget.getBounds();
@@ -515,6 +525,9 @@ public class FarmingTeleportOverlay extends Overlay {
             case "Falador":
                 // Check if near Falador herb patch
                 return areaCheck.isPlayerWithinArea(new WorldPoint(3058, 3307, 0), 10);
+            case "Civitas illa Fortis":
+                // Check if near Civitas herb patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(1586, 3099, 0), 10);
             case "Farming Guild":
                 // Check if near Farming Guild patches
                 return areaCheck.isPlayerWithinArea(new WorldPoint(1238, 3726, 0), 15) ||
@@ -583,6 +596,7 @@ public class FarmingTeleportOverlay extends Overlay {
         switch (locationName) {
             case "Ardougne":
             case "Weiss":
+            case "Civitas illa Fortis":
                 highlightHerbPatches(graphics, leftClickColorWithAlpha);
                 break;
             case "Catherby":
@@ -857,6 +871,9 @@ public class FarmingTeleportOverlay extends Overlay {
     public void herbSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HerbPatchChecker.PlantState plantState;
+        
+        // Debug: Always show current region and coordinates
+        plugin.addTextToInfoBox("Current region: " + currentRegionId + " at " + client.getLocalPlayer().getWorldLocation());
 
         //Farming guild herb patch uses 4775
         if (currentRegionId == 4922) {
@@ -1262,7 +1279,9 @@ public class FarmingTeleportOverlay extends Overlay {
                                         highlightDynamicComponent(graphics, widget, 5);
                                     }
                                 }
-
+                                else if(plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId())) {
+                                    itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
+                                }
                                 else {
                                     itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
                                 }
@@ -1564,6 +1583,9 @@ public class FarmingTeleportOverlay extends Overlay {
                         gettingToLocation(graphics, plugin.getWeissLocation());
                         break;
                     case 9:
+                        gettingToLocation(graphics, plugin.getCivitasLocation());
+                        break;
+                    case 10:
                         removeOverlay();
                         // add more cases for each location in the array
                     default:

@@ -78,6 +78,10 @@ public class EasyFarmingPlugin extends Plugin
 		return herbRunItemAndLocation.weissLocation;
 	}
 
+	public Location getCivitasLocation() {
+		return herbRunItemAndLocation.civitasLocation;
+	}
+
 	//get Tree locations
 	public Location getFaladorTreeLocation() {return treeRunItemAndLocation.faladorTreeLocation;}
 	public Location getFarmingGuildTreeLocation() {
@@ -210,6 +214,8 @@ public class EasyFarmingPlugin extends Plugin
 				return config.trollStrongholdHerb();
 			case "Weiss":
 				return config.weissHerb();
+			case "Civitas illa Fortis":
+				return config.civitasHerb();
 			// Add cases for other locations as needed
 			default:
 				return false;

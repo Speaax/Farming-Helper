@@ -50,7 +50,7 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
 
-    public static final List<Integer> HERB_PATCH_IDS = Arrays.asList(33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372, 33979 );
+    public static final List<Integer> HERB_PATCH_IDS = Arrays.asList(33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372, 33979, 50697);
     public List<Integer> getHerbPatchIds() {
         return HERB_PATCH_IDS;
     }
@@ -261,6 +261,12 @@ public class EasyFarmingOverlay extends Overlay {
         }
     }
 
+    public boolean isQuetzalWhistle(int itemId) {
+        return itemId == ItemID.HG_QUETZALWHISTLE_BASIC || 
+               itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED || 
+               itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED;
+    }
+
     public Map<Integer, Integer> itemsToCheck;
     @Override
     public Dimension render(Graphics2D graphics) {
@@ -309,6 +315,12 @@ public class EasyFarmingOverlay extends Overlay {
                 if (isSkillsNecklace(item.getId())) {
                     int charges = getSkillsNecklaceCharges(item.getId());
                     skillsNecklaceCharges += charges * item.getQuantity();
+                }
+            }
+            int quetzalWhistleCount = 0;
+            for (Item item : items) {
+                if (isQuetzalWhistle(item.getId())) {
+                    quetzalWhistleCount += item.getQuantity();
                 }
             }
 
@@ -401,6 +413,8 @@ public class EasyFarmingOverlay extends Overlay {
                     inventoryCount = teleportCrystalCount;
                 } else if (itemId == BASE_SKILLS_NECKLACE_ID) {
                     inventoryCount = skillsNecklaceCharges;
+                } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC) {
+                    inventoryCount = quetzalWhistleCount;
                 }
 
                 // Rune pouch contents are already included in inventoryItemCounts

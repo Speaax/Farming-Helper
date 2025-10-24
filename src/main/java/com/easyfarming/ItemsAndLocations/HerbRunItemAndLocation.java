@@ -21,6 +21,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     public Location morytaniaLocation;
     public Location trollStrongholdLocation;
     public Location weissLocation;
+    public Location civitasLocation;
 
     public HerbRunItemAndLocation()
     {
@@ -75,6 +76,26 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                     if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX) {
                         allRequirements.merge(
                             itemId,
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
+                    } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC || itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED || itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED) {
+                        // Handle Quetzal whistle variants - only show the basic one in requirements
+                        allRequirements.merge(
+                            ItemID.HG_QUETZALWHISTLE_BASIC,  // Always show the basic variant
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
+                    } else if (itemId == ItemID.SKILLCAPE_HUNTING || itemId == ItemID.SKILLCAPE_HUNTING_TRIMMED) {
+                        // Handle Hunter skillcape variants - only show the regular one in requirements
+                        allRequirements.merge(
+                            ItemID.SKILLCAPE_HUNTING,  // Always show the regular variant
                             quantity,
                             (oldValue, newValue) -> Math.min(
                                 1,
@@ -159,6 +180,113 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         setupMorytaniaLocation();
         setupTrollStrongholdLocation();
         setupWeissLocation();
+        setupCivitasLocation();
+    }
+
+    private void setupCivitasLocation()
+    {
+        WorldPoint civitasHerbPatchPoint = new WorldPoint(
+            1586,
+            3099,
+            0
+        );
+
+        civitasLocation = new Location(
+            EasyFarmingConfig::enumOptionEnumCivitasTeleport,
+            config,
+            "Civitas illa Fortis",
+            true
+        );
+
+        // TODO: Add teleport options for Civitas illa Fortis
+        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
+            "Portal_Nexus",
+            Location.TeleportCategory.PORTAL_NEXUS,
+            "Teleport to Civitas illa Fortis with Portal Nexus.",
+            0,
+            "null",
+            17,
+            13,
+            6192,
+            civitasHerbPatchPoint, 
+            getHouseTeleportItemRequirements()
+        ));
+
+        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
+            "Civitas_Teleport",
+            Location.TeleportCategory.SPELLBOOK,
+            "Teleport to Civitas illa Fortis with standard spellbook, and run west.",
+            0,
+            "null",
+            218,
+            43,
+            6192,
+            civitasHerbPatchPoint,
+            Arrays.asList(
+                new ItemRequirement(
+                    ItemID.LAWRUNE,
+                    2
+                ),
+                new ItemRequirement(
+                    ItemID.AIRRUNE,
+                    1
+                ),
+                new ItemRequirement(
+                    ItemID.EARTHRUNE,
+                    1
+                )
+            )
+        ));
+
+        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
+            "Civitas_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Civitas illa Fortis with Civitas teleport tab, and run west.",
+            ItemID.POH_TABLET_FORTISTELEPORT,
+            "null",
+            0,
+            0,
+            6192,
+            civitasHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_FORTISTELEPORT,
+                1
+            ))
+        ));
+
+        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
+            "Quetzal_whistle",
+            Location.TeleportCategory.ITEM,
+            "Teleport to the Hunter's Guild with the quetzal whistle, and run north.",
+            ItemID.HG_QUETZALWHISTLE_BASIC,
+            "null",
+            0,
+            0,
+            6192,
+            civitasHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.HG_QUETZALWHISTLE_BASIC,
+                1
+            ))
+        ));
+
+        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
+            "Hunter_Skillcape",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Civitas illa Fortis with Hunter skillcape.",
+            ItemID.SKILLCAPE_HUNTING,
+            "null",
+            0,
+            0,
+            6192,
+            civitasHerbPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.SKILLCAPE_HUNTING,
+                1
+            ))
+        ));
+
+        locations.add(civitasLocation);
     }
 
     private void setupArdougneLocation()
