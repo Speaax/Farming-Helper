@@ -637,9 +637,14 @@ public class FarmingTeleportOverlay extends Overlay {
     private void highlightTeleportMethod(Location.Teleport teleport, Graphics2D graphics) {
         switch (teleport.getCategory()) {
             case ITEM:
-                itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
-                if (!teleport.getRightClickOption().equals("null")) {
-                    highlightRightClickOption(graphics, teleport.getRightClickOption());
+                // Check if it's a Quetzal whistle (left-click teleport)
+                if(plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId())) {
+                    itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
+                } else {
+                    itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
+                    if (!teleport.getRightClickOption().equals("null")) {
+                        highlightRightClickOption(graphics, teleport.getRightClickOption());
+                    }
                 }
                 break;
             case SPELLBOOK:
@@ -871,9 +876,6 @@ public class FarmingTeleportOverlay extends Overlay {
     public void herbSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HerbPatchChecker.PlantState plantState;
-        
-        // Debug: Always show current region and coordinates
-        plugin.addTextToInfoBox("Current region: " + currentRegionId + " at " + client.getLocalPlayer().getWorldLocation());
 
         //Farming guild herb patch uses 4775
         if (currentRegionId == 4922) {

@@ -198,7 +198,6 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             true
         );
 
-        // TODO: Add teleport options for Civitas illa Fortis
         civitasLocation.addTeleportOption(civitasLocation.new Teleport(
             "Portal_Nexus",
             Location.TeleportCategory.PORTAL_NEXUS,
@@ -287,10 +286,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         locations.add(civitasLocation);
-    }
-
-    private void setupArdougneLocation()
-    {
+    }    {
         WorldPoint ardougneHerbPatchPoint = new WorldPoint(
             2670,
             3374,
