@@ -286,7 +286,10 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         locations.add(civitasLocation);
-    }    {
+    }
+
+    private void setupArdougneLocation()
+    {
         WorldPoint ardougneHerbPatchPoint = new WorldPoint(
             2670,
             3374,
