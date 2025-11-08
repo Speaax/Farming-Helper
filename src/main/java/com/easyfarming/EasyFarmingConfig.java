@@ -518,7 +518,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumFaladorTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Teleport
+		Teleport,
+		Falador_Tele_Tab
 	}
 	@ConfigItem(
 			position = 1,
@@ -560,7 +561,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumLumbridgeTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Teleport
+		Teleport,
+		Lumbridge_Tele_Tab
 	}
 	@ConfigItem(
 			position = 3,
@@ -574,7 +576,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumTaverleyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Teleport
+		Teleport,
+		Falador_Tele_Tab
 	}
 	@ConfigItem(
 			position = 4,
@@ -588,7 +591,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumVarrockTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Teleport
+		Teleport,
+		Varrock_Tele_Tab
 	}
 	@ConfigItem(
 			position = 5,
@@ -609,7 +613,9 @@ public interface EasyFarmingConfig extends Config
 	enum FruitTreeOptionEnumBrimhavenTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Ardougne_teleport
+		Ardougne_teleport,
+		Ardougne_Tele_Tab,
+		POH_Tele_Tab
 	}
 	@ConfigItem(
 			position = 1,

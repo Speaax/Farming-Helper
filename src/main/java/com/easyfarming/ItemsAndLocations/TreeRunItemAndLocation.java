@@ -195,6 +195,22 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             )
         ));
 
+        faladorTreeLocation.addTeleportOption(faladorTreeLocation.new Teleport(
+            "Falador_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Falador with Falador Tele Tab and run to Falador park.",
+            ItemID.POH_TABLET_FALADORTELEPORT,
+            "null",
+            0,
+            0,
+            11828,
+            faladorTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_FALADORTELEPORT,
+                1
+            ))
+        ));
+
         locations.add(faladorTreeLocation);
     }
 
@@ -346,6 +362,22 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             )
         ));
 
+        lumbridgeTreeLocation.addTeleportOption(lumbridgeTreeLocation.new Teleport(
+            "Lumbridge_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Lumbridge with Lumbridge Tele Tab.",
+            ItemID.POH_TABLET_LUMBRIDGETELEPORT,
+            "null",
+            0,
+            0,
+            12850,
+            lumbridgeTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_LUMBRIDGETELEPORT,
+                1
+            ))
+        ));
+
         locations.add(lumbridgeTreeLocation);
     }
 
@@ -403,6 +435,22 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             )
         ));
 
+        taverleyTreeLocation.addTeleportOption(taverleyTreeLocation.new Teleport(
+            "Falador_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Falador with Falador Tele Tab and run to Taverly.",
+            ItemID.POH_TABLET_FALADORTELEPORT,
+            "null",
+            0,
+            0,
+            11828,
+            taverlyPatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_FALADORTELEPORT,
+                1
+            ))
+        ));
+
         locations.add(taverleyTreeLocation);
     }
 
@@ -458,6 +506,22 @@ public class TreeRunItemAndLocation extends ItemAndLocation
                     1
                 )
             )
+        ));
+
+        varrockTreeLocation.addTeleportOption(varrockTreeLocation.new Teleport(
+            "Varrock_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Varrock with Varrock Tele Tab.",
+            ItemID.POH_TABLET_VARROCKTELEPORT,
+            "null",
+            0,
+            0,
+            12853,
+            varrockTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_VARROCKTELEPORT,
+                1
+            ))
         ));
 
         locations.add(varrockTreeLocation);

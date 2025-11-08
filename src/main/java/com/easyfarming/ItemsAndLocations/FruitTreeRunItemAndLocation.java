@@ -195,6 +195,38 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             )
         ));
 
+        brimhavenFruitTreeLocation.addTeleportOption(brimhavenFruitTreeLocation.new Teleport(
+            "Ardougne_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Ardougne with Ardougne tele tab and take the boat to Brimhaven.",
+            ItemID.POH_TABLET_ARDOUGNETELEPORT,
+            "null",
+            0,
+            0,
+            10547,
+            brimhavenFruitTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_ARDOUGNETELEPORT,
+                1
+            ))
+        ));
+
+        brimhavenFruitTreeLocation.addTeleportOption(brimhavenFruitTreeLocation.new Teleport(
+            "POH_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to house with POH tele tab, use Portal Nexus to Ardougne and take the boat to Brimhaven.",
+            ItemID.POH_TABLET_TELEPORTTOHOUSE,
+            "null",
+            0,
+            0,
+            10547,
+            brimhavenFruitTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_TELEPORTTOHOUSE,
+                1
+            ))
+        ));
+
         locations.add(brimhavenFruitTreeLocation);
     }
 
