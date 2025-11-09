@@ -205,10 +205,16 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             0,
             10547,
             brimhavenFruitTreePatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.POH_TABLET_ARDOUGNETELEPORT,
-                1
-            ))
+            Arrays.asList(
+                new ItemRequirement(
+                    ItemID.POH_TABLET_ARDOUGNETELEPORT,
+                    1
+                ),
+                new ItemRequirement(
+                    ItemID.COINS,
+                    30
+                )
+            )
         ));
 
         brimhavenFruitTreeLocation.addTeleportOption(brimhavenFruitTreeLocation.new Teleport(
@@ -221,10 +227,16 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             0,
             10547,
             brimhavenFruitTreePatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.POH_TABLET_TELEPORTTOHOUSE,
-                1
-            ))
+            Arrays.asList(
+                new ItemRequirement(
+                    ItemID.POH_TABLET_ARDOUGNETELEPORT,
+                    1
+                ),
+                new ItemRequirement(
+                    ItemID.COINS,
+                    30
+                )
+            )
         ));
 
         locations.add(brimhavenFruitTreeLocation);
