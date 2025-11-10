@@ -190,6 +190,39 @@ public class EasyFarmingPlugin extends Plugin
 	{
 		return configManager.getConfig(EasyFarmingConfig.class);
 	}
+	
+	@Provides
+	com.easyfarming.overlays.utils.ColorProvider provideColorProvider(EasyFarmingConfig config)
+	{
+		return new com.easyfarming.overlays.utils.ColorProvider(config);
+	}
+	
+	@Provides
+	HerbRunItemAndLocation provideHerbRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
+	{
+		return new HerbRunItemAndLocation(config, client, plugin);
+	}
+	
+	@Provides
+	TreeRunItemAndLocation provideTreeRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
+	{
+		return new TreeRunItemAndLocation(config, client, plugin);
+	}
+	
+	@Provides
+	FruitTreeRunItemAndLocation provideFruitTreeRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
+	{
+		return new FruitTreeRunItemAndLocation(config, client, plugin);
+	}
+	
+	@Provides
+	EasyFarmingOverlay provideEasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager,
+	                                             HerbRunItemAndLocation herbRunItemAndLocation,
+	                                             TreeRunItemAndLocation treeRunItemAndLocation,
+	                                             FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation)
+	{
+		return new EasyFarmingOverlay(client, plugin, itemManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation);
+	}
 
     public void addTextToInfoBox(String text) {
 		farmingHelperOverlayInfoBox.setText(text);
