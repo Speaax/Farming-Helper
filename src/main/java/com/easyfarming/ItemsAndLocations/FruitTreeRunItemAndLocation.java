@@ -229,7 +229,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             brimhavenFruitTreePatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.POH_TABLET_ARDOUGNETELEPORT,
+                    ItemID.POH_TABLET_TELEPORTTOHOUSE,
                     1
                 ),
                 new ItemRequirement(

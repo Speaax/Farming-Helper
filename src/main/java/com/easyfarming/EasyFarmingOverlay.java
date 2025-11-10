@@ -9,6 +9,7 @@ import net.runelite.api.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.VarbitID;
+import net.runelite.api.kit.KitType;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -267,6 +268,36 @@ public class EasyFarmingOverlay extends Overlay {
                itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED;
     }
 
+    /**
+     * Scans equipped items and returns a map of item IDs to their counts.
+     * Equipped items are counted as 1 each (equipment slots can only hold 1 item).
+     * Uses PlayerComposition.getEquipmentId(KitType) with KitType enum constants.
+     */
+    private Map<Integer, Integer> getEquippedItems() {
+        Map<Integer, Integer> equippedItems = new HashMap<>();
+        
+        Player localPlayer = client.getLocalPlayer();
+        if (localPlayer == null) {
+            return equippedItems;
+        }
+        
+        PlayerComposition playerComposition = localPlayer.getPlayerComposition();
+        if (playerComposition == null) {
+            return equippedItems;
+        }
+        
+        // Scan through all KitType enum values to get equipped items
+        for (KitType kitType : KitType.values()) {
+            int itemId = playerComposition.getEquipmentId(kitType);
+            if (itemId > 0) {
+                // Count each equipped item as 1
+                equippedItems.put(itemId, equippedItems.getOrDefault(itemId, 0) + 1);
+            }
+        }
+        
+        return equippedItems;
+    }
+
     public Map<Integer, Integer> itemsToCheck;
     @Override
     public Dimension render(Graphics2D graphics) {
@@ -385,6 +416,14 @@ public class EasyFarmingOverlay extends Overlay {
                     int runeCount = runeEntry.getValue();
                     inventoryItemCounts.put(runeId, inventoryItemCounts.getOrDefault(runeId, 0) + runeCount);
                 }
+            }
+            
+            // Third pass: add equipped items to inventory counts
+            Map<Integer, Integer> equippedItems = getEquippedItems();
+            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
+                int equippedItemId = equippedEntry.getKey();
+                int equippedCount = equippedEntry.getValue();
+                inventoryItemCounts.put(equippedItemId, inventoryItemCounts.getOrDefault(equippedItemId, 0) + equippedCount);
             }
 
             List<AbstractMap.SimpleEntry<Integer, Integer>> missingItemsWithCounts = new ArrayList<>();
