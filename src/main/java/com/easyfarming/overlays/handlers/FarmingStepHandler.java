@@ -207,7 +207,7 @@ public class FarmingStepHandler {
                     itemHighlighter.highlightTreeSapling(graphics);
                     break;
                 case DISEASED:
-                    plugin.addTextToInfoBox("Prune the tree patch patch.");
+                    plugin.addTextToInfoBox("Prune the tree patch.");                    
                     patchHighlighter.highlightTreePatches(graphics, useItemColor);
                     break;
                 case REMOVE:

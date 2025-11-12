@@ -61,6 +61,9 @@ public class ItemRequirementCalculator {
             
             // Add teleport requirements
             Teleport teleport = location.getSelectedTeleport();
+            if (teleport == null) {
+                continue;
+            }
             Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
             
             for (Map.Entry<Integer, Integer> entry : locationRequirements.entrySet()) {
@@ -69,12 +72,11 @@ public class ItemRequirementCalculator {
                 
                 // Handle special items that should be counted as 1 max
                 if (isSpecialItem(itemId, runType)) {
-                    allRequirements.merge(itemId, quantity, (oldValue, newValue) -> Math.min(1, oldValue + newValue));
+                    allRequirements.putIfAbsent(itemId, 1);
                 } else {
                     allRequirements.merge(itemId, quantity, Integer::sum);
                 }
-            }
-            
+            }            
             // Handle limpwurt seeds for herb runs
             if (runType == RunType.HERB && location.getFarmLimps() && config.generalLimpwurt()) {
                 allRequirements.merge(ItemID.LIMPWURT_SEED, 1, Integer::sum);
