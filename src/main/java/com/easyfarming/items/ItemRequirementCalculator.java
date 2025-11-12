@@ -10,6 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * NOTE: This class is part of an incomplete refactoring effort.
+ * 
+ * This class was designed to replace the current ItemsAndLocations.* package structure
+ * and work with the new locations.* package classes, but the migration was never completed.
+ * 
+ * Currently unused - no instantiation found in the codebase.
+ * 
+ * SPARED FROM PURGING: This appears to be part of an unimplemented feature/refactoring
+ * and may be completed in the future.
+ */
 public class ItemRequirementCalculator {
     
     private final EasyFarmingConfig config;

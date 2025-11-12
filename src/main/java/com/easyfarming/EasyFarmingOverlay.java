@@ -50,6 +50,24 @@ public class EasyFarmingOverlay extends Overlay {
         return SKILLS_NECKLACE_IDS.contains(itemId);
     }
 
+    public static final List<Integer> EXPLORERS_RING_IDS = Arrays.asList(ItemID.LUMBRIDGE_RING_MEDIUM, ItemID.LUMBRIDGE_RING_HARD, ItemID.LUMBRIDGE_RING_ELITE);
+    private static final int BASE_EXPLORERS_RING_ID = ItemID.LUMBRIDGE_RING_MEDIUM;
+    public List<Integer> getExplorersRingIds() {
+        return EXPLORERS_RING_IDS;
+    }
+    public boolean isExplorersRing(int itemId) {
+        return EXPLORERS_RING_IDS.contains(itemId);
+    }
+
+    public static final List<Integer> ARDY_CLOAK_IDS = Arrays.asList(ItemID.ARDY_CAPE_MEDIUM, ItemID.ARDY_CAPE_HARD, ItemID.ARDY_CAPE_ELITE);
+    private static final int BASE_ARDY_CLOAK_ID = ItemID.ARDY_CAPE_MEDIUM;
+    public List<Integer> getArdyCloakIds() {
+        return ARDY_CLOAK_IDS;
+    }
+    public boolean isArdyCloak(int itemId) {
+        return ARDY_CLOAK_IDS.contains(itemId);
+    }
+
 
     public static final List<Integer> HERB_PATCH_IDS = Arrays.asList(33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372, 33979, 50697);
     public List<Integer> getHerbPatchIds() {
@@ -342,10 +360,20 @@ public class EasyFarmingOverlay extends Overlay {
                 }
             }
             int skillsNecklaceCharges = 0;
+            // Count charges from inventory
             for (Item item : items) {
                 if (isSkillsNecklace(item.getId())) {
                     int charges = getSkillsNecklaceCharges(item.getId());
                     skillsNecklaceCharges += charges * item.getQuantity();
+                }
+            }
+            // Count charges from equipped items
+            Map<Integer, Integer> equippedItems = getEquippedItems();
+            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
+                int equippedItemId = equippedEntry.getKey();
+                if (isSkillsNecklace(equippedItemId)) {
+                    int charges = getSkillsNecklaceCharges(equippedItemId);
+                    skillsNecklaceCharges += charges;
                 }
             }
             int quetzalWhistleCount = 0;
@@ -419,7 +447,7 @@ public class EasyFarmingOverlay extends Overlay {
             }
             
             // Third pass: add equipped items to inventory counts
-            Map<Integer, Integer> equippedItems = getEquippedItems();
+            // Note: equippedItems was already retrieved above for skills necklace charges
             for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
                 int equippedItemId = equippedEntry.getKey();
                 int equippedCount = equippedEntry.getValue();
@@ -451,9 +479,32 @@ public class EasyFarmingOverlay extends Overlay {
                 } else if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
                     inventoryCount = teleportCrystalCount;
                 } else if (itemId == BASE_SKILLS_NECKLACE_ID) {
+                    // Skills necklace requirement is in charges, not number of items
                     inventoryCount = skillsNecklaceCharges;
                 } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC) {
                     inventoryCount = quetzalWhistleCount;
+                } else if (itemId == BASE_EXPLORERS_RING_ID) {
+                    // Check if any Explorer's Ring variant is equipped or in inventory
+                    // inventoryItemCounts already includes equipped items from the third pass
+                    boolean hasExplorersRing = false;
+                    for (int ringId : EXPLORERS_RING_IDS) {
+                        if (inventoryItemCounts.containsKey(ringId) && inventoryItemCounts.get(ringId) > 0) {
+                            hasExplorersRing = true;
+                            break;
+                        }
+                    }
+                    inventoryCount = hasExplorersRing ? 1 : 0;
+                } else if (itemId == BASE_ARDY_CLOAK_ID) {
+                    // Check if any Ardougne Cloak variant is equipped or in inventory
+                    // inventoryItemCounts already includes equipped items from the third pass
+                    boolean hasArdyCloak = false;
+                    for (int cloakId : ARDY_CLOAK_IDS) {
+                        if (inventoryItemCounts.containsKey(cloakId) && inventoryItemCounts.get(cloakId) > 0) {
+                            hasArdyCloak = true;
+                            break;
+                        }
+                    }
+                    inventoryCount = hasArdyCloak ? 1 : 0;
                 }
 
                 // Rune pouch contents are already included in inventoryItemCounts

@@ -56,7 +56,10 @@ public class ItemHighlighter {
                     for (int i = 0; i < items.length && i < childrenToUse.length; i++) {
                         Item item = items[i];
                         
-                        if (item != null && (item.getId() == itemID || isQuetzalWhistleHighlight(item.getId(), itemID))) {
+                        if (item != null && (item.getId() == itemID || 
+                            isQuetzalWhistleHighlight(item.getId(), itemID) ||
+                            isExplorersRingHighlight(item.getId(), itemID) ||
+                            isArdyCloakHighlight(item.getId(), itemID))) {
                             Widget itemWidget = childrenToUse[i];
                             if (itemWidget != null) {
                                 Rectangle bounds = itemWidget.getBounds();
@@ -79,6 +82,20 @@ public class ItemHighlighter {
      */
     private boolean isQuetzalWhistleHighlight(int itemId, int targetId) {
         return farmingHelperOverlay.isQuetzalWhistle(itemId) && farmingHelperOverlay.isQuetzalWhistle(targetId);
+    }
+    
+    /**
+     * Checks if an item ID matches an Explorer's Ring highlight pattern.
+     */
+    private boolean isExplorersRingHighlight(int itemId, int targetId) {
+        return farmingHelperOverlay.isExplorersRing(itemId) && farmingHelperOverlay.isExplorersRing(targetId);
+    }
+    
+    /**
+     * Checks if an item ID matches an Ardougne Cloak highlight pattern.
+     */
+    private boolean isArdyCloakHighlight(int itemId, int targetId) {
+        return farmingHelperOverlay.isArdyCloak(itemId) && farmingHelperOverlay.isArdyCloak(targetId);
     }
     
     /**

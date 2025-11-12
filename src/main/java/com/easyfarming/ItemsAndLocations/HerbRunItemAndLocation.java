@@ -102,6 +102,26 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                                 oldValue + newValue
                             )
                         );
+                    } else if (itemId == ItemID.LUMBRIDGE_RING_MEDIUM || itemId == ItemID.LUMBRIDGE_RING_HARD || itemId == ItemID.LUMBRIDGE_RING_ELITE) {
+                        // Handle Explorer's Ring variants - normalize to base ID
+                        allRequirements.merge(
+                            ItemID.LUMBRIDGE_RING_MEDIUM,  // Always show the base variant
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
+                    } else if (itemId == ItemID.ARDY_CAPE_MEDIUM || itemId == ItemID.ARDY_CAPE_HARD || itemId == ItemID.ARDY_CAPE_ELITE) {
+                        // Handle Ardougne Cloak variants - normalize to base ID
+                        allRequirements.merge(
+                            ItemID.ARDY_CAPE_MEDIUM,  // Always show the base variant
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
                     } else {
                         allRequirements.merge(
                             itemId,
@@ -355,7 +375,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_2",
+            "Ardy_cloak",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne Farm with Ardougne cloak.",
             ItemID.ARDY_CAPE_MEDIUM,
@@ -366,38 +386,6 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             ardougneHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
                 ItemID.ARDY_CAPE_MEDIUM,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_3",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne Farm with Ardougne cloak.",
-            ItemID.ARDY_CAPE_HARD,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDY_CAPE_HARD,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_Cloak_4",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne Farm with Ardougne cloak.",
-            ItemID.ARDY_CAPE_ELITE,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDY_CAPE_ELITE,
                 1
             ))
         ));
@@ -548,7 +536,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         ));
 
         faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_2",
+            "Explorers_ring",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Explorers ring, and run slightly north.",
             ItemID.LUMBRIDGE_RING_MEDIUM,
@@ -559,38 +547,6 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
                 ItemID.LUMBRIDGE_RING_MEDIUM,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_3",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring, and run slightly north.",
-            ItemID.LUMBRIDGE_RING_HARD,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.LUMBRIDGE_RING_HARD,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring_4",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring, and run slightly north.",
-            ItemID.LUMBRIDGE_RING_ELITE,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.LUMBRIDGE_RING_ELITE,
                 1
             ))
         ));
@@ -815,7 +771,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         morytaniaLocation.addTeleportOption(morytaniaLocation.new Teleport(
             "Ectophial",
             Location.TeleportCategory.ITEM,
-            "Teleport to Morytania with Ectophial.",
+            "Teleport to Morytania with Ectophial and run West to the patch.",
             ItemID.ECTOPHIAL,
             "null",
             0,

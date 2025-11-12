@@ -360,9 +360,7 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus,
 		Ardougne_teleport,
 		Ardougne_tele_tab,
-		Ardy_cloak_2,
-		Ardy_cloak_3,
-		Ardy_cloak_4,
+		Ardy_cloak,
 		Skills_Necklace
 	}
 	@ConfigItem(
@@ -372,7 +370,7 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Ardougne",
 			section = teleportOptionList
 	)
-	default OptionEnumArdougneTeleport enumOptionEnumArdougneTeleport() { return OptionEnumArdougneTeleport.Ardy_cloak_3; }
+	default OptionEnumArdougneTeleport enumOptionEnumArdougneTeleport() { return OptionEnumArdougneTeleport.Ardy_cloak; }
 	enum OptionEnumCatherbyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus_Catherby,
@@ -393,9 +391,7 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumFaladorTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Explorers_ring_2,
-		Explorers_ring_3,
-		Explorers_ring_4,
+		Explorers_ring,
 		Falador_Teleport,
 		Falador_Tele_Tab,
 		Draynor_Tele_Tab
@@ -407,7 +403,7 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Falador",
 			section = teleportOptionList
 	)
-	default OptionEnumFaladorTeleport enumOptionEnumFaladorTeleport() { return OptionEnumFaladorTeleport.Explorers_ring_2; }
+	default OptionEnumFaladorTeleport enumOptionEnumFaladorTeleport() { return OptionEnumFaladorTeleport.Explorers_ring; }
 
 	enum OptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{

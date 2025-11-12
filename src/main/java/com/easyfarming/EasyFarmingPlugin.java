@@ -6,9 +6,6 @@ import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
 
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.*;
 import javax.inject.Inject;
 
 import lombok.Getter;
@@ -34,8 +31,6 @@ import net.runelite.client.eventbus.EventBus;
 
 public class EasyFarmingPlugin extends Plugin
 {
-	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
 	private HerbRunItemAndLocation herbRunItemAndLocation;
 	private TreeRunItemAndLocation treeRunItemAndLocation;
 	private FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
@@ -171,19 +166,6 @@ public class EasyFarmingPlugin extends Plugin
 	public boolean areItemsCollected() {
 		return itemsCollected;
 	}
-
-    public void updateHerbOverlay(Map<Integer, Integer> herbItems)
-	{
-        //update item list
-    }
-
-    public void updateTreeOverlay(Map<Integer, Integer> treeItems)
-	{
-    }
-
-    public void updateFruitTreeOverlay(Map<Integer, Integer> fruitTreeItems)
-	{
-    }
 
 	@Provides
 	EasyFarmingConfig getConfig(ConfigManager configManager)

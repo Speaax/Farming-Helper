@@ -6,6 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * NOTE: This class is part of an incomplete refactoring effort.
+ * 
+ * This class and related classes in the locations.* package were designed to replace
+ * the current ItemsAndLocations.* package structure, but the migration was never completed.
+ * 
+ * Currently only used by LocationFactory (which is also unused).
+ * 
+ * SPARED FROM PURGING: This appears to be part of an unimplemented feature/refactoring
+ * and may be completed in the future.
+ */
 public class LocationData {
     private final String name;
     private final boolean farmLimps;

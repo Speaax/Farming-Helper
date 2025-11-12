@@ -215,6 +215,22 @@ public class FarmingTeleportOverlay extends Overlay {
         }
         return false;
     }
+    
+    private boolean isExplorersRingHighlight(int itemId, int targetItemId) {
+        // If we're looking for an Explorer's Ring and this item is any Explorer's Ring variant
+        if (farmingHelperOverlay.isExplorersRing(targetItemId)) {
+            return farmingHelperOverlay.isExplorersRing(itemId);
+        }
+        return false;
+    }
+    
+    private boolean isArdyCloakHighlight(int itemId, int targetItemId) {
+        // If we're looking for an Ardougne Cloak and this item is any Ardougne Cloak variant
+        if (farmingHelperOverlay.isArdyCloak(targetItemId)) {
+            return farmingHelperOverlay.isArdyCloak(itemId);
+        }
+        return false;
+    }
 
     public void itemHighlight(Graphics2D graphics, int itemID, Color color) {
         ItemContainer inventory = client.getItemContainer(InventoryID.INV);
@@ -246,7 +262,10 @@ public class FarmingTeleportOverlay extends Overlay {
                     for (int i = 0; i < items.length && i < childrenToUse.length; i++) {
                         Item item = items[i];
 
-                        if (item != null && (item.getId() == itemID || isQuetzalWhistleHighlight(item.getId(), itemID))) {
+                        if (item != null && (item.getId() == itemID || 
+                            isQuetzalWhistleHighlight(item.getId(), itemID) ||
+                            isExplorersRingHighlight(item.getId(), itemID) ||
+                            isArdyCloakHighlight(item.getId(), itemID))) {
                             Widget itemWidget = childrenToUse[i];
                             if (itemWidget != null) {
                                 Rectangle bounds = itemWidget.getBounds();
