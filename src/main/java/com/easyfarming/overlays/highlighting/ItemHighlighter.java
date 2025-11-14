@@ -59,7 +59,8 @@ public class ItemHighlighter {
                         if (item != null && (item.getId() == itemID || 
                             isQuetzalWhistleHighlight(item.getId(), itemID) ||
                             isExplorersRingHighlight(item.getId(), itemID) ||
-                            isArdyCloakHighlight(item.getId(), itemID))) {
+                            isArdyCloakHighlight(item.getId(), itemID) ||
+                            isSkillsNecklaceHighlight(item.getId(), itemID))) {
                             Widget itemWidget = childrenToUse[i];
                             if (itemWidget != null) {
                                 Rectangle bounds = itemWidget.getBounds();
@@ -96,6 +97,13 @@ public class ItemHighlighter {
      */
     private boolean isArdyCloakHighlight(int itemId, int targetId) {
         return farmingHelperOverlay.isArdyCloak(itemId) && farmingHelperOverlay.isArdyCloak(targetId);
+    }
+    
+    /**
+     * Checks if an item ID matches a Skills Necklace highlight pattern.
+     */
+    private boolean isSkillsNecklaceHighlight(int itemId, int targetId) {
+        return farmingHelperOverlay.isSkillsNecklace(itemId) && farmingHelperOverlay.isSkillsNecklace(targetId);
     }
     
     /**
@@ -142,7 +150,7 @@ public class ItemHighlighter {
      * Highlights skills necklaces in inventory.
      */
     public void highlightSkillsNecklace(Graphics2D graphics) {
-        Color color = colorProvider.getLeftClickColorWithAlpha();
+        Color color = colorProvider.getRightClickColorWithAlpha();
         for (Integer necklaceId : farmingHelperOverlay.getSkillsNecklaceIds()) {
             itemHighlight(graphics, necklaceId, color);
         }

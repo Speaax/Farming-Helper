@@ -4,6 +4,7 @@ import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 
+import javax.inject.Inject;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +17,7 @@ public class FarmerHighlighter {
     private final NPCHighlighter npcHighlighter;
     private final WidgetHighlighter widgetHighlighter;
     
+    @Inject
     public FarmerHighlighter(Client client, NPCHighlighter npcHighlighter, WidgetHighlighter widgetHighlighter) {
         this.client = client;
         this.npcHighlighter = npcHighlighter;

@@ -1,7 +1,6 @@
 package com.easyfarming.overlays.handlers;
 
 import com.easyfarming.*;
-import com.easyfarming.core.Teleport;
 import com.easyfarming.overlays.highlighting.*;
 import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.PatchStateChecker;
@@ -54,7 +53,7 @@ public class FarmingStepHandler {
     /**
      * Handles herb patch farming steps.
      */
-    public void herbSteps(Graphics2D graphics, Teleport teleport) {
+    public void herbSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HerbPatchChecker.PlantState plantState;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -170,7 +169,7 @@ public class FarmingStepHandler {
     /**
      * Handles tree patch farming steps.
      */
-    public void treeSteps(Graphics2D graphics, Teleport teleport) {
+    public void treeSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         TreePatchChecker.PlantState plantState;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -239,7 +238,7 @@ public class FarmingStepHandler {
     /**
      * Handles fruit tree patch farming steps.
      */
-    public void fruitTreeSteps(Graphics2D graphics, Teleport teleport) {
+    public void fruitTreeSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         FruitTreePatchChecker.PlantState plantState;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();

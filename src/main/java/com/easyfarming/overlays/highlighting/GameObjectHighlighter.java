@@ -8,6 +8,7 @@ import net.runelite.api.WorldView;
 import net.runelite.client.ui.overlay.Overlay;
 import com.easyfarming.utils.Constants;
 
+import javax.inject.Inject;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class GameObjectHighlighter {
     private final Client client;
     private final EasyFarmingPlugin plugin;
     
+    @Inject
     public GameObjectHighlighter(Client client, EasyFarmingPlugin plugin) {
         this.client = client;
         this.plugin = plugin;

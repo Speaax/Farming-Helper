@@ -6,7 +6,6 @@ import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.coords.WorldPoint;
 
 import java.util.*;
 
@@ -205,679 +204,154 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
     private void setupCivitasLocation()
     {
-        WorldPoint civitasHerbPatchPoint = new WorldPoint(
-            1586,
-            3099,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData civitasData = com.easyfarming.locations.CivitasLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        civitasLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumCivitasTeleport,
-            config,
-            "Civitas illa Fortis",
-            true
-        );
-
-        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
-            "Portal_Nexus",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Civitas illa Fortis with Portal Nexus.",
-            0,
-            "null",
-            17,
-            13,
-            6192,
-            civitasHerbPatchPoint, 
-            getHouseTeleportItemRequirements()
-        ));
-
-        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
-            "Civitas_Teleport",
-            Location.TeleportCategory.SPELLBOOK,
-            "Teleport to Civitas illa Fortis with standard spellbook, and run west.",
-            0,
-            "null",
-            218,
-            43,
-            6192,
-            civitasHerbPatchPoint,
-            Arrays.asList(
-                new ItemRequirement(
-                    ItemID.LAWRUNE,
-                    2
-                ),
-                new ItemRequirement(
-                    ItemID.AIRRUNE,
-                    1
-                ),
-                new ItemRequirement(
-                    ItemID.EARTHRUNE,
-                    1
-                )
-            )
-        ));
-
-        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
-            "Civitas_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Civitas illa Fortis with Civitas teleport tab, and run west.",
-            ItemID.POH_TABLET_FORTISTELEPORT,
-            "null",
-            0,
-            0,
-            6192,
-            civitasHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.POH_TABLET_FORTISTELEPORT,
-                1
-            ))
-        ));
-
-        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
-            "Quetzal_whistle",
-            Location.TeleportCategory.ITEM,
-            "Teleport to the Hunter's Guild with the quetzal whistle, and run north.",
-            ItemID.HG_QUETZALWHISTLE_BASIC,
-            "null",
-            0,
-            0,
-            6192,
-            civitasHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.HG_QUETZALWHISTLE_BASIC,
-                1
-            ))
-        ));
-
-        civitasLocation.addTeleportOption(civitasLocation.new Teleport(
-            "Hunter_Skillcape",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Civitas illa Fortis with Hunter skillcape.",
-            ItemID.SKILLCAPE_HUNTING,
-            "null",
-            0,
-            0,
-            6192,
-            civitasHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.SKILLCAPE_HUNTING,
-                1
-            ))
-        ));
-
+        
+        civitasLocation = com.easyfarming.locations.LocationFactory.createLocation(civitasData, config);
         locations.add(civitasLocation);
     }
 
     private void setupArdougneLocation()
     {
-        WorldPoint ardougneHerbPatchPoint = new WorldPoint(
-            2670,
-            3374,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData ardougneData = com.easyfarming.locations.ArdougneLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        ardougneLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumArdougneTeleport,
-            config,
-            "Ardougne",
-            true
-        );
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Portal_Nexus",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Ardougne with Portal Nexus, and run north.",
-            0,
-            "null",
-            17,
-            13,
-            10547,
-            ardougneHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardougne_teleport",
-            Location.TeleportCategory.SPELLBOOK,
-            "Teleport to Ardougne with standard spellbook, and run north.",
-            0,
-            "null",
-            218,
-            41,
-            10547,
-            ardougneHerbPatchPoint,
-            Arrays.asList(
-                new ItemRequirement(
-                    ItemID.LAWRUNE,
-                    2
-                ),
-                new ItemRequirement(
-                    ItemID.WATERRUNE,
-                    2
-                )
-            )
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardougne_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne with Ardougne tele tab, and run north.",
-            ItemID.POH_TABLET_ARDOUGNETELEPORT,
-            "null",
-            0,
-            0,
-            10547,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.POH_TABLET_ARDOUGNETELEPORT,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Ardy_cloak",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Ardougne Farm with Ardougne cloak.",
-            ItemID.ARDY_CAPE_MEDIUM,
-            "Farm Teleport",
-            0,
-            0,
-            10548,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ARDY_CAPE_MEDIUM,
-                1
-            ))
-        ));
-
-        ardougneLocation.addTeleportOption(ardougneLocation.new Teleport(
-            "Skills_Necklace",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Fishing guild with Skills necklace, and run east.",
-            ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-            "null",
-            0,
-            0,
-            10292,
-            ardougneHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-                1
-            ))
-        ));
-
+        
+        ardougneLocation = com.easyfarming.locations.LocationFactory.createLocation(ardougneData, config);
         locations.add(ardougneLocation);
     }
 
     private void setupCatherbyLocation()
     {
-        WorldPoint catherbyHerbPatchPoint = new WorldPoint(
-            2813,
-            3463,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData catherbyData = com.easyfarming.locations.CatherbyLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        catherbyLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumCatherbyTeleport,
-            config,
-            "Catherby",
-            true
-        );
-
-        catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
-            "Portal_Nexus_Catherby",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Catherby with Portal Nexus.",
-            0,
-            "null",
-            17,
-            13,
-            11061,
-            catherbyHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
-        catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
-            "Portal_Nexus_Camelot",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Camelot with Portal Nexus.",
-            0,
-            "null",
-            17,
-            13,
-            11062,
-            catherbyHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
-        catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
-            "Camelot_Teleport",
-            Location.TeleportCategory.SPELLBOOK,
-            "Teleport to Camelot using the standard spellbook, and run east to Catherby herb patch.",
-            0,
-            "null",
-            218,
-            34,
-            11062,
-            catherbyHerbPatchPoint,
-            Arrays.asList(
-                new ItemRequirement(
-                    ItemID.AIRRUNE,
-                    5
-                ),
-                new ItemRequirement(
-                    ItemID.LAWRUNE,
-                    1
-                )
-            )
-        ));
-
-        catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
-            "Camelot_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Camelot using a Camelot tele tab, and run east to Catherby herb patch.",
-            ItemID.POH_TABLET_CAMELOTTELEPORT,
-            "null",
-            0,
-            0,
-            11062,
-            catherbyHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.POH_TABLET_CAMELOTTELEPORT,
-                1
-            ))
-        ));
-
-        catherbyLocation.addTeleportOption(catherbyLocation.new Teleport(
-            "Catherby_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Catherby using Catherby teleport tab.",
-            ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
-            "null",
-            0,
-            0,
-            11061,
-            catherbyHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
-                1
-            ))
-        ));
-
+        
+        catherbyLocation = com.easyfarming.locations.LocationFactory.createLocation(catherbyData, config);
         locations.add(catherbyLocation);
     }
 
     private void setupFaladorLocation()
     {
-        WorldPoint faladorHerbPatchPoint = new WorldPoint(
-            3058,
-            3307,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData faladorData = com.easyfarming.locations.FaladorLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        faladorLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumFaladorTeleport,
-            config,
-            "Falador",
-            true
-        );
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Portal_Nexus",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Falador with Portal Nexus, and run south-east.",
-            0,
-            "null",
-            17,
-            13,
-            11828,
-            faladorHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Explorers_ring",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Explorers ring, and run slightly north.",
-            ItemID.LUMBRIDGE_RING_MEDIUM,
-            "Teleport",
-            0,
-            0,
-            12083,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.LUMBRIDGE_RING_MEDIUM,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Falador_Teleport",
-            Location.TeleportCategory.SPELLBOOK,
-            "Teleport to Falador with standard spellbook, and run south-east.",
-            0,
-            "null",
-            218,
-            29,
-            11828,
-            faladorHerbPatchPoint,
-            Arrays.asList(
-                new ItemRequirement(
-                    ItemID.AIRRUNE,
-                    3
-                ),
-                new ItemRequirement(
-                    ItemID.LAWRUNE,
-                    1
-                ),
-                new ItemRequirement(
-                    ItemID.WATERRUNE,
-                    1
-                )
-            )
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Falador_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Falador with Falador Tele Tab, and run south-east.",
-            ItemID.POH_TABLET_FALADORTELEPORT,
-            "null",
-            0,
-            0,
-            11828,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.POH_TABLET_FALADORTELEPORT,
-                1
-            ))
-        ));
-
-        faladorLocation.addTeleportOption(faladorLocation.new Teleport(
-            "Draynor_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Draynor Manor with Draynor Manor Tele Tab, and run south-west.",
-            ItemID.TELETAB_DRAYNOR,
-            "null",
-            0,
-            0,
-            12340,
-            faladorHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.TELETAB_DRAYNOR,
-                1
-            ))
-        ));
-
+        
+        faladorLocation = com.easyfarming.locations.LocationFactory.createLocation(faladorData, config);
         locations.add(faladorLocation);
     }
 
     private void setupFarmingGuildLocation()
     {
-        WorldPoint farmingGuildHerbPatchPoint = new WorldPoint(
-            1238,
-            3726,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData farmingGuildData = com.easyfarming.locations.FarmingGuildLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        farmingGuildLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumFarmingGuildTeleport,
-            config,
-            "Farming Guild",
-            true
-        );
-
-        farmingGuildLocation.addTeleportOption(farmingGuildLocation.new Teleport(
-            "Jewellery_box",
-            Location.TeleportCategory.JEWELLERY_BOX,
-            "Teleport to Farming guild with Jewellery box.",
-            29155,
-            "null",
-            0,
-            0,
-            4922,
-            farmingGuildHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
-        farmingGuildLocation.addTeleportOption(farmingGuildLocation.new Teleport(
-            "Skills_Necklace",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Farming guild using Skills necklace.",
-            ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-            "null",
-            0,
-            0,
-            4922,
-            farmingGuildHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-                1
-            ))
-        ));
-
+        
+        farmingGuildLocation = com.easyfarming.locations.LocationFactory.createLocation(farmingGuildData, config);
         locations.add(farmingGuildLocation);
     }
 
     private void setupHarmonyLocation()
     {
-        WorldPoint harmonyHerbPatchPoint = new WorldPoint(
-            3789,
-            2837,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData harmonyData = com.easyfarming.locations.HarmonyLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        harmonyLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumHarmonyTeleport,
-            config,
-            "Harmony Island",
-            false
-        );
-
-        harmonyLocation.addTeleportOption(harmonyLocation.new Teleport(
-            "Portal_Nexus",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Harmony with Portal Nexus.",
-            0,
-            "null",
-            17,
-            13,
-            15148,
-            harmonyHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
-        harmonyLocation.addTeleportOption(harmonyLocation.new Teleport(
-            "Harmony_Tele_Tab",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Harmony with Harmony Tele Tab.",
-            ItemID.TELETAB_HARMONY,
-            "null",
-            0,
-            0,
-            15148,
-            harmonyHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.TELETAB_HARMONY,
-                1
-            ))
-        ));
-
+        
+        harmonyLocation = com.easyfarming.locations.LocationFactory.createLocation(harmonyData, config);
         locations.add(harmonyLocation);
     }
 
     private void setupKourendLocation()
     {
-        WorldPoint kourendHerbPatchPoint = new WorldPoint(
-            1738,
-            3550,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData kourendData = com.easyfarming.locations.KourendLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        kourendLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumKourendTeleport,
-            config,
-            "Kourend",
-            true
-        );
-
-        kourendLocation.addTeleportOption(kourendLocation.new Teleport(
-            "Xerics_Talisman",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Kourend with Xeric's Talisman.",
-            ItemID.XERIC_TALISMAN,
-            "Rub",
-            187,
-            3,
-            6967,
-            kourendHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.XERIC_TALISMAN,
-                1
-            ))
-        ));
-
-        kourendLocation.addTeleportOption(kourendLocation.new Teleport(
-            "Mounted_Xerics",
-            Location.TeleportCategory.MOUNTED_XERICS,
-            "Teleport to Kourend with Xeric's Talisman in PoH.",
-            0,
-            "null",
-            187,
-            3,
-            6967,
-            kourendHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
+        
+        kourendLocation = com.easyfarming.locations.LocationFactory.createLocation(kourendData, config);
         locations.add(kourendLocation);
     }
 
     private void setupMorytaniaLocation()
     {
-        WorldPoint morytaniaHerbPatchPoint = new WorldPoint(
-            3601,
-            3525,
-            0
-        );
-
-        morytaniaLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumMorytaniaTeleport,
-            config,
-            "Morytania",
-            true
-        );
-
-        morytaniaLocation.addTeleportOption(morytaniaLocation.new Teleport(
-            "Ectophial",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Morytania with Ectophial and run West to the patch.",
-            ItemID.ECTOPHIAL,
-            "null",
-            0,
-            0,
-            14647,
-            morytaniaHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.ECTOPHIAL,
-                1
-            ))
-        ));
-
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData morytaniaData = com.easyfarming.locations.MorytaniaLocationData.create();
+        
+        morytaniaLocation = com.easyfarming.locations.LocationFactory.createLocation(morytaniaData, config);
         locations.add(morytaniaLocation);
     }
 
     private void setupTrollStrongholdLocation()
     {
-        WorldPoint trollStrongholdHerbPatchPoint = new WorldPoint(
-            2824,
-            3696,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData trollStrongholdData = com.easyfarming.locations.TrollStrongholdLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        trollStrongholdLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumTrollStrongholdTeleport,
-            config,
-            "Troll Stronghold",
-            false
-        );
-
-        trollStrongholdLocation.addTeleportOption(trollStrongholdLocation.new Teleport(
-            "Stony_Basalt",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Troll Stronghold with Stony Basalt.",
-            ItemID.STRONGHOLD_TELEPORT_BASALT,
-            "null",
-            0,
-            0,
-            11321,
-            trollStrongholdHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.STRONGHOLD_TELEPORT_BASALT,
-                1
-            ))
-        ));
-
-        trollStrongholdLocation.addTeleportOption(trollStrongholdLocation.new Teleport(
-            "Portal_Nexus",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Troll Stronghold with Portal Nexus.",
-            0,
-            "null",
-            17,
-            13,
-            11321,
-            trollStrongholdHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
+        
+        trollStrongholdLocation = com.easyfarming.locations.LocationFactory.createLocation(trollStrongholdData, config);
         locations.add(trollStrongholdLocation);
     }
 
     private void setupWeissLocation()
     {
-        WorldPoint weissHerbPatchPoint = new WorldPoint(
-            2847,
-            3931,
-            0
+        // NEW APPROACH: Using LocationData pattern for data-driven setup
+        com.easyfarming.locations.LocationData weissData = com.easyfarming.locations.WeissLocationData.create(
+            () -> {
+                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
+                return requirements.stream()
+                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         );
-
-        weissLocation = new Location(
-            EasyFarmingConfig::enumOptionEnumWeissTeleport,
-            config,
-            "Weiss",
-            false
-        );
-
-        weissLocation.addTeleportOption(weissLocation.new Teleport(
-            "Icy_Basalt",
-            Location.TeleportCategory.ITEM,
-            "Teleport to Weiss with Icy Basalt.",
-            ItemID.WEISS_TELEPORT_BASALT,
-            "null",
-            0,
-            0,
-            11325,
-            weissHerbPatchPoint,
-            Collections.singletonList(new ItemRequirement(
-                ItemID.WEISS_TELEPORT_BASALT,
-                1
-            ))
-        ));
-
-        weissLocation.addTeleportOption(weissLocation.new Teleport(
-            "Portal_Nexus",
-            Location.TeleportCategory.PORTAL_NEXUS,
-            "Teleport to Weiss with Portal Nexus.",
-            0,
-            "null",
-            17,
-            13,
-            11325,
-            weissHerbPatchPoint,
-            getHouseTeleportItemRequirements()
-        ));
-
+        
+        weissLocation = com.easyfarming.locations.LocationFactory.createLocation(weissData, config);
         locations.add(weissLocation);
     }
 

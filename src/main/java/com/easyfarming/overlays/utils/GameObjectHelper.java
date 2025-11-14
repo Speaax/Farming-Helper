@@ -7,6 +7,7 @@ import net.runelite.api.Tile;
 import net.runelite.api.WorldView;
 import com.easyfarming.utils.Constants;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class GameObjectHelper {
     private final Client client;
     
+    @Inject
     public GameObjectHelper(Client client) {
         this.client = client;
     }

@@ -4,12 +4,15 @@ import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 
+import javax.inject.Inject;
+
 /**
  * Utility class for widget-related operations.
  */
 public class WidgetHelper {
     private final Client client;
     
+    @Inject
     public WidgetHelper(Client client) {
         this.client = client;
     }

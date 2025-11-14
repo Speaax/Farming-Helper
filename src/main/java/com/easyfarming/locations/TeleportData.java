@@ -62,5 +62,6 @@ public class TeleportData {
     public int getInterfaceChildId() { return interfaceChildId; }
     public int getRegionId() { return regionId; }
     public WorldPoint getPoint() { return point; }
+    public Supplier<List<ItemRequirement>> getItemRequirementsSupplier() { return itemRequirementsSupplier; }
 }
 

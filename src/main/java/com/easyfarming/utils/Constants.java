@@ -91,7 +91,7 @@ public class Constants {
     ));
     
     public static final List<Integer> FLOWER_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
-        27111, 7849, 7847, 7850, 7848, 33649
+        27111, 7849, 7847, 7850, 7848, 33649, 50693
     ));
     
     public static final List<Integer> TREE_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(

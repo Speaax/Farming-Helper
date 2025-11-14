@@ -89,7 +89,7 @@ public class EasyFarmingOverlay extends Overlay {
 
 
 
-    private static final List<Integer> FLOWER_PATCH_IDS = Arrays.asList(27111, 7849, 7847, 7850, 7848, 33649);
+    private static final List<Integer> FLOWER_PATCH_IDS = Arrays.asList(27111, 7849, 7847, 7850, 7848, 33649, 50693);
     public List<Integer> getFlowerPatchIds() {
         return FLOWER_PATCH_IDS;
     }

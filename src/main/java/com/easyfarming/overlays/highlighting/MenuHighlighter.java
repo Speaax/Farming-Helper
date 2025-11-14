@@ -27,17 +27,56 @@ public class MenuHighlighter {
      */
     public void highlightRightClickOption(Graphics2D graphics, String option) {
         Menu menu = client.getMenu();
+        if (menu == null) {
+            return;
+        }
+        
         MenuEntry[] menuEntries = menu.getMenuEntries();
+        if (menuEntries == null) {
+            return;
+        }
+        
         Color color = colorProvider.getRightClickColorWithAlpha();
         
         for (int i = 0; i < menuEntries.length; i++) {
             MenuEntry entry = menuEntries[i];
-            String optionText = entry.getOption();
+            if (entry == null) {
+                continue;
+            }
             
-            if (optionText.equalsIgnoreCase(option)) {
-                String highlightedText = ColorUtil.prependColorTag(">>> " + optionText, color);
-                entry.setOption(highlightedText);
-                menu.setMenuEntries(menuEntries);
+            String optionText = entry.getOption();
+            String target = entry.getTarget();
+            
+            // Check if option matches exactly or contains the search text
+            // Also check target in case the option is formatted differently
+            boolean matches = false;
+            if (optionText != null) {
+                // Exact match
+                if (optionText.equalsIgnoreCase(option)) {
+                    matches = true;
+                }
+                // Check if option starts with the search text (e.g., "Rub > Skills necklace")
+                else if (optionText.toLowerCase().startsWith(option.toLowerCase() + " >") ||
+                         optionText.toLowerCase().startsWith(option.toLowerCase() + " ")) {
+                    matches = true;
+                }
+            }
+            
+            // Also check target text
+            if (!matches && target != null) {
+                if (target.equalsIgnoreCase(option) || 
+                    target.toLowerCase().contains(option.toLowerCase())) {
+                    matches = true;
+                }
+            }
+            
+            if (matches) {
+                // Only highlight if not already highlighted
+                if (!optionText.startsWith(">>>")) {
+                    String highlightedText = ColorUtil.prependColorTag(">>> " + optionText, color);
+                    entry.setOption(highlightedText);
+                    menu.setMenuEntries(menuEntries);
+                }
                 break;
             }
         }

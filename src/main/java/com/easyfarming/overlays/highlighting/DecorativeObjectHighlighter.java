@@ -70,15 +70,31 @@ public class DecorativeObjectHighlighter {
     }
     
     /**
+     * Highlights decorative objects by ID directly (for use in render methods).
+     */
+    public void highlightDecorativeObject(Graphics2D graphics, int objectId, Color color) {
+        List<DecorativeObject> decorativeObjects = findDecorativeObjectsByID(objectId);
+        for (DecorativeObject decorativeObject : decorativeObjects) {
+            drawDecorativeObjectClickbox(graphics, decorativeObject, color);
+        }
+    }
+    
+    /**
      * Creates an overlay that highlights a decorative object by ID.
      */
     public Overlay highlightDecorativeObject(int objectId) {
+        return highlightDecorativeObject(objectId, colorProvider.getLeftClickColorWithAlpha());
+    }
+    
+    /**
+     * Creates an overlay that highlights a decorative object by ID with a specific color.
+     */
+    public Overlay highlightDecorativeObject(int objectId, Color color) {
         return new Overlay() {
             @Override
             public Dimension render(Graphics2D graphics) {
                 Client client = plugin.getClient();
                 if (client != null) {
-                    Color color = colorProvider.getLeftClickColorWithAlpha();
                     List<DecorativeObject> decorativeObjects = findDecorativeObjectsByID(objectId);
                     for (DecorativeObject decorativeObject : decorativeObjects) {
                         drawDecorativeObjectClickbox(graphics, decorativeObject, color);

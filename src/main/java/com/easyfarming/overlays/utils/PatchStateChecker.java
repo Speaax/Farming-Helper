@@ -2,6 +2,7 @@ package com.easyfarming.overlays.utils;
 
 import com.easyfarming.EasyFarmingPlugin;
 
+import javax.inject.Inject;
 import java.util.regex.Pattern;
 
 /**
@@ -20,6 +21,7 @@ public class PatchStateChecker {
     
     private final EasyFarmingPlugin plugin;
     
+    @Inject
     public PatchStateChecker(EasyFarmingPlugin plugin) {
         this.plugin = plugin;
     }

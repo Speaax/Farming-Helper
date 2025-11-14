@@ -23,7 +23,7 @@ public class NPCHighlighter {
     }
     
     /**
-     * Highlights an NPC by name.
+     * Highlights an NPC by name using their convex hull.
      */
     public void highlightNpc(Graphics2D graphics, String npcName) {
         IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
@@ -32,16 +32,16 @@ public class NPCHighlighter {
             Color color = colorProvider.getLeftClickColorWithAlpha();
             for (NPC npc : npcs) {
                 if (npc != null && npc.getName() != null && npc.getName().equals(npcName)) {
-                    Polygon tilePolygon = npc.getCanvasTilePoly();
+                    Shape convexHull = npc.getConvexHull();
                     
-                    if (tilePolygon != null) {
+                    if (convexHull != null) {
                         graphics.setColor(color);
-                        graphics.draw(tilePolygon);
+                        graphics.draw(convexHull);
                         graphics.setColor(new Color(color.getRed(), 
                                                    color.getGreen(), 
                                                    color.getBlue(), 
                                                    color.getAlpha() / 5));
-                        graphics.fill(tilePolygon);
+                        graphics.fill(convexHull);
                     }
                 }
             }

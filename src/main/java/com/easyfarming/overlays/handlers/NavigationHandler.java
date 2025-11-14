@@ -321,17 +321,24 @@ public class NavigationHandler {
                 }
                 if (plugin.getEasyFarmingOverlay().isSkillsNecklace(teleport.getId())) {
                     String index = location.getName();
+                    List<Integer> skillsNecklaceIds = Constants.SKILLS_NECKLACE_IDS;
                     if (Objects.equals(index, "Ardougne")) {
-                        itemHighlighter.highlightSkillsNecklace(graphics);
-                        menuHighlighter.highlightRightClickOption(graphics, "Rub");
+                        for (int id : skillsNecklaceIds) {
+                            itemHighlighter.itemHighlight(graphics, id, rightColor);
+                        }
                         Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
-                        widgetHighlighter.highlightDynamicComponent(graphics, widget, 0);
+                        if (widget != null && !widget.isHidden()) {
+                            widgetHighlighter.highlightDynamicComponent(graphics, widget, 0);
+                        }
                     }
                     if (Objects.equals(index, "Farming Guild")) {
-                        itemHighlighter.highlightSkillsNecklace(graphics);
-                        menuHighlighter.highlightRightClickOption(graphics, "Rub");
+                        for (int id : skillsNecklaceIds) {
+                            itemHighlighter.itemHighlight(graphics, id, rightColor);
+                        }
                         Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
-                        widgetHighlighter.highlightDynamicComponent(graphics, widget, 5);
+                        if (widget != null && !widget.isHidden()) {
+                            widgetHighlighter.highlightDynamicComponent(graphics, widget, 5);
+                        }
                     }
                 } else if (plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId())) {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
@@ -448,9 +455,10 @@ public class NavigationHandler {
                 break;
             case 2:
                 List<Integer> xericsTalismanIds = Constants.XERICS_TALISMAN_IDS;
+                Color leftColor = colorProvider.getLeftClickColorWithAlpha();
                 if (!widgetHelper.isInterfaceOpen(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId())) {
                     for (int id : xericsTalismanIds) {
-                        decorativeObjectHighlighter.highlightDecorativeObject(id).render(graphics);
+                        decorativeObjectHighlighter.highlightDecorativeObject(id, leftColor).render(graphics);
                     }
                 } else {
                     Widget widget = client.getWidget(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId());
