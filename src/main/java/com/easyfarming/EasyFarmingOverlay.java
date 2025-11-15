@@ -121,6 +121,10 @@ public class EasyFarmingOverlay extends Overlay {
 
     private static final Map<Integer, List<Integer>> COMBINATION_RUNE_SUBRUNES_MAP;
 
+    private static final Map<Integer, List<Integer>> STAFF_RUNES_MAP;
+    
+    private static final int STAFF_RUNE_AMOUNT = 999; // Large amount to satisfy requirements without overflow
+
     static {
         Map<Integer, List<Integer>> tempMap = new HashMap<>();
         tempMap.put(ItemID.DUSTRUNE, Arrays.asList(ItemID.AIRRUNE, ItemID.EARTHRUNE));
@@ -130,6 +134,55 @@ public class EasyFarmingOverlay extends Overlay {
         tempMap.put(ItemID.STEAMRUNE, Arrays.asList(ItemID.FIRERUNE, ItemID.WATERRUNE));
         tempMap.put(ItemID.SMOKERUNE, Arrays.asList(ItemID.FIRERUNE, ItemID.AIRRUNE));
         COMBINATION_RUNE_SUBRUNES_MAP = Collections.unmodifiableMap(tempMap);
+        
+        // Staff to rune mapping - Elemental staffs
+        Map<Integer, List<Integer>> staffMap = new HashMap<>();
+        
+        // Air staffs
+        staffMap.put(ItemID.STAFF_OF_AIR, Arrays.asList(ItemID.AIRRUNE));
+        staffMap.put(ItemID.AIR_BATTLESTAFF, Arrays.asList(ItemID.AIRRUNE));
+        staffMap.put(ItemID.MYSTIC_AIR_STAFF, Arrays.asList(ItemID.AIRRUNE));
+        
+        // Water staffs
+        staffMap.put(ItemID.STAFF_OF_WATER, Arrays.asList(ItemID.WATERRUNE));
+        staffMap.put(ItemID.WATER_BATTLESTAFF, Arrays.asList(ItemID.WATERRUNE));
+        staffMap.put(ItemID.MYSTIC_WATER_STAFF, Arrays.asList(ItemID.WATERRUNE));
+        
+        // Earth staffs
+        staffMap.put(ItemID.STAFF_OF_EARTH, Arrays.asList(ItemID.EARTHRUNE));
+        staffMap.put(ItemID.EARTH_BATTLESTAFF, Arrays.asList(ItemID.EARTHRUNE));
+        staffMap.put(ItemID.MYSTIC_EARTH_STAFF, Arrays.asList(ItemID.EARTHRUNE));
+        
+        // Fire staffs
+        staffMap.put(ItemID.STAFF_OF_FIRE, Arrays.asList(ItemID.FIRERUNE));
+        staffMap.put(ItemID.FIRE_BATTLESTAFF, Arrays.asList(ItemID.FIRERUNE));
+        staffMap.put(ItemID.MYSTIC_FIRE_STAFF, Arrays.asList(ItemID.FIRERUNE));
+        
+        // Combination staffs - Lava (Fire + Earth)
+        staffMap.put(ItemID.LAVA_BATTLESTAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.EARTHRUNE));
+        staffMap.put(ItemID.MYSTIC_LAVA_STAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.EARTHRUNE));
+        
+        // Combination staffs - Steam (Fire + Water)
+        staffMap.put(ItemID.STEAM_BATTLESTAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.WATERRUNE));
+        staffMap.put(ItemID.MYSTIC_STEAM_BATTLESTAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.WATERRUNE));
+        
+        // Combination staffs - Mist (Air + Water)
+        staffMap.put(ItemID.MIST_BATTLESTAFF, Arrays.asList(ItemID.AIRRUNE, ItemID.WATERRUNE));
+        staffMap.put(ItemID.MYSTIC_MIST_BATTLESTAFF, Arrays.asList(ItemID.AIRRUNE, ItemID.WATERRUNE));
+        
+        // Combination staffs - Dust (Air + Earth)
+        staffMap.put(ItemID.DUST_BATTLESTAFF, Arrays.asList(ItemID.AIRRUNE, ItemID.EARTHRUNE));
+        staffMap.put(ItemID.MYSTIC_DUST_BATTLESTAFF, Arrays.asList(ItemID.AIRRUNE, ItemID.EARTHRUNE));
+        
+        // Combination staffs - Smoke (Fire + Air)
+        staffMap.put(ItemID.SMOKE_BATTLESTAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.AIRRUNE));
+        staffMap.put(ItemID.MYSTIC_SMOKE_BATTLESTAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.AIRRUNE));
+        
+        // Combination staffs - Mud (Water + Earth)
+        staffMap.put(ItemID.MUD_BATTLESTAFF, Arrays.asList(ItemID.WATERRUNE, ItemID.EARTHRUNE));
+        staffMap.put(ItemID.MYSTIC_MUD_STAFF, Arrays.asList(ItemID.WATERRUNE, ItemID.EARTHRUNE));
+        
+        STAFF_RUNES_MAP = Collections.unmodifiableMap(staffMap);
     }
 
     private int getRuneItemIdFromVarbitValue(int varbitValue) {
@@ -213,9 +266,29 @@ public class EasyFarmingOverlay extends Overlay {
                     for (int subRune : subRunes) {
                         expandedRuneMap.put(subRune, expandedRuneMap.getOrDefault(subRune, 0) + itemQuantity);
                     }
+                } else if (STAFF_RUNES_MAP.containsKey(itemIdRune)) {
+                    // Handle staffs - add their runes with large amount
+                    List<Integer> staffRunes = STAFF_RUNES_MAP.get(itemIdRune);
+                    for (int rune : staffRunes) {
+                        // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to avoid overflow
+                        expandedRuneMap.put(rune, Math.max(expandedRuneMap.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
+                    }
                 } else {
                     // Add regular runes from inventory
                     expandedRuneMap.put(itemIdRune, expandedRuneMap.getOrDefault(itemIdRune, 0) + itemQuantity);
+                }
+            }
+        }
+        
+        // Add staffs from equipped items
+        Map<Integer, Integer> equippedItems = getEquippedItems();
+        for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
+            int equippedItemId = equippedEntry.getKey();
+            if (STAFF_RUNES_MAP.containsKey(equippedItemId)) {
+                List<Integer> staffRunes = STAFF_RUNES_MAP.get(equippedItemId);
+                for (int rune : staffRunes) {
+                    // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to avoid overflow
+                    expandedRuneMap.put(rune, Math.max(expandedRuneMap.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
                 }
             }
         }
@@ -434,6 +507,13 @@ public class EasyFarmingOverlay extends Overlay {
                         for (int subRune : subRunes) {
                             inventoryItemCounts.put(subRune, inventoryItemCounts.getOrDefault(subRune, 0) + itemQuantity);
                         }
+                    } else if (STAFF_RUNES_MAP.containsKey(itemId)) {
+                        // Handle staffs - add their runes with large amount
+                        List<Integer> staffRunes = STAFF_RUNES_MAP.get(itemId);
+                        for (int rune : staffRunes) {
+                            // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to avoid overflow
+                            inventoryItemCounts.put(rune, Math.max(inventoryItemCounts.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
+                        }
                     } else {
                         // Handle regular items
                         inventoryItemCounts.put(itemId, itemQuantity);
@@ -455,7 +535,19 @@ public class EasyFarmingOverlay extends Overlay {
             for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
                 int equippedItemId = equippedEntry.getKey();
                 int equippedCount = equippedEntry.getValue();
-                inventoryItemCounts.put(equippedItemId, inventoryItemCounts.getOrDefault(equippedItemId, 0) + equippedCount);
+                
+                // Check if equipped item is a staff
+                if (STAFF_RUNES_MAP.containsKey(equippedItemId)) {
+                    // Handle staffs - add their runes with large amount
+                    List<Integer> staffRunes = STAFF_RUNES_MAP.get(equippedItemId);
+                    for (int rune : staffRunes) {
+                        // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to avoid overflow
+                        inventoryItemCounts.put(rune, Math.max(inventoryItemCounts.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
+                    }
+                } else {
+                    // Handle regular equipped items
+                    inventoryItemCounts.put(equippedItemId, inventoryItemCounts.getOrDefault(equippedItemId, 0) + equippedCount);
+                }
             }
 
             List<AbstractMap.SimpleEntry<Integer, Integer>> missingItemsWithCounts = new ArrayList<>();
