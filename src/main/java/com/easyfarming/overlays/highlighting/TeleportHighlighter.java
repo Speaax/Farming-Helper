@@ -62,7 +62,7 @@ public class TeleportHighlighter {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
                 } else {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
-                    if (!teleport.getRightClickOption().equals("null")) {
+                    if (!teleport.getRightClickOption().equals("")) {
                         // MenuHighlighter would be needed here, but we'll handle it in the calling code
                     }
                 }

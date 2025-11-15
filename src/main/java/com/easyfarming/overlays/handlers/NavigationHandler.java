@@ -297,7 +297,7 @@ public class NavigationHandler {
         if (teleport.getInterfaceGroupId() != 0) {
             if (!widgetHelper.isInterfaceOpen(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId())) {
                 itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
-                if (!teleport.getRightClickOption().equals("null")) {
+                if (!teleport.getRightClickOption().equals("")) {
                     menuHighlighter.highlightRightClickOption(graphics, teleport.getRightClickOption());
                 }
             } else {
@@ -312,7 +312,7 @@ public class NavigationHandler {
                 }
             }
         } else {
-            if (!teleport.getRightClickOption().equals("null")) {
+            if (!teleport.getRightClickOption().equals("")) {
                 itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
                 menuHighlighter.highlightRightClickOption(graphics, teleport.getRightClickOption());
             } else {

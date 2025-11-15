@@ -51,7 +51,7 @@ public class FarmingGuildTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to Farming guild using Skills necklace.",
             ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-            "null",
+            "",
             0,
             0,
             4922,

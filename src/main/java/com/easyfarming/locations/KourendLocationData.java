@@ -52,7 +52,7 @@ public class KourendLocationData {
             Teleport.Category.MOUNTED_XERICS,
             "Teleport to Kourend with Xeric's Talisman in PoH.",
             0,
-            "null",
+            "",
             187,
             3,
             6967,

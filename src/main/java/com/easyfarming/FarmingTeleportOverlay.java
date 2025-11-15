@@ -417,7 +417,7 @@ public class FarmingTeleportOverlay extends Overlay {
                 } else {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
                     // itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
-                    if (!teleport.getRightClickOption().equals("null")) {
+                    if (!teleport.getRightClickOption().equals("")) {
                         menuHighlighter.highlightRightClickOption(graphics, teleport.getRightClickOption());
                         // highlightRightClickOption(graphics, teleport.getRightClickOption());
                     }
@@ -605,7 +605,7 @@ public class FarmingTeleportOverlay extends Overlay {
                             if (!isInterfaceOpen(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId())) {
                                 itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
                                 // itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
-                                if (!teleport.getRightClickOption().equals("null")) {
+                                if (!teleport.getRightClickOption().equals("")) {
                                     menuHighlighter.highlightRightClickOption(graphics, teleport.getRightClickOption());
                                     // highlightRightClickOption(graphics, teleport.getRightClickOption());
                                 }
@@ -624,7 +624,7 @@ public class FarmingTeleportOverlay extends Overlay {
                             }
                         } else {
                             Color rightColor = colorProvider.getRightClickColorWithAlpha();
-                            if (!teleport.getRightClickOption().equals("null")) {
+                            if (!teleport.getRightClickOption().equals("")) {
                                 itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
                                 menuHighlighter.highlightRightClickOption(graphics, teleport.getRightClickOption());
                                 // itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);

@@ -91,7 +91,7 @@ For each teleport method available to reach the location, add a `TeleportData` e
    - `Teleport.Category.MOUNTED_XERICS` - Mounted Xeric's talisman
 3. **description** (String): User-facing description of the teleport method
 4. **id** (int): Item ID if category is ITEM, otherwise 0
-5. **rightClickOption** (String): Right-click option name if needed (e.g., `"Farm Teleport"` for Ardy cloak), otherwise `""` or `"null"` (both are acceptable)
+5. **rightClickOption** (String): Right-click option name if needed (e.g., `"Farm Teleport"` for Ardy cloak), otherwise `""` or `""` (both are acceptable)
 6. **interfaceGroupId** (int): Interface group ID for Portal Nexus/Jewellery Box/Spellbook:
    - `17` for Portal Nexus
    - `218` for Spellbook
