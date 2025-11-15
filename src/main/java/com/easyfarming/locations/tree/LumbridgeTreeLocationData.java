@@ -1,7 +1,7 @@
 package com.easyfarming.locations.tree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -38,7 +38,7 @@ public class LumbridgeTreeLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Lumbridge with Portal Nexus.",
             0,
-            "null",
+            "",
             17,
             13,
             12850,
@@ -52,15 +52,15 @@ public class LumbridgeTreeLocationData {
             Teleport.Category.SPELLBOOK,
             "Teleport to Lumbridge with spellbook.",
             0,
-            "null",
+            "",
             218,
             26,
             12850,
             LUMBRIDGE_TREE_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.AIRRUNE, 3),
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 1),
-                new com.easyfarming.core.ItemRequirement(ItemID.EARTHRUNE, 1)
+                new ItemRequirement(ItemID.AIRRUNE, 3),
+                new ItemRequirement(ItemID.LAWRUNE, 1),
+                new ItemRequirement(ItemID.EARTHRUNE, 1)
             )
         ));
         
@@ -70,13 +70,13 @@ public class LumbridgeTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to Lumbridge with Lumbridge Tele Tab.",
             ItemID.POH_TABLET_LUMBRIDGETELEPORT,
-            "null",
+            "",
             0,
             0,
             12850,
             LUMBRIDGE_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_LUMBRIDGETELEPORT, 1)
+                new ItemRequirement(ItemID.POH_TABLET_LUMBRIDGETELEPORT, 1)
             )
         ));
         

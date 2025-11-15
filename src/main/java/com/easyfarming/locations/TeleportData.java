@@ -1,6 +1,6 @@
 package com.easyfarming.locations;
 
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.easyfarming.locations.tree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -58,9 +58,9 @@ public class VarrockTreeLocationData {
             12853,
             VARROCK_TREE_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.AIRRUNE, 3),
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 1),
-                new com.easyfarming.core.ItemRequirement(ItemID.FIRERUNE, 1)
+                new ItemRequirement(ItemID.AIRRUNE, 3),
+                new ItemRequirement(ItemID.LAWRUNE, 1),
+                new ItemRequirement(ItemID.FIRERUNE, 1)
             )
         ));
         
@@ -76,7 +76,7 @@ public class VarrockTreeLocationData {
             12853,
             VARROCK_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_VARROCKTELEPORT, 1)
+                new ItemRequirement(ItemID.POH_TABLET_VARROCKTELEPORT, 1)
             )
         ));
         

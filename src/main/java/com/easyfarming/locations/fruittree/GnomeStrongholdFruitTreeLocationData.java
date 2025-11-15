@@ -1,7 +1,7 @@
 package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -32,15 +32,15 @@ public class GnomeStrongholdFruitTreeLocationData {
         locationData.addTeleport(new TeleportData(
             "Royal_seed_pod",
             Teleport.Category.ITEM,
-            "Teleport to Gnome Stronghold with Royal seed pod.",
+            "Teleport to Gnome Stronghold with Royal seed pod and run south to the fruit tree patch.",
             ItemID.MM2_ROYAL_SEED_POD,
-            "null",
+            "",
             0,
             0,
             9782,
             GNOME_STRONGHOLD_FRUIT_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
+                new ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
             )
         ));
         
@@ -50,7 +50,7 @@ public class GnomeStrongholdFruitTreeLocationData {
             Teleport.Category.SPIRIT_TREE,
             "Teleport to Gnome Stronghold via a Spirit Tree.",
             0,
-            "null",
+            "",
             187,
             3,
             9781,

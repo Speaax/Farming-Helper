@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -33,13 +33,13 @@ public class MorytaniaLocationData {
             Teleport.Category.ITEM,
             "Teleport to Morytania with Ectophial and run West to the patch.",
             ItemID.ECTOPHIAL,
-            "null",
+            "",
             0,
             0,
             14647,
             MORYTANIA_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.ECTOPHIAL, 1)
+                new ItemRequirement(ItemID.ECTOPHIAL, 1)
             )
         ));
         

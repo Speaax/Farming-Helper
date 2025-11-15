@@ -1,7 +1,7 @@
 package com.easyfarming.locations.tree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -41,7 +41,7 @@ public class GnomeStrongholdTreeLocationData {
             9782,
             GNOME_STRONGHOLD_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
+                new ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
             )
         ));
         

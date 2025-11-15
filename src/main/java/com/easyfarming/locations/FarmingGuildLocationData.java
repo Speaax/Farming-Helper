@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -36,7 +36,7 @@ public class FarmingGuildLocationData {
             Teleport.Category.JEWELLERY_BOX,
             "Teleport to Farming guild with Jewellery box.",
             29155,
-            "null",
+            "",
             0,
             0,
             4922,
@@ -50,13 +50,13 @@ public class FarmingGuildLocationData {
             Teleport.Category.ITEM,
             "Teleport to Farming guild using Skills necklace.",
             ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-            "null",
+            "",
             0,
             0,
             4922,
             FARMING_GUILD_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
+                new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
             )
         ));
         

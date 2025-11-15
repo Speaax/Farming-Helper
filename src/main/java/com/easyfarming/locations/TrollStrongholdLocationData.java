@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -36,13 +36,13 @@ public class TrollStrongholdLocationData {
             Teleport.Category.ITEM,
             "Teleport to Troll Stronghold with Stony Basalt.",
             ItemID.STRONGHOLD_TELEPORT_BASALT,
-            "null",
+            "",
             0,
             0,
             11321,
             TROLL_STRONGHOLD_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.STRONGHOLD_TELEPORT_BASALT, 1)
+                new ItemRequirement(ItemID.STRONGHOLD_TELEPORT_BASALT, 1)
             )
         ));
         
@@ -52,7 +52,7 @@ public class TrollStrongholdLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Troll Stronghold with Portal Nexus.",
             0,
-            "null",
+            "",
             17,
             13,
             11321,

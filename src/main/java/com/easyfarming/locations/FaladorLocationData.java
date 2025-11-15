@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -57,7 +57,7 @@ public class FaladorLocationData {
             12083,
             FALADOR_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.LUMBRIDGE_RING_MEDIUM, 1)
+                new ItemRequirement(ItemID.LUMBRIDGE_RING_MEDIUM, 1)
             )
         ));
         
@@ -73,9 +73,9 @@ public class FaladorLocationData {
             11828,
             FALADOR_HERB_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.AIRRUNE, 3),
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 1),
-                new com.easyfarming.core.ItemRequirement(ItemID.WATERRUNE, 1)
+                new ItemRequirement(ItemID.AIRRUNE, 3),
+                new ItemRequirement(ItemID.LAWRUNE, 1),
+                new ItemRequirement(ItemID.WATERRUNE, 1)
             )
         ));
         
@@ -91,7 +91,7 @@ public class FaladorLocationData {
             11828,
             FALADOR_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_FALADORTELEPORT, 1)
+                new ItemRequirement(ItemID.POH_TABLET_FALADORTELEPORT, 1)
             )
         ));
         
@@ -107,7 +107,7 @@ public class FaladorLocationData {
             12340,
             FALADOR_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.TELETAB_DRAYNOR, 1)
+                new ItemRequirement(ItemID.TELETAB_DRAYNOR, 1)
             )
         ));
         

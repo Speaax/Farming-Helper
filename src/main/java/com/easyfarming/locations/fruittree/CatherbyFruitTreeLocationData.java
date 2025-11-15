@@ -1,7 +1,7 @@
 package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -38,7 +38,7 @@ public class CatherbyFruitTreeLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Catherby with Portal Nexus.",
             0,
-            "null",
+            "",
             17,
             13,
             11061,
@@ -52,7 +52,7 @@ public class CatherbyFruitTreeLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Camelot with Portal Nexus.",
             0,
-            "null",
+            "",
             17,
             13,
             11062,
@@ -66,14 +66,14 @@ public class CatherbyFruitTreeLocationData {
             Teleport.Category.SPELLBOOK,
             "Teleport to Camelot using the standard spellbook, and run east. (If you have configured the teleport to seers you need to right click and teleport to Camelot)",
             0,
-            "null",
+            "",
             218,
             34,
             11062,
             CATHERBY_FRUIT_TREE_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.AIRRUNE, 5),
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 1)
+                new ItemRequirement(ItemID.AIRRUNE, 5),
+                new ItemRequirement(ItemID.LAWRUNE, 1)
             )
         ));
         
@@ -83,13 +83,13 @@ public class CatherbyFruitTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to Camelot using a Camelot tele tab, and run east.(If you have configured the teleport to seers you need to right click and teleport to Camelot)",
             ItemID.POH_TABLET_CAMELOTTELEPORT,
-            "null",
+            "",
             0,
             0,
             11062,
             CATHERBY_FRUIT_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_CAMELOTTELEPORT, 1)
+                new ItemRequirement(ItemID.POH_TABLET_CAMELOTTELEPORT, 1)
             )
         ));
         
@@ -99,13 +99,13 @@ public class CatherbyFruitTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to Catherby using Catherby teleport tab.",
             ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
-            "null",
+            "",
             0,
             0,
             11061,
             CATHERBY_FRUIT_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1)
+                new ItemRequirement(ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1)
             )
         ));
         

@@ -1,7 +1,7 @@
 package com.easyfarming.locations.tree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -37,7 +37,7 @@ public class FarmingGuildTreeLocationData {
             Teleport.Category.JEWELLERY_BOX,
             "Teleport to Farming Guild with Jewellery box.",
             0,
-            "null",
+            "",
             0,
             0,
             4922,
@@ -57,7 +57,7 @@ public class FarmingGuildTreeLocationData {
             4922,
             FARMING_GUILD_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
+                new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
             )
         ));
         

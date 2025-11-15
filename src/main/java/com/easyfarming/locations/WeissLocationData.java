@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -42,7 +42,7 @@ public class WeissLocationData {
             11325,
             WEISS_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.WEISS_TELEPORT_BASALT, 1)
+                new ItemRequirement(ItemID.WEISS_TELEPORT_BASALT, 1)
             )
         ));
         

@@ -22,6 +22,7 @@ import java.awt.Color;
 import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
+import com.easyfarming.utils.Constants;
 
 public class EasyFarmingOverlay extends Overlay {
 
@@ -69,9 +70,8 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
 
-    public static final List<Integer> HERB_PATCH_IDS = Arrays.asList(33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372, 33979, 50697);
     public List<Integer> getHerbPatchIds() {
-        return HERB_PATCH_IDS;
+        return Constants.HERB_PATCH_IDS;
     }
     private static final List<Integer> HERB_SEED_IDS = Arrays.asList(
         ItemID.GUAM_SEED, ItemID.MARRENTILL_SEED, ItemID.TARROMIN_SEED, ItemID.HARRALANDER_SEED,
@@ -88,16 +88,13 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
 
-
-    private static final List<Integer> FLOWER_PATCH_IDS = Arrays.asList(27111, 7849, 7847, 7850, 7848, 33649, 50693);
     public List<Integer> getFlowerPatchIds() {
-        return FLOWER_PATCH_IDS;
+        return Constants.FLOWER_PATCH_IDS;
     }
 
 
-    public static final List<Integer> TREE_PATCH_IDS = Arrays.asList(8389, 33732, 19147, 8391, 8388, 8390);
     public List<Integer> getTreePatchIds() {
-        return TREE_PATCH_IDS;
+        return Constants.TREE_PATCH_IDS;
     }
     private static final List<Integer> TREE_SAPLING_IDS = Arrays.asList(ItemID.PLANTPOT_OAK_SAPLING, ItemID.PLANTPOT_WILLOW_SAPLING,ItemID.PLANTPOT_MAPLE_SAPLING,ItemID.PLANTPOT_YEW_SAPLING,ItemID.PLANTPOT_MAGIC_TREE_SAPLING);
     private static final int BASE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
@@ -107,9 +104,8 @@ public class EasyFarmingOverlay extends Overlay {
     private boolean isTreeSapling(int itemId) {return TREE_SAPLING_IDS.contains(itemId);}
 
 
-    public static final List<Integer> FRUIT_TREE_PATCH_IDS = Arrays.asList(7964, 7965, 34007, 7962, 26579, 7963);
     public List<Integer> getFruitTreePatchIds() {
-        return FRUIT_TREE_PATCH_IDS;
+        return Constants.FRUIT_TREE_PATCH_IDS;
     }
     private static final List<Integer> FRUIT_TREE_SAPLING_IDS = Arrays.asList(ItemID.PLANTPOT_APPLE_SAPLING, ItemID.PLANTPOT_BANANA_SAPLING,ItemID.PLANTPOT_ORANGE_SAPLING,ItemID.PLANTPOT_CURRY_SAPLING,ItemID.PLANTPOT_PINEAPPLE_SAPLING,ItemID.PLANTPOT_PAPAYA_SAPLING,ItemID.PLANTPOT_PALM_SAPLING, ItemID.PLANTPOT_DRAGONFRUIT_SAPLING);
     private static final int BASE_FRUIT_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
@@ -284,6 +280,14 @@ public class EasyFarmingOverlay extends Overlay {
         return itemId == ItemID.HG_QUETZALWHISTLE_BASIC || 
                itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED || 
                itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED;
+    }
+
+    public boolean isRoyalSeedPod(int itemId) {
+        return itemId == ItemID.MM2_ROYAL_SEED_POD;
+    }
+
+    public boolean isEctophial(int itemId) {
+        return itemId == ItemID.ECTOPHIAL;
     }
 
     /**

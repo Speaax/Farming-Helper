@@ -55,8 +55,10 @@ public class TeleportHighlighter {
         
         switch (teleport.getCategory()) {
             case ITEM:
-                // Check if it's a Quetzal whistle (left-click teleport)
-                if (easyFarmingOverlay.isQuetzalWhistle(teleport.getId())) {
+                // Check if it's a Quetzal whistle, Royal seed pod, or Ectophial (left-click teleport)
+                if (easyFarmingOverlay.isQuetzalWhistle(teleport.getId()) || 
+                    easyFarmingOverlay.isRoyalSeedPod(teleport.getId()) ||
+                    easyFarmingOverlay.isEctophial(teleport.getId())) {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
                 } else {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);

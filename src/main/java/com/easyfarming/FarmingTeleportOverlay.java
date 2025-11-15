@@ -408,8 +408,10 @@ public class FarmingTeleportOverlay extends Overlay {
         Color rightColor = colorProvider.getRightClickColorWithAlpha();
         switch (teleport.getCategory()) {
             case ITEM:
-                // Check if it's a Quetzal whistle (left-click teleport)
-                if(plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId())) {
+                // Check if it's a Quetzal whistle, Royal seed pod, or Ectophial (left-click teleport)
+                if(plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId()) || 
+                   plugin.getEasyFarmingOverlay().isRoyalSeedPod(teleport.getId()) ||
+                   plugin.getEasyFarmingOverlay().isEctophial(teleport.getId())) {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
                     // itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
                 } else {
@@ -661,7 +663,9 @@ public class FarmingTeleportOverlay extends Overlay {
                                         // highlightDynamicComponent(graphics, widget, 5);
                                     }
                                 }
-                                else if(plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId())) {
+                                else if(plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId()) || 
+                                        plugin.getEasyFarmingOverlay().isRoyalSeedPod(teleport.getId()) ||
+                                        plugin.getEasyFarmingOverlay().isEctophial(teleport.getId())) {
                                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
                                     // itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
                                 }

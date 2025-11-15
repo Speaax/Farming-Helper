@@ -1,7 +1,7 @@
 package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -34,13 +34,13 @@ public class TreeGnomeVillageFruitTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to Tree Gnome Village with Royal seed pod and use Spirit tree to Tree Gnome Village.",
             ItemID.MM2_ROYAL_SEED_POD,
-            "null",
+            "",
             0,
             0,
             9782,
             TREE_GNOME_VILLAGE_FRUIT_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
+                new ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
             )
         ));
         
@@ -50,7 +50,7 @@ public class TreeGnomeVillageFruitTreeLocationData {
             Teleport.Category.SPIRIT_TREE,
             "Teleport to Tree Gnome Village via a Spirit Tree.",
             0,
-            "null",
+            "",
             187,
             3,
             10033,

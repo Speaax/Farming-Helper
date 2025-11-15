@@ -1,7 +1,7 @@
 package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -37,7 +37,7 @@ public class BrimhavenFruitTreeLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Ardougne with Portal Nexus and take the boat to Brimhaven.",
             0,
-            "null",
+            "",
             17,
             13,
             10547,
@@ -51,15 +51,15 @@ public class BrimhavenFruitTreeLocationData {
             Teleport.Category.SPELLBOOK,
             "Teleport to Ardougne with Spellbook and take the boat to Brimhaven.",
             0,
-            "null",
+            "",
             218,
             41,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.COINS, 30),
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 2),
-                new com.easyfarming.core.ItemRequirement(ItemID.WATERRUNE, 2)
+                new ItemRequirement(ItemID.COINS, 30),
+                new ItemRequirement(ItemID.LAWRUNE, 2),
+                new ItemRequirement(ItemID.WATERRUNE, 2)
             )
         ));
         
@@ -69,14 +69,14 @@ public class BrimhavenFruitTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to Ardougne with Ardougne tele tab and take the boat to Brimhaven.",
             ItemID.POH_TABLET_ARDOUGNETELEPORT,
-            "null",
+            "",
             0,
             0,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1),
-                new com.easyfarming.core.ItemRequirement(ItemID.COINS, 30)
+                new ItemRequirement(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1),
+                new ItemRequirement(ItemID.COINS, 30)
             )
         ));
         
@@ -86,14 +86,14 @@ public class BrimhavenFruitTreeLocationData {
             Teleport.Category.ITEM,
             "Teleport to house with POH tele tab, use Portal Nexus to Ardougne and take the boat to Brimhaven.",
             ItemID.POH_TABLET_TELEPORTTOHOUSE,
-            "null",
+            "",
             0,
             0,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1),
-                new com.easyfarming.core.ItemRequirement(ItemID.COINS, 30)
+                new ItemRequirement(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1),
+                new ItemRequirement(ItemID.COINS, 30)
             )
         ));
         

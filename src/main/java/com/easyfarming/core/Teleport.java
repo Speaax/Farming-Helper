@@ -1,5 +1,6 @@
 package com.easyfarming.core;
 
+import com.easyfarming.ItemRequirement;
 import net.runelite.api.coords.WorldPoint;
 import java.util.HashMap;
 import java.util.List;

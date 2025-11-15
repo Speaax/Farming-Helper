@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -37,7 +37,7 @@ public class ArdougneLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Ardougne with Portal Nexus, and run north.",
             0,
-            "null",
+            "",
             17,
             13,
             10547,
@@ -51,14 +51,14 @@ public class ArdougneLocationData {
             Teleport.Category.SPELLBOOK,
             "Teleport to Ardougne with standard spellbook, and run north.",
             0,
-            "null",
+            "",
             218,
             41,
             10547,
             ARDOUGNE_HERB_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 2),
-                new com.easyfarming.core.ItemRequirement(ItemID.WATERRUNE, 2)
+                new ItemRequirement(ItemID.LAWRUNE, 2),
+                new ItemRequirement(ItemID.WATERRUNE, 2)
             )
         ));
         
@@ -68,13 +68,13 @@ public class ArdougneLocationData {
             Teleport.Category.ITEM,
             "Teleport to Ardougne with Ardougne tele tab, and run north.",
             ItemID.POH_TABLET_ARDOUGNETELEPORT,
-            "null",
+            "",
             0,
             0,
             10547,
             ARDOUGNE_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1)
+                new ItemRequirement(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1)
             )
         ));
         
@@ -90,7 +90,7 @@ public class ArdougneLocationData {
             10548,
             ARDOUGNE_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.ARDY_CAPE_MEDIUM, 1)
+                new ItemRequirement(ItemID.ARDY_CAPE_MEDIUM, 1)
             )
         ));
         
@@ -100,13 +100,13 @@ public class ArdougneLocationData {
             Teleport.Category.ITEM,
             "Teleport to Fishing guild with Skills necklace, and run east.",
             ItemID.JEWL_NECKLACE_OF_SKILLS_1,
-            "null",
+            "",
             0,
             0,
             10292,
             ARDOUGNE_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
+                new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
             )
         ));
         

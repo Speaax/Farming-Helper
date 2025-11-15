@@ -144,12 +144,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
         com.easyfarming.locations.LocationData faladorData = com.easyfarming.locations.tree.FaladorTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+            () -> getHouseTeleportItemRequirements()
         );
         
         faladorTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(faladorData, config);
@@ -160,12 +155,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
         com.easyfarming.locations.LocationData farmingGuildData = com.easyfarming.locations.tree.FarmingGuildTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+            () -> getHouseTeleportItemRequirements()
         );
         
         farmingGuildTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(farmingGuildData, config);
@@ -185,12 +175,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
         com.easyfarming.locations.LocationData lumbridgeData = com.easyfarming.locations.tree.LumbridgeTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+            () -> getHouseTeleportItemRequirements()
         );
         
         lumbridgeTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(lumbridgeData, config);
@@ -201,12 +186,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
         com.easyfarming.locations.LocationData taverleyData = com.easyfarming.locations.tree.TaverleyTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+            () -> getHouseTeleportItemRequirements()
         );
         
         taverleyTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(taverleyData, config);
@@ -217,12 +197,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
         com.easyfarming.locations.LocationData varrockData = com.easyfarming.locations.tree.VarrockTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+            () -> getHouseTeleportItemRequirements()
         );
         
         varrockTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(varrockData, config);

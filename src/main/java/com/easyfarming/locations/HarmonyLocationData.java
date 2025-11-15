@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -36,7 +36,7 @@ public class HarmonyLocationData {
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Harmony with Portal Nexus.",
             0,
-            "null",
+            "",
             17,
             13,
             15148,
@@ -50,13 +50,13 @@ public class HarmonyLocationData {
             Teleport.Category.ITEM,
             "Teleport to Harmony with Harmony Tele Tab.",
             ItemID.TELETAB_HARMONY,
-            "null",
+            "",
             0,
             0,
             15148,
             HARMONY_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.TELETAB_HARMONY, 1)
+                new ItemRequirement(ItemID.TELETAB_HARMONY, 1)
             )
         ));
         

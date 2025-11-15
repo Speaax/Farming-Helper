@@ -1,7 +1,7 @@
 package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -63,9 +63,9 @@ public class CivitasLocationData {
             6192,
             CIVITAS_HERB_PATCH_POINT,
             () -> Arrays.asList(
-                new com.easyfarming.core.ItemRequirement(ItemID.LAWRUNE, 2),
-                new com.easyfarming.core.ItemRequirement(ItemID.AIRRUNE, 1),
-                new com.easyfarming.core.ItemRequirement(ItemID.EARTHRUNE, 1)
+                new ItemRequirement(ItemID.LAWRUNE, 2),
+                new ItemRequirement(ItemID.AIRRUNE, 1),
+                new ItemRequirement(ItemID.EARTHRUNE, 1)
             )
         ));
         
@@ -81,7 +81,7 @@ public class CivitasLocationData {
             6192,
             CIVITAS_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.POH_TABLET_FORTISTELEPORT, 1)
+                new ItemRequirement(ItemID.POH_TABLET_FORTISTELEPORT, 1)
             )
         ));
         
@@ -97,7 +97,7 @@ public class CivitasLocationData {
             6192,
             CIVITAS_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.HG_QUETZALWHISTLE_BASIC, 1)
+                new ItemRequirement(ItemID.HG_QUETZALWHISTLE_BASIC, 1)
             )
         ));
         
@@ -113,7 +113,7 @@ public class CivitasLocationData {
             6192,
             CIVITAS_HERB_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.SKILLCAPE_HUNTING, 1)
+                new ItemRequirement(ItemID.SKILLCAPE_HUNTING, 1)
             )
         ));
         

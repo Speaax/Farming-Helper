@@ -340,7 +340,9 @@ public class NavigationHandler {
                             widgetHighlighter.highlightDynamicComponent(graphics, widget, 5);
                         }
                     }
-                } else if (plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId())) {
+                } else if (plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId()) || 
+                           plugin.getEasyFarmingOverlay().isRoyalSeedPod(teleport.getId()) ||
+                           plugin.getEasyFarmingOverlay().isEctophial(teleport.getId())) {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
                 } else {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);

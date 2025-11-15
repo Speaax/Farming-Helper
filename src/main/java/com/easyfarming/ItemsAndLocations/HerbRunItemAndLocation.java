@@ -8,6 +8,7 @@ import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class HerbRunItemAndLocation extends ItemAndLocation
 {
@@ -202,17 +203,15 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         setupCivitasLocation();
     }
 
+    private Supplier<List<ItemRequirement>> createHouseTeleportSupplier() {
+        return () -> getHouseTeleportItemRequirements();
+    }
+
     private void setupCivitasLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData civitasData = com.easyfarming.locations.CivitasLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData civitasData = 
+            com.easyfarming.locations.CivitasLocationData.create(createHouseTeleportSupplier());
         
         civitasLocation = com.easyfarming.locations.LocationFactory.createLocation(civitasData, config);
         locations.add(civitasLocation);
@@ -221,14 +220,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupArdougneLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData ardougneData = com.easyfarming.locations.ArdougneLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData ardougneData = 
+            com.easyfarming.locations.ArdougneLocationData.create(createHouseTeleportSupplier());
         
         ardougneLocation = com.easyfarming.locations.LocationFactory.createLocation(ardougneData, config);
         locations.add(ardougneLocation);
@@ -237,14 +230,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupCatherbyLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData catherbyData = com.easyfarming.locations.CatherbyLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData catherbyData = 
+            com.easyfarming.locations.CatherbyLocationData.create(createHouseTeleportSupplier());
         
         catherbyLocation = com.easyfarming.locations.LocationFactory.createLocation(catherbyData, config);
         locations.add(catherbyLocation);
@@ -253,14 +240,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupFaladorLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData faladorData = com.easyfarming.locations.FaladorLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData faladorData = 
+            com.easyfarming.locations.FaladorLocationData.create(createHouseTeleportSupplier());
         
         faladorLocation = com.easyfarming.locations.LocationFactory.createLocation(faladorData, config);
         locations.add(faladorLocation);
@@ -269,14 +250,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupFarmingGuildLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData farmingGuildData = com.easyfarming.locations.FarmingGuildLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData farmingGuildData = 
+            com.easyfarming.locations.FarmingGuildLocationData.create(createHouseTeleportSupplier());
         
         farmingGuildLocation = com.easyfarming.locations.LocationFactory.createLocation(farmingGuildData, config);
         locations.add(farmingGuildLocation);
@@ -285,14 +260,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupHarmonyLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData harmonyData = com.easyfarming.locations.HarmonyLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData harmonyData = 
+            com.easyfarming.locations.HarmonyLocationData.create(createHouseTeleportSupplier());
         
         harmonyLocation = com.easyfarming.locations.LocationFactory.createLocation(harmonyData, config);
         locations.add(harmonyLocation);
@@ -301,14 +270,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupKourendLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData kourendData = com.easyfarming.locations.KourendLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData kourendData = 
+            com.easyfarming.locations.KourendLocationData.create(createHouseTeleportSupplier());
         
         kourendLocation = com.easyfarming.locations.LocationFactory.createLocation(kourendData, config);
         locations.add(kourendLocation);
@@ -326,14 +289,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupTrollStrongholdLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData trollStrongholdData = com.easyfarming.locations.TrollStrongholdLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData trollStrongholdData = 
+            com.easyfarming.locations.TrollStrongholdLocationData.create(createHouseTeleportSupplier());
         
         trollStrongholdLocation = com.easyfarming.locations.LocationFactory.createLocation(trollStrongholdData, config);
         locations.add(trollStrongholdLocation);
@@ -342,14 +299,8 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     private void setupWeissLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData weissData = com.easyfarming.locations.WeissLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
-        );
+        com.easyfarming.locations.LocationData weissData = 
+            com.easyfarming.locations.WeissLocationData.create(createHouseTeleportSupplier());
         
         weissLocation = com.easyfarming.locations.LocationFactory.createLocation(weissData, config);
         locations.add(weissLocation);

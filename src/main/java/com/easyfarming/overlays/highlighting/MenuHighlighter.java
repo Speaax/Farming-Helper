@@ -26,6 +26,11 @@ public class MenuHighlighter {
      * Highlights a right-click menu option.
      */
     public void highlightRightClickOption(Graphics2D graphics, String option) {
+        // Skip if option is null or empty to avoid matching all menu entries
+        if (option == null || option.trim().isEmpty()) {
+            return;
+        }
+        
         Menu menu = client.getMenu();
         if (menu == null) {
             return;
@@ -70,7 +75,7 @@ public class MenuHighlighter {
                 }
             }
             
-            if (matches) {
+            if (matches && optionText != null) {
                 // Only highlight if not already highlighted
                 if (!optionText.startsWith(">>>")) {
                     String highlightedText = ColorUtil.prependColorTag(">>> " + optionText, color);

@@ -1,7 +1,7 @@
 package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.core.ItemRequirement;
+import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.TeleportData;
@@ -57,7 +57,7 @@ public class FarmingGuildFruitTreeLocationData {
             4922,
             FARMING_GUILD_FRUIT_TREE_PATCH_POINT,
             () -> Collections.singletonList(
-                new com.easyfarming.core.ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
+                new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
             )
         ));
         

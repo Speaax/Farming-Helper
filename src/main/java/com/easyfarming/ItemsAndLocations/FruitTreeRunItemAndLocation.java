@@ -6,6 +6,14 @@ import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
+import com.easyfarming.locations.LocationData;
+import com.easyfarming.locations.LocationFactory;
+import com.easyfarming.locations.fruittree.BrimhavenFruitTreeLocationData;
+import com.easyfarming.locations.fruittree.CatherbyFruitTreeLocationData;
+import com.easyfarming.locations.fruittree.FarmingGuildFruitTreeLocationData;
+import com.easyfarming.locations.fruittree.GnomeStrongholdFruitTreeLocationData;
+import com.easyfarming.locations.fruittree.LletyaFruitTreeLocationData;
+import com.easyfarming.locations.fruittree.TreeGnomeVillageFruitTreeLocationData;
 
 import java.util.*;
 
@@ -18,6 +26,8 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
     public Location lletyaFruitTreeLocation;
     public Location treeGnomeVillageFruitTreeLocation;
 
+    private boolean locationsInitialized = false;
+
     public FruitTreeRunItemAndLocation()
     {
     }
@@ -29,6 +39,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             client,
             plugin
         );
+        setupLocations();
     }
 
     public Map<Integer, Integer> getFruitTreeItems()
@@ -39,8 +50,6 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
     public Map<Integer, Integer> getAllItemRequirements(List<Location> locations)
     {
         Map<Integer, Integer> allRequirements = new HashMap<>();
-
-        setupLocations();
 
         // Add other items and merge them with allRequirements
         for (Location location : locations) {
@@ -79,10 +88,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                         allRequirements.merge(
                             itemId,
                             quantity,
-                            (oldValue, newValue) -> Math.min(
-                                1,
-                                oldValue + newValue
-                            )
+                            (oldValue, newValue) -> Math.max(oldValue, newValue)
                         );
                     } else {
                         allRequirements.merge(
@@ -130,6 +136,11 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
 
     public void setupLocations()
     {
+        if (locationsInitialized) {
+            return;
+        }
+
+        locations.clear();
         super.setupLocations();
 
         setupBrimhavenLocations();
@@ -138,80 +149,67 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
         setupGnomeStrongholdLocation();
         setupLletyaLocation();
         setupTreeGnomeVillage();
+
+        locationsInitialized = true;
     }
 
     private void setupBrimhavenLocations()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData brimhavenData = com.easyfarming.locations.fruittree.BrimhavenFruitTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+        LocationData brimhavenData = BrimhavenFruitTreeLocationData.create(
+            () -> getHouseTeleportItemRequirements()
         );
         
-        brimhavenFruitTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(brimhavenData, config);
+        brimhavenFruitTreeLocation = LocationFactory.createLocation(brimhavenData, config);
         locations.add(brimhavenFruitTreeLocation);
     }
 
     private void setupCatherbyLocations()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData catherbyData = com.easyfarming.locations.fruittree.CatherbyFruitTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+        LocationData catherbyData = CatherbyFruitTreeLocationData.create(
+            () -> getHouseTeleportItemRequirements()
         );
         
-        catherbyFruitTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(catherbyData, config);
+        catherbyFruitTreeLocation = LocationFactory.createLocation(catherbyData, config);
         locations.add(catherbyFruitTreeLocation);
     }
 
     private void setupFarmingGuildLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData farmingGuildData = com.easyfarming.locations.fruittree.FarmingGuildFruitTreeLocationData.create(
-            () -> {
-                List<ItemRequirement> requirements = getHouseTeleportItemRequirements();
-                return requirements.stream()
-                    .map(ir -> new com.easyfarming.core.ItemRequirement(ir.getItemId(), ir.getQuantity()))
-                    .collect(java.util.stream.Collectors.toList());
-            }
+        LocationData farmingGuildData = FarmingGuildFruitTreeLocationData.create(
+            () -> getHouseTeleportItemRequirements()
         );
         
-        farmingGuildFruitTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(farmingGuildData, config);
+        farmingGuildFruitTreeLocation = LocationFactory.createLocation(farmingGuildData, config);
         locations.add(farmingGuildFruitTreeLocation);
     }
 
     private void setupGnomeStrongholdLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData gnomeStrongholdData = com.easyfarming.locations.fruittree.GnomeStrongholdFruitTreeLocationData.create();
+        LocationData gnomeStrongholdData = GnomeStrongholdFruitTreeLocationData.create();
         
-        gnomeStrongholdFruitTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(gnomeStrongholdData, config);
+        gnomeStrongholdFruitTreeLocation = LocationFactory.createLocation(gnomeStrongholdData, config);
         locations.add(gnomeStrongholdFruitTreeLocation);
     }
 
     private void setupLletyaLocation()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData lletyaData = com.easyfarming.locations.fruittree.LletyaFruitTreeLocationData.create();
+        LocationData lletyaData = LletyaFruitTreeLocationData.create();
         
-        lletyaFruitTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(lletyaData, config);
+        lletyaFruitTreeLocation = LocationFactory.createLocation(lletyaData, config);
         locations.add(lletyaFruitTreeLocation);
     }
 
     private void setupTreeGnomeVillage()
     {
         // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData treeGnomeVillageData = com.easyfarming.locations.fruittree.TreeGnomeVillageFruitTreeLocationData.create();
+        LocationData treeGnomeVillageData = TreeGnomeVillageFruitTreeLocationData.create();
         
-        treeGnomeVillageFruitTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(treeGnomeVillageData, config);
+        treeGnomeVillageFruitTreeLocation = LocationFactory.createLocation(treeGnomeVillageData, config);
         locations.add(treeGnomeVillageFruitTreeLocation);
     }
 }
