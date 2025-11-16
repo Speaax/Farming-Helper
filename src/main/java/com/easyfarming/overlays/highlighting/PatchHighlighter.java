@@ -37,6 +37,22 @@ public class PatchHighlighter {
         }
     }
     
+    public void highlightAllotmentPatches(Graphics2D graphics, Color color) {
+        for (Integer patchId : farmingHelperOverlay.getAllotmentPatchIds()) {
+            gameObjectHighlighter.highlightGameObject(patchId, color).render(graphics);
+        }
+    }
+    
+    /**
+     * Highlights a specific allotment patch by object ID.
+     * @param graphics Graphics context
+     * @param objectId The object ID of the specific patch to highlight
+     * @param color The color to use for highlighting
+     */
+    public void highlightSpecificAllotmentPatch(Graphics2D graphics, int objectId, Color color) {
+        gameObjectHighlighter.highlightGameObject(objectId, color).render(graphics);
+    }
+    
     public void highlightTreePatches(Graphics2D graphics, Color color) {
         for (Integer patchId : farmingHelperOverlay.getTreePatchIds()) {
             gameObjectHighlighter.highlightGameObject(patchId, color).render(graphics);

@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
  * Utility class for checking patch states (composted, protected, etc.).
  */
 public class PatchStateChecker {
-    private static final String REGEX_COMPOST1 = "You treat the (herb patch|flower patch|tree patch|fruit tree patch) with (compost|supercompost|ultracompost)\\.";
-    private static final String REGEX_COMPOST2 = "This (herb patch|flower patch|tree patch|fruit tree patch) has already been treated with (compost|supercompost|ultracompost)\\.";
+    private static final String REGEX_COMPOST1 = "You treat the (herb patch|flower patch|allotment patch|allotment|tree patch|fruit tree patch) with (compost|supercompost|ultracompost)\\.";
+    private static final String REGEX_COMPOST2 = "This (herb patch|flower patch|allotment patch|allotment|tree patch|fruit tree patch) has already been treated with (compost|supercompost|ultracompost)\\.";
     private static final String REGEX_COMPOST3 = "You treat the patch with (compost|supercompost|ultracompost)\\.";
     private static final String REGEX_COMPOST4 = "This patch has already been treated with (compost|supercompost|ultracompost)\\.";
     private static final Pattern COMPOST_PATTERN = Pattern.compile(REGEX_COMPOST1 + "|" + REGEX_COMPOST2 + "|" + REGEX_COMPOST3 + "|" + REGEX_COMPOST4);

@@ -209,6 +209,10 @@ public class EasyFarmingPlugin extends Plugin
     public void addTextToInfoBox(String text) {
 		farmingHelperOverlayInfoBox.setText(text);
 	}
+
+    public void addDebugTextToInfoBox(String debugText) {
+		farmingHelperOverlayInfoBox.setDebugText(debugText);
+	}
 	public boolean getHerbLocationEnabled(String locationName) {
 		switch (locationName) {
 			case "Ardougne":

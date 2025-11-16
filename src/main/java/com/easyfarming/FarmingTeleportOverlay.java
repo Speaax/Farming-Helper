@@ -357,6 +357,8 @@ public class FarmingTeleportOverlay extends Overlay {
                 if (herbRun && location.getFarmLimps() && config.generalLimpwurt()) {
                     patchHighlighter.highlightFlowerPatches(graphics, leftColor);
                 }
+                // Allotment patches are highlighted in allotmentSteps() based on state detection
+                // No unconditional highlighting here - only when state is detected
                 // highlightHerbPatches(graphics, leftClickColorWithAlpha);
                 break;
             case "Catherby":
@@ -865,9 +867,11 @@ public class FarmingTeleportOverlay extends Overlay {
     public void farming(Graphics2D graphics, Location.Teleport teleport) {
         if (this.startSubCases) {
             if (herbRun) {
+                plugin.addDebugTextToInfoBox("[FARMING] subCase=" + this.subCase + " | herbPatchDone=" + farmingStepHandler.herbPatchDone);
                 if (this.subCase == 1) {
                     farmingStepHandler.herbSteps(graphics, teleport);
                     if (farmingStepHandler.herbPatchDone) {
+                        plugin.addDebugTextToInfoBox("[TRANSITION] Herb done, moving to subCase 2");
                         this.subCase = 2;
                         farmingStepHandler.herbPatchDone = false;
                     }
@@ -875,14 +879,23 @@ public class FarmingTeleportOverlay extends Overlay {
                     if (config.generalLimpwurt()) {
                         farmingStepHandler.flowerSteps(graphics, this.farmLimps);
                         if (farmingStepHandler.flowerPatchDone) {
-                            this.subCase = 1;
-                            this.startSubCases = false;
-                            isAtDestination = false;
-                            this.currentLocationIndex++;
-                            this.farmLimps = false;
-                            farmingStepHandler.flowerPatchDone = false;
-
+                            if (config.generalAllotment()) {
+                                this.subCase = 3;
+                                farmingStepHandler.flowerPatchDone = false;
+                            } else {
+                                this.subCase = 1;
+                                this.startSubCases = false;
+                                isAtDestination = false;
+                                this.currentLocationIndex++;
+                                this.farmLimps = false;
+                                farmingStepHandler.flowerPatchDone = false;
+                            }
                         }
+                    } else if (config.generalAllotment()) {
+                        // Transition directly to allotment steps
+                        this.subCase = 3;
+                        // Reset allotment patch tracking for new location
+                        farmingStepHandler.allotmentPatchDone = false;
                     } else {
                         this.subCase = 1;
                         this.startSubCases = false;
@@ -890,6 +903,27 @@ public class FarmingTeleportOverlay extends Overlay {
                         this.currentLocationIndex++;
                         this.farmLimps = false;
                         farmingStepHandler.flowerPatchDone = false;
+                    }
+                } else if (this.subCase == 3) {
+                    if (config.generalAllotment()) {
+                        plugin.addDebugTextToInfoBox("[FARMING] subCase=3 | allotmentPatchDone=" + farmingStepHandler.allotmentPatchDone);
+                        farmingStepHandler.allotmentSteps(graphics, teleport);
+                        if (farmingStepHandler.allotmentPatchDone) {
+                            plugin.addDebugTextToInfoBox("[TRANSITION] Allotment done, moving to next location");
+                            this.subCase = 1;
+                            this.startSubCases = false;
+                            isAtDestination = false;
+                            this.currentLocationIndex++;
+                            this.farmLimps = false;
+                            farmingStepHandler.allotmentPatchDone = false;
+                        }
+                        // If allotmentPatchDone is false, continue to next frame - allotmentSteps() will handle instructions/highlights
+                    } else {
+                        this.subCase = 1;
+                        this.startSubCases = false;
+                        isAtDestination = false;
+                        this.currentLocationIndex++;
+                        this.farmLimps = false;
                     }
                 }
             }

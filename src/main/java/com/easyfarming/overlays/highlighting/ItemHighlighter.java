@@ -109,6 +109,15 @@ public class ItemHighlighter {
     /**
      * Highlights herb seeds in inventory.
      */
+    public void highlightAllotmentSeeds(Graphics2D graphics) {
+        Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
+        List<Integer> allotmentSeedIds = farmingHelperOverlay.getAllotmentSeedIds();
+        
+        for (Integer seedId : allotmentSeedIds) {
+            itemHighlight(graphics, seedId, useItemColor);
+        }
+    }
+    
     public void highlightHerbSeeds(Graphics2D graphics) {
         Color color = colorProvider.getHighlightUseItemWithAlpha();
         for (Integer seedId : farmingHelperOverlay.getHerbSeedIds()) {

@@ -15,12 +15,13 @@ public class Constants {
     
     // Region IDs
     public static final int REGION_ARDOUGNE = 10547;
-    public static final int REGION_CATHERBY = 11061;
-    public static final int REGION_FALADOR = 11828;
+    public static final int REGION_ARDOUGNE_ALT = 10548; // Alternative region ID for Ardougne farming area
+    public static final int REGION_CATHERBY = 11062;
+    public static final int REGION_FALADOR = 12083;
     public static final int REGION_FARMING_GUILD = 4922;
     public static final int REGION_HARMONY = 15148;
     public static final int REGION_KOUREND = 6967;
-    public static final int REGION_MORYTANIA = 14647;
+    public static final int REGION_MORYTANIA = 14391;
     public static final int REGION_TROLL_STRONGHOLD = 11321;
     public static final int REGION_WEISS = 11325;
     public static final int REGION_CIVITAS = 6192;
@@ -39,6 +40,14 @@ public class Constants {
     public static final int VARBIT_FRUIT_TREE_PATCH_STANDARD = 4771;
     public static final int VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD = 7909;
     public static final int VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD = 4772;
+    // Allotment patch varbits - fallback only (object composition is preferred)
+    // These are only used if object composition doesn't provide a varbit ID
+    // Different locations use different transmit varbits:
+    // Catherby uses A1/B1, Ardougne uses A2/B2
+    public static final int VARBIT_ALLOTMENT_PATCH_NORTH_A1 = VarbitID.FARMING_TRANSMIT_A1;  // North patch fallback (Catherby)
+    public static final int VARBIT_ALLOTMENT_PATCH_SOUTH_B1 = VarbitID.FARMING_TRANSMIT_B1;  // South patch fallback (Catherby)
+    public static final int VARBIT_ALLOTMENT_PATCH_NORTH_A2 = VarbitID.FARMING_TRANSMIT_A2;  // North patch fallback (Ardougne)
+    public static final int VARBIT_ALLOTMENT_PATCH_SOUTH_B2 = VarbitID.FARMING_TRANSMIT_B2;  // South patch fallback (Ardougne)
     
     // Tool Leprechaun varbits
     public static final int VARBIT_COMPOST_STORED = 1442;
@@ -102,6 +111,30 @@ public class Constants {
         7964, 7965, 34007, 7962, 26579, 7963
     ));
     
+    // Allotment patch IDs per location
+    // Format: [north patch, south patch] for each location
+    // Note: Troll Stronghold and Weiss have no allotment patches
+    // Harmony is excluded for now
+    public static final Map<String, List<Integer>> ALLOTMENT_PATCH_IDS_BY_LOCATION;
+    
+    static {
+        Map<String, List<Integer>> patchMap = new HashMap<>();
+        patchMap.put("Ardougne", Arrays.asList(8554, 8555));  // north, south
+        patchMap.put("Catherby", Arrays.asList(8552, 8553));  // north, south
+        patchMap.put("Falador", Arrays.asList(8550, 8551));  // north, south
+        patchMap.put("Farming Guild", Arrays.asList(33694, 33693));  // north, south
+        patchMap.put("Kourend", Arrays.asList(27113, 27114));  // north, south
+        patchMap.put("Morytania", Arrays.asList(8556, 8557));  // north, south
+        patchMap.put("Civitas illa Fortis", Arrays.asList(50696, 50695));  // north, south
+        ALLOTMENT_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
+    }
+    
+    // Legacy support - returns Ardougne patches by default
+    @Deprecated
+    public static final List<Integer> ALLOTMENT_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
+        8554, 8555  // Ardougne: north patch, south patch
+    ));
+    
     public static final List<Integer> HERB_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
         ItemID.GUAM_SEED, ItemID.MARRENTILL_SEED, ItemID.TARROMIN_SEED, ItemID.HARRALANDER_SEED,
         ItemID.RANARR_SEED, ItemID.TOADFLAX_SEED, ItemID.IRIT_SEED, ItemID.AVANTOE_SEED,
@@ -118,6 +151,15 @@ public class Constants {
         ItemID.PLANTPOT_APPLE_SAPLING, ItemID.PLANTPOT_BANANA_SAPLING, ItemID.PLANTPOT_ORANGE_SAPLING,
         ItemID.PLANTPOT_CURRY_SAPLING, ItemID.PLANTPOT_PINEAPPLE_SAPLING, ItemID.PLANTPOT_PAPAYA_SAPLING,
         ItemID.PLANTPOT_PALM_SAPLING, ItemID.PLANTPOT_DRAGONFRUIT_SAPLING
+    ));
+    
+    public static final List<Integer> ALLOTMENT_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
+        ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED
+    ));
+    
+    public static final List<Integer> WATERING_CAN_IDS = Collections.unmodifiableList(Arrays.asList(
+        5331, 5333, 5334, 5335, 5336, 5337, 5338, 5339, 5340
     ));
     
     public static final List<Integer> RUNE_POUCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -152,6 +194,7 @@ public class Constants {
     public static final int BASE_HERB_SEED_ID = ItemID.GUAM_SEED;
     public static final int BASE_TREE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
     public static final int BASE_FRUIT_TREE_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
+    public static final int BASE_ALLOTMENT_SEED_ID = ItemID.SNAPE_GRASS_SEED;
     
     // Combination rune mapping
     public static final Map<Integer, List<Integer>> COMBINATION_RUNE_SUBRUNES_MAP;
@@ -186,6 +229,10 @@ public class Constants {
     
     public static boolean isFruitTreeSapling(int itemId) {
         return FRUIT_TREE_SAPLING_IDS.contains(itemId);
+    }
+    
+    public static boolean isAllotmentSeed(int itemId) {
+        return ALLOTMENT_SEED_IDS.contains(itemId);
     }
     
     public static boolean isQuetzalWhistle(int itemId) {

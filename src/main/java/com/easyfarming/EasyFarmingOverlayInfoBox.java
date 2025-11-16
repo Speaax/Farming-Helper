@@ -17,6 +17,7 @@ public class EasyFarmingOverlayInfoBox extends Overlay {
     private final EasyFarmingPlugin plugin;
 
     private String text;
+    private String debugText;
 
     @Inject
     public EasyFarmingOverlayInfoBox(Client client, EasyFarmingPlugin plugin) {
@@ -30,6 +31,10 @@ public class EasyFarmingOverlayInfoBox extends Overlay {
         this.text = text;
     }
 
+    public void setDebugText(String debugText) {
+        this.debugText = debugText;
+    }
+
     @Override
     public Dimension render(Graphics2D graphics) {
         if (!plugin.isOverlayActive()) {
@@ -40,6 +45,10 @@ public class EasyFarmingOverlayInfoBox extends Overlay {
 
         if (text != null) {
             panelComponent.getChildren().add(LineComponent.builder().left(text).build());
+        }
+
+        if (debugText != null) {
+            panelComponent.getChildren().add(LineComponent.builder().left(debugText).build());
         }
 
         return panelComponent.render(graphics);

@@ -146,6 +146,34 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                         );
                     }
                 }
+
+                // Add allotment seed requirements if enabled
+                if (config.generalAllotment()) {
+                    int allotmentPatches = 2; // Most locations have 2 allotment patches
+                    if (location.getName().equals("Harmony Island")) {
+                        allotmentPatches = 1; // Harmony only has 1 allotment patch
+                    }
+                    
+                    // Each allotment patch requires 3 seeds
+                    int seedsPerPatch = 3;
+                    int totalAllotmentSeeds = allotmentPatches * seedsPerPatch;
+                    
+                    // Use POTATO_SEED as base ID (similar to GUAM_SEED for herbs)
+                    allRequirements.merge(
+                        ItemID.POTATO_SEED,
+                        totalAllotmentSeeds,
+                        Integer::sum
+                    );
+
+                    // Allotment patches also need compost (same as herb patches)
+                    if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                        allRequirements.merge(
+                            selectedCompostID(),
+                            allotmentPatches,
+                            Integer::sum
+                        );
+                    }
+                }
             }
         }
         if(config.generalSeedDibber()) {

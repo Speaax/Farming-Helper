@@ -92,6 +92,32 @@ public class EasyFarmingOverlay extends Overlay {
         return Constants.FLOWER_PATCH_IDS;
     }
 
+    @Deprecated
+    public List<Integer> getAllotmentPatchIds() {
+        // Deprecated: Use getAllotmentPatchIdsForLocation() instead
+        // Returns Ardougne patches for backward compatibility
+        return Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.getOrDefault("Ardougne", Collections.emptyList());
+    }
+    
+    /**
+     * Gets allotment patch IDs for a specific location.
+     * @param locationName The name of the location
+     * @return List of patch object IDs [north patch, south patch], or empty list if location has no allotment patches
+     */
+    public List<Integer> getAllotmentPatchIdsForLocation(String locationName) {
+        return Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.getOrDefault(locationName, Collections.emptyList());
+    }
+    private static final List<Integer> ALLOTMENT_SEED_IDS = Arrays.asList(
+        ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
+        ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED
+    );
+    private static final int BASE_ALLOTMENT_SEED_ID = ItemID.POTATO_SEED;
+    public List<Integer> getAllotmentSeedIds() {
+        return ALLOTMENT_SEED_IDS;
+    }
+    private boolean isAllotmentSeed(int itemId) {
+        return ALLOTMENT_SEED_IDS.contains(itemId);
+    }
 
     public List<Integer> getTreePatchIds() {
         return Constants.TREE_PATCH_IDS;
@@ -461,10 +487,14 @@ public class EasyFarmingOverlay extends Overlay {
             }
 
             int totalSeeds = 0;
+            int totalAllotmentSeeds = 0;
             if(plugin.getFarmingTeleportOverlay().herbRun) {
                 for (Item item : items) {
                     if (isHerbSeed(item.getId())) {
                         totalSeeds += item.getQuantity();
+                    }
+                    if (isAllotmentSeed(item.getId())) {
+                        totalAllotmentSeeds += item.getQuantity();
                     }
                 }
             }
@@ -568,6 +598,8 @@ public class EasyFarmingOverlay extends Overlay {
                 // Apply run-specific and item-specific overrides in order
                 if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_SEED_ID) {
                     inventoryCount = totalSeeds;
+                } else if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_ALLOTMENT_SEED_ID) {
+                    inventoryCount = totalAllotmentSeeds;
                 } else if (plugin.getFarmingTeleportOverlay().treeRun && itemId == BASE_SAPLING_ID) {
                     inventoryCount = totalSeeds;
                 } else if (plugin.getFarmingTeleportOverlay().fruitTreeRun && itemId == BASE_FRUIT_SAPLING_ID) {

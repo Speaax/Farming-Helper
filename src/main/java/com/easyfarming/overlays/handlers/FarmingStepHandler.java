@@ -6,10 +6,13 @@ import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.PatchStateChecker;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
+import net.runelite.api.GameObject;
+import net.runelite.api.ObjectComposition;
 import net.runelite.api.gameval.ItemID;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.util.List;
 
 /**
  * Handles farming step logic for herb, flower, tree, and fruit tree patches.
@@ -25,19 +28,26 @@ public class FarmingStepHandler {
     private final FarmerHighlighter farmerHighlighter;
     private final PatchStateChecker patchStateChecker;
     private final ColorProvider colorProvider;
+    private final GameObjectHighlighter gameObjectHighlighter;
     
     // State tracking
     public boolean herbPatchDone = false;
     public boolean flowerPatchDone = false;
+    public boolean allotmentPatchDone = false;
     public boolean treePatchDone = false;
     public boolean fruitTreePatchDone = false;
+    
+    // Allotment patch tracking - which patch we're currently working on (0 = first patch, 1 = second patch)
+    private final AllotmentPatchState allotmentPatchState = new AllotmentPatchState();
+    private final EasyFarmingOverlay farmingHelperOverlay;
     
     @Inject
     public FarmingStepHandler(Client client, EasyFarmingPlugin plugin, EasyFarmingConfig config,
                               AreaCheck areaCheck, PatchHighlighter patchHighlighter,
                               ItemHighlighter itemHighlighter, CompostHighlighter compostHighlighter,
                               FarmerHighlighter farmerHighlighter, PatchStateChecker patchStateChecker,
-                              ColorProvider colorProvider) {
+                              ColorProvider colorProvider, EasyFarmingOverlay farmingHelperOverlay,
+                              GameObjectHighlighter gameObjectHighlighter) {
         this.client = client;
         this.plugin = plugin;
         this.config = config;
@@ -48,6 +58,8 @@ public class FarmingStepHandler {
         this.farmerHighlighter = farmerHighlighter;
         this.patchStateChecker = patchStateChecker;
         this.colorProvider = colorProvider;
+        this.farmingHelperOverlay = farmingHelperOverlay;
+        this.gameObjectHighlighter = gameObjectHighlighter;
     }
     
     /**
@@ -104,10 +116,16 @@ public class FarmingStepHandler {
                     patchHighlighter.highlightHerbPatches(graphics, leftColor);
                     break;
                 case GROWING:
-                    plugin.addTextToInfoBox("Use Compost on patch.");
-                    compostHighlighter.highlightCompost(graphics, true, false, false, 1);
-                    if (patchStateChecker.patchIsComposted()) {
+                    boolean isComposted = patchStateChecker.patchIsComposted();
+                    plugin.addDebugTextToInfoBox("[HERB] GROWING - compost detected: " + isComposted + " | herbPatchDone: " + herbPatchDone);
+                    if (isComposted) {
                         herbPatchDone = true;
+                        // Don't show anything - transition will happen on next frame
+                        return;
+                    }
+                    if (!herbPatchDone) {
+                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        compostHighlighter.highlightCompost(graphics, true, false, false, 1);
                     }
                     break;
                 case UNKNOWN:
@@ -152,6 +170,7 @@ public class FarmingStepHandler {
                     break;
                 case GROWING:
                     plugin.addTextToInfoBox("Use Compost on patch.");
+                    plugin.addDebugTextToInfoBox("[FLOWER] GROWING state - compost needed");
                     compostHighlighter.highlightCompost(graphics, false, false, false, 2);
                     if (patchStateChecker.patchIsComposted()) {
                         flowerPatchDone = true;
@@ -163,6 +182,411 @@ public class FarmingStepHandler {
             }
         } else {
             flowerPatchDone = true;
+        }
+    }
+    
+    /**
+     * Gets the location name from a region ID.
+     * @param regionId The region ID
+     * @return The location name, or "Unknown" if not found
+     */
+    private String getLocationNameFromRegionId(int regionId) {
+        switch (regionId) {
+            case Constants.REGION_ARDOUGNE:
+            case Constants.REGION_ARDOUGNE_ALT:
+                return "Ardougne";
+            case Constants.REGION_CATHERBY:
+                return "Catherby";
+            case Constants.REGION_FALADOR:
+                return "Falador";
+            case Constants.REGION_FARMING_GUILD:
+                return "Farming Guild";
+            case Constants.REGION_KOUREND:
+                return "Kourend";
+            case Constants.REGION_MORYTANIA:
+                return "Morytania";
+            case Constants.REGION_CIVITAS:
+                return "Civitas illa Fortis";
+            case Constants.REGION_HARMONY:
+                return "Harmony Island";
+            case Constants.REGION_TROLL_STRONGHOLD:
+                return "Troll Stronghold";
+            case Constants.REGION_WEISS:
+                return "Weiss";
+            default:
+                return "Unknown";
+        }
+    }
+    
+    /**
+     * Gets the varbit ID for an allotment patch by checking the object composition.
+     * @param objectId The object ID of the allotment patch
+     * @return The varbit ID, or -1 if not found
+     */
+    private int getAllotmentPatchVarbitId(int objectId) {
+        if (objectId == -1) {
+            return -1;
+        }
+        ObjectComposition objectComposition = client.getObjectDefinition(objectId);
+        if (objectComposition != null) {
+            return objectComposition.getVarbitId();
+        }
+        return -1;
+    }
+    
+    /**
+     * Gets the priority of a plant state for determining which patch to handle first.
+     * Higher priority = handle first.
+     */
+    private int getStatePriority(AllotmentPatchChecker.PlantState state) {
+        switch (state) {
+            case HARVESTABLE: return 7;
+            case DEAD: return 6;
+            case DISEASED: return 5;
+            case NEEDS_WATER: return 4;
+            case WEEDS: return 3;
+            case PLANT: return 2;
+            case GROWING: return 1;
+            case UNKNOWN: return 0;
+            default: return 0;
+        }
+    }
+    
+    /**
+     * Handles allotment patch farming steps.
+     * Calls north patch handler first, then south patch handler when north is done.
+     */
+    public void allotmentSteps(Graphics2D graphics, Location.Teleport teleport) {
+        // Handle north patch first
+        if (allotmentPatchState.getCurrentIndex() == 0) {
+            allotmentNorthSteps(graphics, teleport);
+            // If north patch is done (GROWING + composted), move to south patch
+            // Once we move to south patch, north patch is completely ignored for this run
+            // Only transition if north patch is actually completed (GROWING + composted)
+            if (allotmentPatchState.isPatchCompleted(0) && allotmentPatchState.isPatchComposted(0)) {
+                allotmentPatchState.moveToNextPatch();
+                // Don't process south patch in the same frame - let it happen on next frame
+                return;
+            }
+        }
+        
+        // Handle south patch if north is done (and we're on index 1)
+        // This block only executes when currentAllotmentPatchIndex == 1
+        // Once we're here, we never go back to north patch
+        if (allotmentPatchState.getCurrentIndex() == 1) {
+            allotmentSouthSteps(graphics, teleport);
+            // If south patch is done, mark all allotment patches as done
+            if (allotmentPatchState.isPatchCompleted(1)) {
+                this.allotmentPatchDone = true;
+                // Reset for next location
+                allotmentPatchState.reset();
+            }
+        }
+    }
+    
+    /**
+     * Handles north allotment patch farming steps.
+     * Completely separate from south patch handling.
+     * Once we move to south patch (index 1), this method should never be called.
+     */
+    private void allotmentNorthSteps(Graphics2D graphics, Location.Teleport teleport) {
+        // Safety check: If we're not on north patch (index 0), return immediately
+        // This ensures we never process north patch once we've moved forward
+        if (allotmentPatchState.getCurrentIndex() != 0) {
+            return;
+        }
+        
+        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        Color leftColor = colorProvider.getLeftClickColorWithAlpha();
+        Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
+        
+        // Get location name from region ID
+        String locationName = getLocationNameFromRegionId(currentRegionId);
+        
+        // Get patch object IDs for this location
+        List<Integer> allotmentPatchIds = farmingHelperOverlay.getAllotmentPatchIdsForLocation(locationName);
+        
+        // If no patches found for this location, return
+        if (allotmentPatchIds.isEmpty() || allotmentPatchIds.get(0) == null) {
+            plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] No patches found");
+            return;
+        }
+        
+        int patchObjectId = allotmentPatchIds.get(0); // North patch (index 0)
+        
+        // Get varbit ID from object composition
+        int varbitIdFromObject = getAllotmentPatchVarbitId(patchObjectId);
+        int varbitId = varbitIdFromObject;
+        
+        // Fallback: If object composition fails, use location-specific varbits
+        if (varbitId == -1) {
+            if (locationName.equals("Catherby")) {
+                varbitId = Constants.VARBIT_ALLOTMENT_PATCH_NORTH_A1;
+            } else {
+                varbitId = Constants.VARBIT_ALLOTMENT_PATCH_NORTH_A2;
+            }
+        }
+        
+        // Check state for north patch
+        AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
+        int varbitValue = -1;
+        
+        if (varbitId != -1) {
+            varbitValue = client.getVarbitValue(varbitId);
+            plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
+        }
+        
+        // Debug output
+        plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] ObjID=" + patchObjectId + 
+            " Varbit=" + (varbitIdFromObject != -1 ? varbitIdFromObject : "Fallback:" + varbitId) + 
+            " Val=" + varbitValue + " State=" + plantState + 
+            " Done=" + allotmentPatchState.isPatchCompleted(0) + " Composted=" + allotmentPatchState.isPatchComposted(0));
+        
+        // Check completion status for north patch
+        // HARVESTABLE is NOT completed - user still needs to harvest
+        // Only GROWING + composted is considered completed (nothing more to do)
+        boolean completed = plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(0);
+        allotmentPatchState.setPatchCompleted(0, completed);
+        
+        // Handle early returns in a single place
+        if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
+            plugin.addTextToInfoBox("Allotment patch state unknown - north patch");
+            return;
+        }
+        
+        // If completed and not HARVESTABLE, return early (no need to show further instructions)
+        // This prevents re-highlighting after other game actions
+        if (completed && plantState != AllotmentPatchChecker.PlantState.HARVESTABLE) {
+            return;
+        }
+        
+        // Check if patch is visible in scene (more accurate than distance to teleport point)
+        List<GameObject> patchObjects = gameObjectHighlighter.findGameObjectsByID(patchObjectId);
+        boolean patchVisible = !patchObjects.isEmpty();
+        
+        // Handle north patch states
+        if (!patchVisible) {
+            plugin.addTextToInfoBox("Navigate to north patch.");
+            patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+        } else {
+            switch (plantState) {
+                case HARVESTABLE:
+                    plugin.addTextToInfoBox("Harvest Allotment (north patch).");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    break;
+                case PLANT:
+                    plugin.addTextToInfoBox("Use Allotment seed on north patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
+                    itemHighlighter.highlightAllotmentSeeds(graphics);
+                    break;
+                case DEAD:
+                    plugin.addTextToInfoBox("Clear the dead north patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    break;
+                case DISEASED:
+                    plugin.addTextToInfoBox("Use Plant cure on north patch. Buy at GE or in farming guild/catherby, and store at Tool Leprechaun for easy access.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
+                    break;
+                case NEEDS_WATER:
+                    plugin.addTextToInfoBox("Water the north patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
+                    for (int canId : Constants.WATERING_CAN_IDS) {
+                        itemHighlighter.itemHighlight(graphics, canId, useItemColor);
+                    }
+                    break;
+                case WEEDS:
+                    plugin.addTextToInfoBox("Rake the north patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    break;
+                case GROWING:
+                    // Check if compost was just applied (from chat message)
+                    if (patchStateChecker.patchIsComposted()) {
+                        // Mark as composted (persistent)
+                        allotmentPatchState.markComposted(0);
+                        return;
+                    }
+                    // Patch is GROWING but not composted yet - show compost instruction
+                    plugin.addTextToInfoBox("Use Compost on north patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
+                    Integer compostId = itemHighlighter.selectedCompostID();
+                    if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
+                        itemHighlighter.itemHighlight(graphics, compostId, useItemColor);
+                    } else {
+                        compostHighlighter.withdrawCompost(graphics);
+                    }
+                    break;
+                case UNKNOWN:
+                    plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the north allotment patch to change its state.");
+                    break;
+            }
+        }
+    }
+    
+    /**
+     * Handles south allotment patch farming steps.
+     * Completely separate from north patch handling - only deals with south patch (index 1).
+     * North patch is completely ignored once we reach this point.
+     */
+    private void allotmentSouthSteps(Graphics2D graphics, Location.Teleport teleport) {
+        // Safety check: If we're not on south patch (index 1), return immediately
+        // This ensures we only process south patch when we're supposed to
+        if (allotmentPatchState.getCurrentIndex() != 1) {
+            return;
+        }
+        
+        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        Color leftColor = colorProvider.getLeftClickColorWithAlpha();
+        Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
+        
+        // Get location name from region ID
+        String locationName = getLocationNameFromRegionId(currentRegionId);
+        
+        // Get patch object IDs for this location
+        List<Integer> allotmentPatchIds = farmingHelperOverlay.getAllotmentPatchIdsForLocation(locationName);
+        
+        // If no patches found or south patch doesn't exist, return
+        if (allotmentPatchIds.size() < 2 || allotmentPatchIds.get(1) == null) {
+            plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] No south patch found");
+            return;
+        }
+        
+        int patchObjectId = allotmentPatchIds.get(1); // South patch (index 1)
+        
+        // Get varbit ID from object composition
+        int varbitIdFromObject = getAllotmentPatchVarbitId(patchObjectId);
+        int varbitId = varbitIdFromObject;
+        
+        // Fallback: If object composition fails, use location-specific varbits
+        if (varbitId == -1) {
+            if (locationName.equals("Catherby")) {
+                varbitId = Constants.VARBIT_ALLOTMENT_PATCH_SOUTH_B1;
+            } else {
+                varbitId = Constants.VARBIT_ALLOTMENT_PATCH_SOUTH_B2;
+            }
+        }
+        
+        // Check state for south patch
+        AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
+        int varbitValue = -1;
+        
+        if (varbitId != -1) {
+            varbitValue = client.getVarbitValue(varbitId);
+            plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
+        }
+        
+        // Debug output
+        plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] ObjID=" + patchObjectId + 
+            " Varbit=" + (varbitIdFromObject != -1 ? varbitIdFromObject : "Fallback:" + varbitId) + 
+            " Val=" + varbitValue + " State=" + plantState + 
+            " Done=" + allotmentPatchState.isPatchCompleted(1) + " Composted=" + allotmentPatchState.isPatchComposted(1));
+        
+        // Check completion status for south patch
+        // HARVESTABLE is NOT completed - user still needs to harvest
+        // Only GROWING + composted is considered completed (nothing more to do)
+        // Don't mark as completed if it's GROWING but not composted yet
+        if (!allotmentPatchState.isPatchCompleted(1)) {
+            if (plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
+                allotmentPatchState.setPatchCompleted(1, true);
+            }
+        }
+        
+        // If patch is GROWING and already composted, return early (no need to show compost instruction)
+        // This prevents re-highlighting after other game actions
+        if (plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
+            if (!allotmentPatchState.isPatchCompleted(1)) {
+                allotmentPatchState.setPatchCompleted(1, true);
+            }
+            return; // Don't show compost instruction if already composted
+        }
+        
+        // If patch is done (GROWING + composted) and not HARVESTABLE, return (transition handled by allotmentSteps)
+        // Don't return early for HARVESTABLE - user still needs to harvest
+        // Don't return early for GROWING if not composted - user still needs to compost
+        if (allotmentPatchState.isPatchCompleted(1) && 
+            allotmentPatchState.isPatchComposted(1) && 
+            plantState != AllotmentPatchChecker.PlantState.HARVESTABLE &&
+            plantState != AllotmentPatchChecker.PlantState.GROWING) {
+            return;
+        }
+        
+        // If state is unknown, show message and return
+        if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
+            plugin.addTextToInfoBox("Allotment patch state unknown - south patch");
+            return;
+        }
+        
+        // Check if patch is visible in scene (more accurate than distance to teleport point)
+        List<GameObject> patchObjects = gameObjectHighlighter.findGameObjectsByID(patchObjectId);
+        boolean patchVisible = !patchObjects.isEmpty();
+        
+        // Handle south patch states
+        if (!patchVisible) {
+            plugin.addTextToInfoBox("Navigate to south patch.");
+            patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+        } else {
+            switch (plantState) {
+                case HARVESTABLE:
+                    plugin.addTextToInfoBox("Harvest Allotment (south patch).");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    break;
+                case PLANT:
+                    plugin.addTextToInfoBox("Use Allotment seed on south patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
+                    itemHighlighter.highlightAllotmentSeeds(graphics);
+                    break;
+                case DEAD:
+                    plugin.addTextToInfoBox("Clear the dead south patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    break;
+                case DISEASED:
+                    plugin.addTextToInfoBox("Use Plant cure on south patch. Buy at GE or in farming guild/catherby, and store at Tool Leprechaun for easy access.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
+                    break;
+                case NEEDS_WATER:
+                    plugin.addTextToInfoBox("Water the south patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
+                    for (int canId : Constants.WATERING_CAN_IDS) {
+                        itemHighlighter.itemHighlight(graphics, canId, useItemColor);
+                    }
+                    break;
+                case WEEDS:
+                    plugin.addTextToInfoBox("Rake the south patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
+                    break;
+                case GROWING:
+                    // This case should only be reached if the patch is GROWING and NOT already composted
+                    // (the early return above should catch GROWING + composted cases)
+                    // Check if compost was just applied (from chat message)
+                    boolean isComposted = patchStateChecker.patchIsComposted();
+                    if (isComposted) {
+                        // Mark as composted (persistent)
+                        allotmentPatchState.markComposted(1);
+                        return;
+                    }
+                    // Safety check: If already composted (shouldn't reach here due to early return, but just in case)
+                    if (allotmentPatchState.isPatchComposted(1)) {
+                        // Patch is already composted, mark as completed and return
+                        if (!allotmentPatchState.isPatchCompleted(1)) {
+                            allotmentPatchState.setPatchCompleted(1, true);
+                        }
+                        return; // Don't show compost instruction if already composted
+                    }
+                    // Patch is GROWING but not composted yet - show compost instruction
+                    plugin.addTextToInfoBox("Use Compost on south patch.");
+                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
+                    Integer compostId = itemHighlighter.selectedCompostID();
+                    if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
+                        itemHighlighter.itemHighlight(graphics, compostId, useItemColor);
+                    } else {
+                        compostHighlighter.withdrawCompost(graphics);
+                    }
+                    break;
+                case UNKNOWN:
+                    plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the south allotment patch to change its state.");
+                    break;
+            }
         }
     }
     
@@ -306,5 +730,91 @@ public class FarmingStepHandler {
             }
         }
     }
-}
+    
+    /**
+     * Encapsulates allotment patch state tracking.
+     * Manages current patch index, completion status, and compost state for both patches.
+     */
+    private static class AllotmentPatchState {
+        private int currentIndex = 0;
+        private final boolean[] completed = new boolean[2]; // Track completion of each patch
+        private final boolean[] composted = new boolean[2]; // Track compost state per patch independently
+        
+        /**
+         * Gets the current patch index (0 = north patch, 1 = south patch).
+         * @return The current patch index
+         */
+        public int getCurrentIndex() {
+            return currentIndex;
+        }
+        
+        /**
+         * Checks if a patch at the given index is completed.
+         * @param index The patch index (0 = north, 1 = south)
+         * @return true if the patch is completed, false otherwise
+         */
+        public boolean isPatchCompleted(int index) {
+            if (index < 0 || index >= completed.length) {
+                throw new IllegalArgumentException("Invalid patch index: " + index);
+            }
+            return completed[index];
+        }
+        
+        /**
+         * Checks if a patch at the given index is composted.
+         * @param index The patch index (0 = north, 1 = south)
+         * @return true if the patch is composted, false otherwise
+         */
+        public boolean isPatchComposted(int index) {
+            if (index < 0 || index >= composted.length) {
+                throw new IllegalArgumentException("Invalid patch index: " + index);
+            }
+            return composted[index];
+        }
+        
+        /**
+         * Marks a patch as composted and completed.
+         * @param index The patch index (0 = north, 1 = south)
+         */
+        public void markComposted(int index) {
+            if (index < 0 || index >= composted.length) {
+                throw new IllegalArgumentException("Invalid patch index: " + index);
+            }
+            composted[index] = true;
+            completed[index] = true;
+        }
+        
+        /**
+         * Sets the completion status of a patch.
+         * @param index The patch index (0 = north, 1 = south)
+         * @param value The completion status to set
+         */
+        public void setPatchCompleted(int index, boolean value) {
+            if (index < 0 || index >= completed.length) {
+                throw new IllegalArgumentException("Invalid patch index: " + index);
+            }
+            completed[index] = value;
+        }
+        
+        /**
+         * Moves to the next patch (from north to south).
+         * Resets the south patch completion status.
+         */
+        public void moveToNextPatch() {
+            currentIndex = 1;
+            completed[1] = false; // Reset for south patch check
+        }
+        
+        /**
+         * Resets all state to initial values.
+         * Sets current index to 0 and clears all completion and compost flags.
+         */
+        public void reset() {
+            currentIndex = 0;
+            completed[0] = false;
+            completed[1] = false;
+            composted[0] = false;
+            composted[1] = false;
+        }
+    }}
 
