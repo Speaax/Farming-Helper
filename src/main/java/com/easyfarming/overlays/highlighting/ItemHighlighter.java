@@ -107,7 +107,7 @@ public class ItemHighlighter {
     }
     
     /**
-     * Highlights herb seeds in inventory.
+     * Highlights allotment seeds in inventory.
      */
     public void highlightAllotmentSeeds(Graphics2D graphics) {
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();

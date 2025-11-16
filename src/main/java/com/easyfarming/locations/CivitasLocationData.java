@@ -64,7 +64,6 @@ public class CivitasLocationData {
             CIVITAS_HERB_PATCH_POINT,
             () -> Arrays.asList(
                 new ItemRequirement(ItemID.LAWRUNE, 2),
-                new ItemRequirement(ItemID.AIRRUNE, 1),
                 new ItemRequirement(ItemID.EARTHRUNE, 1),
                 new ItemRequirement(ItemID.FIRERUNE, 1)
             )

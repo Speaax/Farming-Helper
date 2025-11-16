@@ -113,10 +113,10 @@ public class EasyFarmingOverlay extends Overlay {
     );
     private static final int BASE_ALLOTMENT_SEED_ID = ItemID.POTATO_SEED;
     public List<Integer> getAllotmentSeedIds() {
-        return ALLOTMENT_SEED_IDS;
+        return Constants.ALLOTMENT_SEED_IDS;
     }
     private boolean isAllotmentSeed(int itemId) {
-        return ALLOTMENT_SEED_IDS.contains(itemId);
+        return Constants.isAllotmentSeed(itemId);
     }
 
     public List<Integer> getTreePatchIds() {
