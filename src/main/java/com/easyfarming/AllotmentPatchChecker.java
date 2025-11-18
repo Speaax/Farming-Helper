@@ -13,18 +13,18 @@ public class AllotmentPatchChecker {
         // Note: Values 128-151 are "needs water" states (confirmed: 129 = needs water)
         // When watered, value changes from 129 to 64, so 64+ are watered growing states
         // Value 63 is also a watered growing state (observed after first watering)
-        // TODO: Disease detection not yet implemented - diseased lists are empty pending verification of OSRS varbit mappings.
+        // TODO: Disease detection partially implemented - some diseased values verified.
         //       Diseased allotment states require verified varbit IDs from OSRS. Once verified, populate each crop's
-        //       diseased list with the appropriate varbit values. Disease detection is intentionally omitted until
-        //       accurate mappings can be confirmed through testing or official OSRS documentation.
-        POTATO(Arrays.asList(4,5,6,7,63,64,65,66,67), Arrays.asList(128,129,130), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(8,9,10)),
-        ONION(Arrays.asList(11,12,13,14,68,69,70,71), Arrays.asList(131,132,133), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(15,16,17,18,19)),
-        CABBAGE(Arrays.asList(20,21,72,73,74,75), Arrays.asList(134,135,136), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(22,23,24)),
-        TOMATO(Arrays.asList(25,26,27,28,76,77,78,79), Arrays.asList(137,138), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(29,30,31)),
-        SWEETCORN(Arrays.asList(32,33,34,35,80,81,82,83), Arrays.asList(141,142), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(36,37,38)),
-        STRAWBERRY(Arrays.asList(39,40,41,42,84,85,86,87), Arrays.asList(143,144,145), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(43,44,45)),
-        WATERMELON(Arrays.asList(46,47,48,49,88,89,90,91), Arrays.asList(146,147,148), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(50,51,52)),
-        SNAPE_GRASS(Arrays.asList(53,54,55,56,92,93,94,95), Arrays.asList(149,150,151), Arrays.asList() /* TODO: Add verified diseased varbit IDs */, Arrays.asList(57,58,59,138,139,140));
+        //       diseased list with the appropriate varbit values.
+        //       Verified: 197 = diseased on snape grass (changes to 130 when cured). May be shared across all allotments.
+        POTATO(Arrays.asList(4,5,6,7,63,64,65,66,67), Arrays.asList(128,129,130), Arrays.asList(197), Arrays.asList(8,9,10)),
+        ONION(Arrays.asList(11,12,13,14,68,69,70,71), Arrays.asList(131,132,133), Arrays.asList(197), Arrays.asList(15,16,17,18,19)),
+        CABBAGE(Arrays.asList(20,21,72,73,74,75), Arrays.asList(134,135,136), Arrays.asList(197), Arrays.asList(22,23,24)),
+        TOMATO(Arrays.asList(25,26,27,28,76,77,78,79), Arrays.asList(137,138), Arrays.asList(197), Arrays.asList(29,30,31)),
+        SWEETCORN(Arrays.asList(32,33,34,35,80,81,82,83), Arrays.asList(141,142), Arrays.asList(197), Arrays.asList(36,37,38)),
+        STRAWBERRY(Arrays.asList(39,40,41,42,84,85,86,87), Arrays.asList(143,144,145), Arrays.asList(197), Arrays.asList(43,44,45)),
+        WATERMELON(Arrays.asList(46,47,48,49,88,89,90,91), Arrays.asList(146,147,148), Arrays.asList(197), Arrays.asList(50,51,52)),
+        SNAPE_GRASS(Arrays.asList(53,54,55,56,92,93,94,95), Arrays.asList(149,150,151), Arrays.asList(197), Arrays.asList(57,58,59,138,139,140));
 
         private final List<Integer> growing;
         private final List<Integer> needsWater;

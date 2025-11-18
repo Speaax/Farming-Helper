@@ -129,6 +129,41 @@ public class Constants {
         ALLOTMENT_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
     }
     
+    // Herb patch IDs per location
+    // Format: single patch ID for each location
+    public static final Map<String, Integer> HERB_PATCH_IDS_BY_LOCATION;
+    
+    static {
+        Map<String, Integer> patchMap = new HashMap<>();
+        patchMap.put("Ardougne", 8150);
+        patchMap.put("Catherby", 8152);
+        patchMap.put("Falador", 8151);
+        patchMap.put("Farming Guild", 33979);
+        patchMap.put("Harmony Island", 9372);
+        patchMap.put("Kourend", 27115);
+        patchMap.put("Morytania", 18816);
+        patchMap.put("Troll Stronghold", 33176);
+        patchMap.put("Weiss", 8153);
+        patchMap.put("Civitas illa Fortis", 50697);
+        HERB_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
+    }
+    
+    // Flower patch IDs per location
+    // Format: single patch ID for each location
+    public static final Map<String, Integer> FLOWER_PATCH_IDS_BY_LOCATION;
+    
+    static {
+        Map<String, Integer> patchMap = new HashMap<>();
+        patchMap.put("Ardougne", 7847);
+        patchMap.put("Catherby", 7849);
+        patchMap.put("Falador", 7848);
+        patchMap.put("Farming Guild", 33649);
+        patchMap.put("Kourend", 27111);
+        patchMap.put("Morytania", 7850);
+        patchMap.put("Civitas illa Fortis", 50693);
+        FLOWER_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
+    }
+    
     // Legacy support - returns Ardougne patches by default
     @Deprecated
     public static final List<Integer> ALLOTMENT_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(

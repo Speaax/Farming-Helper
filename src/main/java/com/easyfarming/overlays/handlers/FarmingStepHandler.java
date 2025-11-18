@@ -67,25 +67,39 @@ public class FarmingStepHandler {
      */
     public void herbSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        HerbPatchChecker.PlantState plantState;
+        HerbPatchChecker.PlantState plantState = HerbPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
-        // Farming guild herb patch uses 4775
-        if (currentRegionId == Constants.REGION_FARMING_GUILD) {
-            plantState = HerbPatchChecker.checkHerbPatch(client, Constants.VARBIT_HERB_PATCH_FARMING_GUILD);
+        // Get location name from region ID
+        String locationName = getLocationNameFromRegionId(currentRegionId);
+        
+        // Get patch object ID for this location
+        Integer patchObjectId = farmingHelperOverlay.getHerbPatchIdForLocation(locationName);
+        
+        int varbitId = -1;
+        
+        // Try to get varbit from object composition
+        if (patchObjectId != null) {
+            varbitId = getHerbPatchVarbitId(patchObjectId);
         }
-        // Harmony herb patch uses 4772
-        else if (currentRegionId == Constants.REGION_HARMONY) {
-            plantState = HerbPatchChecker.checkHerbPatch(client, Constants.VARBIT_HERB_PATCH_HARMONY);
+        
+        // Fallback: If object composition fails, use location-specific varbits
+        if (varbitId == -1) {
+            if (currentRegionId == Constants.REGION_FARMING_GUILD) {
+                varbitId = Constants.VARBIT_HERB_PATCH_FARMING_GUILD;
+            } else if (currentRegionId == Constants.REGION_HARMONY) {
+                varbitId = Constants.VARBIT_HERB_PATCH_HARMONY;
+            } else if (currentRegionId == Constants.REGION_TROLL_STRONGHOLD || currentRegionId == Constants.REGION_WEISS) {
+                varbitId = Constants.VARBIT_HERB_PATCH_TROLL_WEISS;
+            } else {
+                varbitId = Constants.VARBIT_HERB_PATCH_STANDARD;
+            }
         }
-        // Troll Stronghold and Weiss herb patch uses 4771
-        else if (currentRegionId == Constants.REGION_TROLL_STRONGHOLD || currentRegionId == Constants.REGION_WEISS) {
-            plantState = HerbPatchChecker.checkHerbPatch(client, Constants.VARBIT_HERB_PATCH_TROLL_WEISS);
-        }
-        // Rest uses 4774
-        else {
-            plantState = HerbPatchChecker.checkHerbPatch(client, Constants.VARBIT_HERB_PATCH_STANDARD);
+        
+        // Check state for herb patch
+        if (varbitId != -1) {
+            plantState = HerbPatchChecker.checkHerbPatch(client, varbitId);
         }
         
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
@@ -140,14 +154,35 @@ public class FarmingStepHandler {
     public void flowerSteps(Graphics2D graphics, boolean farmLimps) {
         if (farmLimps) {
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-            FlowerPatchChecker.PlantState plantState;
+            FlowerPatchChecker.PlantState plantState = FlowerPatchChecker.PlantState.UNKNOWN;
             Color leftColor = colorProvider.getLeftClickColorWithAlpha();
             Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
             
-            if (currentRegionId == Constants.REGION_FARMING_GUILD) {
-                plantState = FlowerPatchChecker.checkFlowerPatch(client, Constants.VARBIT_FLOWER_PATCH_FARMING_GUILD);
-            } else {
-                plantState = FlowerPatchChecker.checkFlowerPatch(client, Constants.VARBIT_FLOWER_PATCH_STANDARD);
+            // Get location name from region ID
+            String locationName = getLocationNameFromRegionId(currentRegionId);
+            
+            // Get patch object ID for this location
+            Integer patchObjectId = farmingHelperOverlay.getFlowerPatchIdForLocation(locationName);
+            
+            int varbitId = -1;
+            
+            // Try to get varbit from object composition
+            if (patchObjectId != null) {
+                varbitId = getFlowerPatchVarbitId(patchObjectId);
+            }
+            
+            // Fallback: If object composition fails, use location-specific varbits
+            if (varbitId == -1) {
+                if (currentRegionId == Constants.REGION_FARMING_GUILD) {
+                    varbitId = Constants.VARBIT_FLOWER_PATCH_FARMING_GUILD;
+                } else {
+                    varbitId = Constants.VARBIT_FLOWER_PATCH_STANDARD;
+                }
+            }
+            
+            // Check state for flower patch
+            if (varbitId != -1) {
+                plantState = FlowerPatchChecker.checkFlowerPatch(client, varbitId);
             }
             switch (plantState) {
                 case HARVESTABLE:
@@ -223,6 +258,38 @@ public class FarmingStepHandler {
      */
     private int getAllotmentPatchVarbitId(int objectId) {
         if (objectId == -1) {
+            return -1;
+        }
+        ObjectComposition objectComposition = client.getObjectDefinition(objectId);
+        if (objectComposition != null) {
+            return objectComposition.getVarbitId();
+        }
+        return -1;
+    }
+    
+    /**
+     * Gets the varbit ID for a herb patch by checking the object composition.
+     * @param objectId The object ID of the herb patch
+     * @return The varbit ID, or -1 if not found
+     */
+    private int getHerbPatchVarbitId(Integer objectId) {
+        if (objectId == null || objectId == -1) {
+            return -1;
+        }
+        ObjectComposition objectComposition = client.getObjectDefinition(objectId);
+        if (objectComposition != null) {
+            return objectComposition.getVarbitId();
+        }
+        return -1;
+    }
+    
+    /**
+     * Gets the varbit ID for a flower patch by checking the object composition.
+     * @param objectId The object ID of the flower patch
+     * @return The varbit ID, or -1 if not found
+     */
+    private int getFlowerPatchVarbitId(Integer objectId) {
+        if (objectId == null || objectId == -1) {
             return -1;
         }
         ObjectComposition objectComposition = client.getObjectDefinition(objectId);
@@ -339,7 +406,9 @@ public class FarmingStepHandler {
         
         // Handle early returns in a single place
         if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
+            int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
             plugin.addTextToInfoBox("Allotment patch state unknown - north patch");
+            plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] Varbit=" + varbitId + " Value=" + varbitValue);
             return;
         }
         
@@ -406,7 +475,9 @@ public class FarmingStepHandler {
                     }
                     break;
                 case UNKNOWN:
+                    int varbitValueNorth = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the north allotment patch to change its state.");
+                    plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] Varbit=" + varbitId + " Value=" + varbitValueNorth);
                     break;
             }
         }
@@ -492,7 +563,9 @@ public class FarmingStepHandler {
         
         // If state is unknown, show message and return
         if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
+            int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
             plugin.addTextToInfoBox("Allotment patch state unknown - south patch");
+            plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] Varbit=" + varbitId + " Value=" + varbitValue);
             return;
         }
         
@@ -564,7 +637,9 @@ public class FarmingStepHandler {
                     }
                     break;
                 case UNKNOWN:
+                    int varbitValueSouth = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the south allotment patch to change its state.");
+                    plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] Varbit=" + varbitId + " Value=" + varbitValueSouth);
                     break;
             }
         }

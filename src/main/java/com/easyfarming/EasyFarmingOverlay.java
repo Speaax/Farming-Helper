@@ -116,6 +116,24 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getAllotmentPatchIdsForLocation(String locationName) {
         return Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.getOrDefault(locationName, Collections.emptyList());
     }
+    
+    /**
+     * Gets herb patch ID for a specific location.
+     * @param locationName The name of the location
+     * @return The patch object ID, or null if location has no herb patch
+     */
+    public Integer getHerbPatchIdForLocation(String locationName) {
+        return Constants.HERB_PATCH_IDS_BY_LOCATION.get(locationName);
+    }
+    
+    /**
+     * Gets flower patch ID for a specific location.
+     * @param locationName The name of the location
+     * @return The patch object ID, or null if location has no flower patch
+     */
+    public Integer getFlowerPatchIdForLocation(String locationName) {
+        return Constants.FLOWER_PATCH_IDS_BY_LOCATION.get(locationName);
+    }
     private static final List<Integer> ALLOTMENT_SEED_IDS = Arrays.asList(
         ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
         ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED
