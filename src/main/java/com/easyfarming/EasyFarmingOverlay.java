@@ -69,6 +69,15 @@ public class EasyFarmingOverlay extends Overlay {
         return ARDY_CLOAK_IDS.contains(itemId);
     }
 
+    public static final List<Integer> WATERING_CAN_IDS = Constants.WATERING_CAN_IDS;
+    private static final int BASE_WATERING_CAN_ID = Constants.WATERING_CAN_IDS.get(0);
+    public List<Integer> getWateringCanIds() {
+        return WATERING_CAN_IDS;
+    }
+    public boolean isWateringCan(int itemId) {
+        return WATERING_CAN_IDS.contains(itemId);
+    }
+
 
     public List<Integer> getHerbPatchIds() {
         return Constants.HERB_PATCH_IDS;
@@ -111,7 +120,7 @@ public class EasyFarmingOverlay extends Overlay {
         ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
         ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED
     );
-    private static final int BASE_ALLOTMENT_SEED_ID = ItemID.POTATO_SEED;
+    private static final int BASE_ALLOTMENT_SEED_ID = ItemID.SNAPE_GRASS_SEED;
     public List<Integer> getAllotmentSeedIds() {
         return Constants.ALLOTMENT_SEED_IDS;
     }
@@ -633,6 +642,17 @@ public class EasyFarmingOverlay extends Overlay {
                         }
                     }
                     inventoryCount = hasArdyCloak ? 1 : 0;
+                } else if (itemId == BASE_WATERING_CAN_ID) {
+                    // Check if any watering can variant is equipped or in inventory
+                    // inventoryItemCounts already includes equipped items from the third pass
+                    boolean hasWateringCan = false;
+                    for (int canId : WATERING_CAN_IDS) {
+                        if (inventoryItemCounts.containsKey(canId) && inventoryItemCounts.get(canId) > 0) {
+                            hasWateringCan = true;
+                            break;
+                        }
+                    }
+                    inventoryCount = hasWateringCan ? 1 : 0;
                 }
 
                 // Rune pouch contents are already included in inventoryItemCounts

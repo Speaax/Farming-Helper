@@ -117,7 +117,6 @@ public class FarmingStepHandler {
                     break;
                 case GROWING:
                     boolean isComposted = patchStateChecker.patchIsComposted();
-                    plugin.addDebugTextToInfoBox("[HERB] GROWING - compost detected: " + isComposted + " | herbPatchDone: " + herbPatchDone);
                     if (isComposted) {
                         herbPatchDone = true;
                         // Don't show anything - transition will happen on next frame
@@ -170,7 +169,6 @@ public class FarmingStepHandler {
                     break;
                 case GROWING:
                     plugin.addTextToInfoBox("Use Compost on patch.");
-                    plugin.addDebugTextToInfoBox("[FLOWER] GROWING state - compost needed");
                     compostHighlighter.highlightCompost(graphics, false, false, false, 2);
                     if (patchStateChecker.patchIsComposted()) {
                         flowerPatchDone = true;
@@ -308,7 +306,6 @@ public class FarmingStepHandler {
         
         // If no patches found for this location, return
         if (allotmentPatchIds.isEmpty() || allotmentPatchIds.get(0) == null) {
-            plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] No patches found");
             return;
         }
         
@@ -329,19 +326,11 @@ public class FarmingStepHandler {
         
         // Check state for north patch
         AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
-        int varbitValue = -1;
         
         if (varbitId != -1) {
-            varbitValue = client.getVarbitValue(varbitId);
             plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
         }
-        
-        // Debug output
-        plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] ObjID=" + patchObjectId + 
-            " Varbit=" + (varbitIdFromObject != -1 ? varbitIdFromObject : "Fallback:" + varbitId) + 
-            " Val=" + varbitValue + " State=" + plantState + 
-            " Done=" + allotmentPatchState.isPatchCompleted(0) + " Composted=" + allotmentPatchState.isPatchComposted(0));
-        
+
         // Check completion status for north patch
         // HARVESTABLE is NOT completed - user still needs to harvest
         // Only GROWING + composted is considered completed (nothing more to do)
@@ -447,7 +436,6 @@ public class FarmingStepHandler {
         
         // If no patches found or south patch doesn't exist, return
         if (allotmentPatchIds.size() < 2 || allotmentPatchIds.get(1) == null) {
-            plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] No south patch found");
             return;
         }
         
@@ -468,19 +456,11 @@ public class FarmingStepHandler {
         
         // Check state for south patch
         AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
-        int varbitValue = -1;
         
         if (varbitId != -1) {
-            varbitValue = client.getVarbitValue(varbitId);
             plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
         }
-        
-        // Debug output
-        plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] ObjID=" + patchObjectId + 
-            " Varbit=" + (varbitIdFromObject != -1 ? varbitIdFromObject : "Fallback:" + varbitId) + 
-            " Val=" + varbitValue + " State=" + plantState + 
-            " Done=" + allotmentPatchState.isPatchCompleted(1) + " Composted=" + allotmentPatchState.isPatchComposted(1));
-        
+
         // Check completion status for south patch
         // HARVESTABLE is NOT completed - user still needs to harvest
         // Only GROWING + composted is considered completed (nothing more to do)

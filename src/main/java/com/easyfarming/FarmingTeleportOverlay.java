@@ -867,11 +867,9 @@ public class FarmingTeleportOverlay extends Overlay {
     public void farming(Graphics2D graphics, Location.Teleport teleport) {
         if (this.startSubCases) {
             if (herbRun) {
-                plugin.addDebugTextToInfoBox("[FARMING] subCase=" + this.subCase + " | herbPatchDone=" + farmingStepHandler.herbPatchDone);
                 if (this.subCase == 1) {
                     farmingStepHandler.herbSteps(graphics, teleport);
                     if (farmingStepHandler.herbPatchDone) {
-                        plugin.addDebugTextToInfoBox("[TRANSITION] Herb done, moving to subCase 2");
                         this.subCase = 2;
                         farmingStepHandler.herbPatchDone = false;
                     }
@@ -906,10 +904,8 @@ public class FarmingTeleportOverlay extends Overlay {
                     }
                 } else if (this.subCase == 3) {
                     if (config.generalAllotment()) {
-                        plugin.addDebugTextToInfoBox("[FARMING] subCase=3 | allotmentPatchDone=" + farmingStepHandler.allotmentPatchDone);
                         farmingStepHandler.allotmentSteps(graphics, teleport);
                         if (farmingStepHandler.allotmentPatchDone) {
-                            plugin.addDebugTextToInfoBox("[TRANSITION] Allotment done, moving to next location");
                             this.subCase = 1;
                             this.startSubCases = false;
                             isAtDestination = false;

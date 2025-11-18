@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
 
@@ -158,9 +159,9 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                     int seedsPerPatch = 3;
                     int totalAllotmentSeeds = allotmentPatches * seedsPerPatch;
                     
-                    // Use POTATO_SEED as base ID (similar to GUAM_SEED for herbs)
+                    // Use SNAPE_GRASS_SEED as base ID (similar to GUAM_SEED for herbs)
                     allRequirements.merge(
-                        ItemID.POTATO_SEED,
+                        Constants.BASE_ALLOTMENT_SEED_ID,
                         totalAllotmentSeeds,
                         Integer::sum
                     );
@@ -207,6 +208,15 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         if (config.generalRake()) {
             allRequirements.merge(
                 ItemID.RAKE,
+                1,
+                Integer::sum
+            );
+        }
+
+        // Add watering can if allotments are enabled (only one needed for entire run)
+        if (config.generalAllotment()) {
+            allRequirements.merge(
+                Constants.WATERING_CAN_IDS.get(0), // Base watering can ID
                 1,
                 Integer::sum
             );
