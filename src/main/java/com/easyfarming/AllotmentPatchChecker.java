@@ -11,7 +11,6 @@ public class AllotmentPatchChecker {
     /**
      * Allotment patch varbit IDs used in OSRS.
      * 
-     * Diseased state is encoded as bit 7 (0x80) in the varbit value.
      * Each location uses specific varbit IDs:
      * - Standard locations (Falador, Ardougne, Catherby, Morytania, Kourend, Civitas): 
      *   Varbit IDs are determined from object composition (typically in 4771-4774 range)
@@ -21,7 +20,6 @@ public class AllotmentPatchChecker {
      * The varbit ID is determined per-patch from the object composition, not per-crop.
      * All crops planted in the same patch location will use the same varbit ID.
      */
-    public static final int DISEASED_BIT_MASK = 0x80; // Bit 7 (128 in decimal)
     
     // Valid varbit ID ranges for allotment patches (for validation)
     private static final int MIN_STANDARD_VARBIT = 4771;
@@ -34,13 +32,6 @@ public class AllotmentPatchChecker {
         // Note: Values 128-151 are "needs water" states (confirmed: 129 = needs water)
         // When watered, value changes from 129 to 64, so 64+ are watered growing states
         // Value 63 is also a watered growing state (observed after first watering)
-        // 
-        // Diseased state detection:
-        // - Diseased state is encoded as bit 7 (0x80) in the varbit value, not as a separate value
-        // - The varbit ID is determined per-patch location (from object composition)
-        // - Common varbit ID ranges: 4771-4774 (standard locations), 7904-7914 (Farming Guild)
-        // - The diseased list parameter is kept for backward compatibility but is no longer used
-        // - Disease detection now checks bit 7 of the varbit value directly
         POTATO(Arrays.asList(4,5,6,7,63,64,65,66,67), Arrays.asList(128,129,130), Arrays.asList(), Arrays.asList(8,9,10)),
         ONION(Arrays.asList(11,12,13,14,68,69,70,71), Arrays.asList(131,132,133), Arrays.asList(), Arrays.asList(15,16,17,18,19)),
         CABBAGE(Arrays.asList(20,21,72,73,74,75), Arrays.asList(134,135,136), Arrays.asList(), Arrays.asList(22,23,24)),
@@ -48,7 +39,7 @@ public class AllotmentPatchChecker {
         SWEETCORN(Arrays.asList(32,33,34,35,80,81,82,83), Arrays.asList(141,142), Arrays.asList(), Arrays.asList(36,37,38)),
         STRAWBERRY(Arrays.asList(39,40,41,42,84,85,86,87), Arrays.asList(143,144,145), Arrays.asList(), Arrays.asList(43,44,45)),
         WATERMELON(Arrays.asList(46,47,48,49,88,89,90,91), Arrays.asList(146,147,148), Arrays.asList(), Arrays.asList(50,51,52)),
-        SNAPE_GRASS(Arrays.asList(53,54,55,56,92,93,94,95), Arrays.asList(149,150,151), Arrays.asList(), Arrays.asList(57,58,59,138,139,140));
+        SNAPE_GRASS(Arrays.asList(53,54,55,56,92,93,94,95), Arrays.asList(128,149,150,151), Arrays.asList(198), Arrays.asList(57,58,59,138,139,140));
 
         private final List<Integer> growing;
         private final List<Integer> needsWater;
@@ -79,13 +70,17 @@ public class AllotmentPatchChecker {
         }
     }
 
-    // Combine all growing, needsWater, and harvest varbit values into single lists
+    // Combine all growing, needsWater, diseased, and harvest varbit values into single lists
     private static final List<Integer> growing = Stream.of(Allotment.values())
             .flatMap(allotment -> allotment.getGrowing().stream())
             .collect(Collectors.toList());
 
     private static final List<Integer> needsWater = Stream.of(Allotment.values())
             .flatMap(allotment -> allotment.getNeedsWater().stream())
+            .collect(Collectors.toList());
+
+    private static final List<Integer> diseased = Stream.of(Allotment.values())
+            .flatMap(allotment -> allotment.getDiseased().stream())
             .collect(Collectors.toList());
 
     private static final List<Integer> harvest = Stream.of(Allotment.values())
@@ -128,10 +123,13 @@ public class AllotmentPatchChecker {
             return PlantState.HARVESTABLE;
         }
         
-        // Check diseased state: bit 7 (0x80) of the varbit value indicates disease
-        // This check is done early as diseased patches need immediate attention
-        // The bit check works for any varbit ID - bit 7 is the disease flag
-        if ((varbitValue & DISEASED_BIT_MASK) != 0) {
+        // Check dead before diseased, as dead is a more specific state
+        if (DEAD.contains(varbitValue)) {
+            return PlantState.DEAD;
+        }
+        
+        // Check diseased state using the diseased list
+        if (diseased.contains(varbitValue)) {
             return PlantState.DISEASED;
         } else if (needsWater.contains(varbitValue)) {
             // Check needsWater after diseased but before growing, as it's urgent
@@ -143,8 +141,6 @@ public class AllotmentPatchChecker {
         } else if (WEEDS.contains(varbitValue)) {
             // Value 0 = weeds/empty after harvesting
             return PlantState.WEEDS;
-        } else if (DEAD.contains(varbitValue)) {
-            return PlantState.DEAD;
         } else if (varbitValue == 3) {
             // Value 3 = empty patch ready to plant (before harvesting, this might be harvestable state)
             // Note: After harvesting, value changes from 3 to 0 (weeds)

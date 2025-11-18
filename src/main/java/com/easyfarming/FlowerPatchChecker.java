@@ -9,6 +9,7 @@ public class FlowerPatchChecker {
     // Add lists for each plant state
     private static final List<Integer> HARVESTABLE = Arrays.asList(32);
     private static final List<Integer> GROWING = Arrays.asList(28, 29, 30, 31);
+    private static final List<Integer> DISEASED = Arrays.asList(159); // Limpwurt diseased
     private static final List<Integer> DEAD = Arrays.asList(221,222,223,224);
     private static final List<Integer> WEEDS = Arrays.asList(0, 1, 2);
 
@@ -16,6 +17,7 @@ public class FlowerPatchChecker {
     public enum PlantState {
         HARVESTABLE,
         GROWING,
+        DISEASED,
         DEAD,
         WEEDS,
         PLANT,
@@ -29,6 +31,8 @@ public class FlowerPatchChecker {
             return PlantState.HARVESTABLE;
         } else if (GROWING.contains(varbitValue)) {
             return PlantState.GROWING;
+        } else if (DISEASED.contains(varbitValue)) {
+            return PlantState.DISEASED;
         } else if (DEAD.contains(varbitValue)) {
             return PlantState.DEAD;
         } else if (WEEDS.contains(varbitValue)) {

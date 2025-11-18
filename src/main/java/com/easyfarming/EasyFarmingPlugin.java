@@ -114,11 +114,14 @@ public class EasyFarmingPlugin extends Plugin
     private String lastMessage = "";
     @Subscribe
     public void onChatMessage(ChatMessage event) {
+        String message = event.getMessage();
+        
+        // Store last message for other purposes (compost detection, etc.)
         if (event.getType() == ChatMessageType.GAMEMESSAGE) {
-            lastMessage = event.getMessage();
+            lastMessage = message;
         }
         else if (event.getType() == ChatMessageType.SPAM) {
-            lastMessage = event.getMessage();
+            lastMessage = message;
         }
     }
 

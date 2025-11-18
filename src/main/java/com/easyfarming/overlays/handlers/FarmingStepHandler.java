@@ -189,6 +189,10 @@ public class FarmingStepHandler {
                     plugin.addTextToInfoBox("Harvest Limwurt root.");
                     patchHighlighter.highlightFlowerPatches(graphics, leftColor);
                     break;
+                case DISEASED:
+                    plugin.addTextToInfoBox("Cure the diseased Limwurt.");
+                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
+                    break;
                 case WEEDS:
                     plugin.addTextToInfoBox("Rake the flower patch.");
                     patchHighlighter.highlightFlowerPatches(graphics, leftColor);
@@ -871,5 +875,6 @@ public class FarmingStepHandler {
             composted[0] = false;
             composted[1] = false;
         }
-    }}
+    }
+}
 

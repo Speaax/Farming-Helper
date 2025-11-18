@@ -12,7 +12,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "General",
 			description = "The highlighted and hidden item lists",
-			position = 0
+			position = 0,
+			closedByDefault = false
 	)
 	String generalList = "generalList";
 
@@ -111,8 +112,8 @@ public interface EasyFarmingConfig extends Config
 	default boolean generalLimpwurt() { return false; }
 	@ConfigItem(
 			keyName = "booleanConfigAllotment",
-			name = "Allotment (No code written yet)",
-			description = "Want to include Allotment in your farm run?",
+			name = "Allotments",
+			description = "Want to include Allotments in your farm run?",
 			position = 9,
 			section = generalList
 	)
@@ -131,7 +132,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 		name = "Herbs",
 		description = "The highlighted and hidden item lists",
-		position = 1
+		position = 1,
+		closedByDefault = true
 	)
 	String herbList = "herbList";
 
@@ -228,7 +230,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 		name = "Tree",
 		description = "The highlighted and hidden item lists",
-		position = 2
+		position = 2,
+		closedByDefault = true
 	)
 	String treeList = "treeList";
 	
@@ -289,7 +292,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 		name = "Fruit Tree",
 		description = "The highlighted and hidden item lists",
-		position = 3
+		position = 3,
+		closedByDefault = true
 	)
 	String fruitTreeList = "fruitTreeList";
 	
@@ -351,7 +355,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "Herb teleport options",
 			description = "Choose what teleport to use for each Herb patch",
-			position = 4
+			position = 4,
+			closedByDefault = true
 	)
 	String teleportOptionList = "teleportOptionList";
 
@@ -508,7 +513,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "Tree teleport options",
 			description = "Choose what teleport to use for each Herb patch",
-			position = 5
+			position = 5,
+			closedByDefault = true
 	)
 	String treeTeleportOptionList = "treeTeleportOptionList";
 	enum TreeOptionEnumFaladorTeleport implements OptionEnumTeleport
@@ -602,7 +608,8 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "Fruit tree teleport options",
 			description = "Choose what teleport to use for each fruit tree",
-			position = 6
+			position = 6,
+			closedByDefault = true
 	)
 	String fruitTreeTeleportOptionList = "fruitTreeTeleportOptionList";
 

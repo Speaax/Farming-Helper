@@ -60,7 +60,8 @@ public class ItemHighlighter {
                             isQuetzalWhistleHighlight(item.getId(), itemID) ||
                             isExplorersRingHighlight(item.getId(), itemID) ||
                             isArdyCloakHighlight(item.getId(), itemID) ||
-                            isSkillsNecklaceHighlight(item.getId(), itemID))) {
+                            isSkillsNecklaceHighlight(item.getId(), itemID) ||
+                            isBottomlessBucketHighlight(item.getId(), itemID))) {
                             Widget itemWidget = childrenToUse[i];
                             if (itemWidget != null) {
                                 Rectangle bounds = itemWidget.getBounds();
@@ -104,6 +105,19 @@ public class ItemHighlighter {
      */
     private boolean isSkillsNecklaceHighlight(int itemId, int targetId) {
         return farmingHelperOverlay.isSkillsNecklace(itemId) && farmingHelperOverlay.isSkillsNecklace(targetId);
+    }
+    
+    /**
+     * Checks if an item ID matches a bottomless compost bucket highlight pattern.
+     * Handles both empty bucket and all filled variants (22994-22998).
+     */
+    private boolean isBottomlessBucketHighlight(int itemId, int targetId) {
+        if (targetId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+            // Check if itemId is the base bucket or any filled variant
+            return itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET ||
+                   (itemId >= 22994 && itemId <= 22998);
+        }
+        return false;
     }
     
     /**
@@ -185,6 +199,7 @@ public class ItemHighlighter {
     
     /**
      * Checks if an item is in the inventory.
+     * For bottomless compost bucket, also checks for filled variants.
      */
     public boolean isItemInInventory(int itemId) {
         net.runelite.api.ItemContainer inventory = client.getItemContainer(InventoryID.INV);
@@ -197,8 +212,18 @@ public class ItemHighlighter {
         }
         
         for (Item item : items) {
-            if (item.getId() == itemId) {
+            int checkItemId = item.getId();
+            if (checkItemId == itemId) {
                 return true;
+            }
+            // Special handling for bottomless compost bucket - check filled variants
+            if (itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                // Check for all bottomless bucket variants (empty: BOTTOMLESS_COMPOST_BUCKET, 
+                // filled: 22994-22998 for various compost types)
+                if (checkItemId == ItemID.BOTTOMLESS_COMPOST_BUCKET ||
+                    (checkItemId >= 22994 && checkItemId <= 22998)) {
+                    return true;
+                }
             }
         }
         

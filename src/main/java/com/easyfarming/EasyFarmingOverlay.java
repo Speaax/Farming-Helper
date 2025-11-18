@@ -44,6 +44,18 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
     public static final List<Integer> SKILLS_NECKLACE_IDS = Arrays.asList(ItemID.JEWL_NECKLACE_OF_SKILLS_1, ItemID.JEWL_NECKLACE_OF_SKILLS_2, ItemID.JEWL_NECKLACE_OF_SKILLS_3, ItemID.JEWL_NECKLACE_OF_SKILLS_4, ItemID.JEWL_NECKLACE_OF_SKILLS_5, ItemID.JEWL_NECKLACE_OF_SKILLS_6);
+    
+    // Bottomless compost bucket variants (empty and all filled states)
+    // These IDs should match ItemID.java constants:
+    // BOTTOMLESS_COMPOST_BUCKET (empty), and filled variants 22994-22998
+    private static final List<Integer> BOTTOMLESS_COMPOST_BUCKET_IDS = Arrays.asList(
+        ItemID.BOTTOMLESS_COMPOST_BUCKET, // Empty
+        22994, // Filled variant 1
+        22995, // Filled variant 2
+        22996, // Filled variant 3
+        22997, // Filled variant 4
+        22998  // Filled variant 5
+    );
     private static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
     public List<Integer> getSkillsNecklaceIds() {
         return SKILLS_NECKLACE_IDS;
@@ -615,6 +627,17 @@ public class EasyFarmingOverlay extends Overlay {
 
                 // Start with inventory count from single scan
                 int inventoryCount = inventoryItemCounts.getOrDefault(itemId, 0);
+                
+                // Special handling for bottomless compost bucket - check for filled variants in inventory
+                if (itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                    // Check inventory for any bottomless bucket variant (empty or filled)
+                    for (Item item : items) {
+                        if (item != null && BOTTOMLESS_COMPOST_BUCKET_IDS.contains(item.getId())) {
+                            inventoryCount = 1;
+                            break;
+                        }
+                    }
+                }
                 
                 // Add tool lep count
                 int toolLepCount = checkToolLep(itemId);
