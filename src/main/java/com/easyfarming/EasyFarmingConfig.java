@@ -351,13 +351,66 @@ public interface EasyFarmingConfig extends Config
 	)
 	default boolean treeGnomeVillageFruitTree() { return true; }
 
+	@ConfigSection(
+		name = "Hops",
+		description = "The highlighted and hidden item lists",
+		position = 4,
+		closedByDefault = true
+	)
+	String hopsList = "hopsList";
+
+	@ConfigItem(
+		position = 22,
+		keyName = "booleanConfigLumbridgeHops",
+		name = "Lumbridge",
+		description = "Include Lumbridge?",
+		section = hopsList
+	)
+	default boolean lumbridgeHops() { return true; }
+
+	@ConfigItem(
+		position = 23,
+		keyName = "booleanConfigSeersVillageHops",
+		name = "Seers Village",
+		description = "Include Seers Village?",
+		section = hopsList
+	)
+	default boolean seersVillageHops() { return true; }
+
+	@ConfigItem(
+		position = 24,
+		keyName = "booleanConfigYanilleHops",
+		name = "Yanille",
+		description = "Include Yanille?",
+		section = hopsList
+	)
+	default boolean yanilleHops() { return true; }
+
+	@ConfigItem(
+		position = 25,
+		keyName = "booleanConfigEntranaHops",
+		name = "Entrana",
+		description = "Include Entrana?",
+		section = hopsList
+	)
+	default boolean entranaHops() { return true; }
+
+	@ConfigItem(
+		position = 26,
+		keyName = "booleanConfigAldarinHops",
+		name = "Aldarin",
+		description = "Include Aldarin?",
+		section = hopsList
+	)
+	default boolean aldarinHops() { return false; }
+
 
 	@ConfigSection(
 			name = "Herb teleport options",
 			description = "Choose what teleport to use for each Herb patch",
-			position = 4,
+			position = 5,
 			closedByDefault = true
-	)
+		)
 	String teleportOptionList = "teleportOptionList";
 
 	enum OptionEnumArdougneTeleport implements OptionEnumTeleport
@@ -700,4 +753,83 @@ public interface EasyFarmingConfig extends Config
 			section = fruitTreeTeleportOptionList
 	)
 	default FruitTreeOptionEnumTreeGnomeVillageTeleport enumFruitTreeTreeGnomeVillageTeleport() { return FruitTreeOptionEnumTreeGnomeVillageTeleport.Royal_seed_pod; }
+
+	@ConfigSection(
+			name = "Hops teleport options",
+			description = "Choose what teleport to use for each Hops patch",
+			position = 7,
+			closedByDefault = true
+	)
+	String hopsTeleportOptionList = "hopsTeleportOptionList";
+
+	enum HopsOptionEnumLumbridgeTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Teleport,
+		Lumbridge_Tele_Tab
+	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumHopsLumbridgeTeleport",
+			name = "Lumbridge",
+			description = "Desired way to teleport to Lumbridge",
+			section = hopsTeleportOptionList
+	)
+	default HopsOptionEnumLumbridgeTeleport enumHopsLumbridgeTeleport() { return HopsOptionEnumLumbridgeTeleport.Teleport; }
+
+	enum HopsOptionEnumSeersVillageTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus_Camelot,
+		Camelot_Teleport,
+		Camelot_Tele_Tab
+	}
+	@ConfigItem(
+			position = 2,
+			keyName = "enumHopsSeersVillageTeleport",
+			name = "Seers Village",
+			description = "Desired way to teleport to Seers Village",
+			section = hopsTeleportOptionList
+	)
+	default HopsOptionEnumSeersVillageTeleport enumHopsSeersVillageTeleport() { return HopsOptionEnumSeersVillageTeleport.Portal_Nexus_Camelot; }
+
+	enum HopsOptionEnumYanilleTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Watchtower_Teleport
+	}
+	@ConfigItem(
+			position = 3,
+			keyName = "enumHopsYanilleTeleport",
+			name = "Yanille",
+			description = "Desired way to teleport to Yanille",
+			section = hopsTeleportOptionList
+	)
+	default HopsOptionEnumYanilleTeleport enumHopsYanilleTeleport() { return HopsOptionEnumYanilleTeleport.Portal_Nexus; }
+
+	enum HopsOptionEnumEntranaTeleport implements OptionEnumTeleport
+	{
+		Explorers_Ring
+	}
+	@ConfigItem(
+			position = 4,
+			keyName = "enumHopsEntranaTeleport",
+			name = "Entrana",
+			description = "Desired way to teleport to Entrana",
+			section = hopsTeleportOptionList
+	)
+	default HopsOptionEnumEntranaTeleport enumHopsEntranaTeleport() { return HopsOptionEnumEntranaTeleport.Explorers_Ring; }
+
+	enum HopsOptionEnumAldarinTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Quetzal_Transport
+	}
+	@ConfigItem(
+			position = 5,
+			keyName = "enumHopsAldarinTeleport",
+			name = "Aldarin",
+			description = "Desired way to teleport to Aldarin",
+			section = hopsTeleportOptionList
+	)
+	default HopsOptionEnumAldarinTeleport enumHopsAldarinTeleport() { return HopsOptionEnumAldarinTeleport.Portal_Nexus; }
 }

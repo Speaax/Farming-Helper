@@ -22,6 +22,7 @@ import java.awt.Color;
 import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
+import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
 import com.easyfarming.utils.Constants;
 
 public class EasyFarmingOverlay extends Overlay {
@@ -29,6 +30,7 @@ public class EasyFarmingOverlay extends Overlay {
     private HerbRunItemAndLocation herbRunItemAndLocation;
     private TreeRunItemAndLocation treeRunItemAndLocation;
     private FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
+    private HopsRunItemAndLocation hopsRunItemAndLocation;
     private final Client client;
     private final EasyFarmingPlugin plugin;
     private final PanelComponent panelComponent = new PanelComponent();
@@ -94,6 +96,10 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getHerbPatchIds() {
         return Constants.HERB_PATCH_IDS;
     }
+    
+    public List<Integer> getHopsPatchIds() {
+        return Constants.HOPS_PATCH_IDS;
+    }
     private static final List<Integer> HERB_SEED_IDS = Arrays.asList(
         ItemID.GUAM_SEED, ItemID.MARRENTILL_SEED, ItemID.TARROMIN_SEED, ItemID.HARRALANDER_SEED,
         ItemID.RANARR_SEED, ItemID.TOADFLAX_SEED, ItemID.IRIT_SEED, ItemID.AVANTOE_SEED,
@@ -101,11 +107,20 @@ public class EasyFarmingOverlay extends Overlay {
         ItemID.DWARF_WEED_SEED, ItemID.TORSTOL_SEED, ItemID.HUASCA_SEED
     );
     private static final int BASE_SEED_ID = ItemID.GUAM_SEED;
+    private static final int BASE_HOPS_SEED_ID = ItemID.BARLEY_SEED;
     public List<Integer> getHerbSeedIds() {
         return HERB_SEED_IDS;
     }
+    
+    public List<Integer> getHopsSeedIds() {
+        return Constants.HOPS_SEED_IDS;
+    }
     private boolean isHerbSeed(int itemId) {
         return HERB_SEED_IDS.contains(itemId);
+    }
+    
+    private boolean isHopsSeed(int itemId) {
+        return Constants.HOPS_SEED_IDS.contains(itemId);
     }
 
 
@@ -145,6 +160,15 @@ public class EasyFarmingOverlay extends Overlay {
      */
     public Integer getFlowerPatchIdForLocation(String locationName) {
         return Constants.FLOWER_PATCH_IDS_BY_LOCATION.get(locationName);
+    }
+    
+    /**
+     * Gets hops patch ID for a specific location.
+     * @param locationName The name of the location
+     * @return The patch object ID, or null if location has no hops patch
+     */
+    public Integer getHopsPatchIdForLocation(String locationName) {
+        return Constants.HOPS_PATCH_IDS_BY_LOCATION.get(locationName);
     }
     private static final List<Integer> ALLOTMENT_SEED_IDS = Arrays.asList(
         ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
@@ -362,13 +386,14 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
     @Inject
-    public EasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation) {
+    public EasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation, HopsRunItemAndLocation hopsRunItemAndLocation) {
         this.client = client;
         this.plugin = plugin;
         this.itemManager = itemManager;
         this.herbRunItemAndLocation = herbRunItemAndLocation;
         this.treeRunItemAndLocation = treeRunItemAndLocation;
         this.fruitTreeRunItemAndLocation = fruitTreeRunItemAndLocation;
+        this.hopsRunItemAndLocation = hopsRunItemAndLocation;
         setPosition(OverlayPosition.BOTTOM_RIGHT);
         setLayer(OverlayLayer.ABOVE_SCENE);
     }
@@ -477,6 +502,9 @@ public class EasyFarmingOverlay extends Overlay {
             if(plugin.getFarmingTeleportOverlay().fruitTreeRun) {
                 itemsToCheck = fruitTreeRunItemAndLocation.getFruitTreeItems();
             }
+            if(plugin.getFarmingTeleportOverlay().hopsRun) {
+                itemsToCheck = hopsRunItemAndLocation.getHopsItems();
+            }
 
             if (itemsToCheck == null || itemsToCheck.isEmpty()) {
                 return null;
@@ -547,6 +575,13 @@ public class EasyFarmingOverlay extends Overlay {
             if(plugin.getFarmingTeleportOverlay().fruitTreeRun) {
                 for (Item item : items) {
                     if (isFruitTreeSapling(item.getId())) {
+                        totalSeeds += item.getQuantity();
+                    }
+                }
+            }
+            if(plugin.getFarmingTeleportOverlay().hopsRun) {
+                for (Item item : items) {
+                    if (isHopsSeed(item.getId())) {
                         totalSeeds += item.getQuantity();
                     }
                 }
@@ -653,6 +688,8 @@ public class EasyFarmingOverlay extends Overlay {
                 } else if (plugin.getFarmingTeleportOverlay().treeRun && itemId == BASE_SAPLING_ID) {
                     inventoryCount = totalSeeds;
                 } else if (plugin.getFarmingTeleportOverlay().fruitTreeRun && itemId == BASE_FRUIT_SAPLING_ID) {
+                    inventoryCount = totalSeeds;
+                } else if (plugin.getFarmingTeleportOverlay().hopsRun && itemId == BASE_HOPS_SEED_ID) {
                     inventoryCount = totalSeeds;
                 } else if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
                     inventoryCount = teleportCrystalCount;

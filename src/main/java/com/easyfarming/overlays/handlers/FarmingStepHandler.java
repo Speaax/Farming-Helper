@@ -8,6 +8,9 @@ import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.ObjectComposition;
+import net.runelite.api.Tile;
+import net.runelite.api.WorldView;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
 import javax.inject.Inject;
@@ -36,6 +39,7 @@ public class FarmingStepHandler {
     public boolean allotmentPatchDone = false;
     public boolean treePatchDone = false;
     public boolean fruitTreePatchDone = false;
+    public boolean hopsPatchDone = false;
     
     // Allotment patch tracking - which patch we're currently working on (0 = first patch, 1 = second patch)
     private final AllotmentPatchState allotmentPatchState = new AllotmentPatchState();
@@ -146,6 +150,203 @@ public class FarmingStepHandler {
                     break;
             }
         }
+    }
+    
+    /**
+     * Handles hops patch farming steps.
+     */
+    public void hopsSteps(Graphics2D graphics, Location.Teleport teleport) {
+        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        HopsPatchChecker.PlantState plantState = HopsPatchChecker.PlantState.UNKNOWN;
+        Color leftColor = colorProvider.getLeftClickColorWithAlpha();
+        Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
+        
+        // Get location name from region ID
+        String locationName = getHopsLocationNameFromRegionId(currentRegionId);
+        
+        // Get patch object ID for this location
+        Integer patchObjectId = farmingHelperOverlay.getHopsPatchIdForLocation(locationName);
+        
+        int varbitId = -1;
+        
+        // Try to get varbit from object composition
+        if (patchObjectId != null) {
+            varbitId = getHopsPatchVarbitId(patchObjectId);
+        }
+        
+        // Fallback: Use standard hops patch varbit if object composition fails
+        // Hops patches use FARMING_TRANSMIT_A (4771)
+        if (varbitId == -1) {
+            varbitId = Constants.VARBIT_HOPS_PATCH_STANDARD;
+        }
+        
+        // Check state for hops patch
+        if (varbitId != -1) {
+            plantState = HopsPatchChecker.checkHopsPatch(client, varbitId);
+        }
+        
+        // Get patch location for this hops location
+        WorldPoint patchPoint = getHopsPatchPoint(locationName);
+        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        
+        // Check if player is near the patch location (not the teleport point)
+        // Use a larger range (20 tiles) to account for patches that may be spread out
+        boolean nearPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
+        boolean inCorrectRegion = currentRegionId == teleport.getRegionId();
+        
+        // If we have a valid plant state (not UNKNOWN), show instructions
+        // This ensures instructions show when player is at the patch, even if proximity/region checks fail
+        // The varbit detection is the most reliable indicator that we're at the correct patch
+        // Show instructions if: near patch OR (valid state detected AND we're in a hops region)
+        boolean isHopsRegion = locationName != null && !locationName.equals("Unknown");
+        boolean shouldShowInstructions = nearPatch || (plantState != HopsPatchChecker.PlantState.UNKNOWN && isHopsRegion);
+        
+        // Always show debug output to help diagnose issues
+        int distanceX = patchPoint != null ? Math.abs(playerLocation.getX() - patchPoint.getX()) : -1;
+        int distanceY = patchPoint != null ? Math.abs(playerLocation.getY() - patchPoint.getY()) : -1;
+        plugin.addDebugTextToInfoBox("[HOPS] Location: " + locationName + 
+            ", RegionID: " + currentRegionId +
+            ", TeleportRegionID: " + teleport.getRegionId() +
+            (patchPoint != null ? ", Patch: (" + patchPoint.getX() + "," + patchPoint.getY() + ")" : ", Patch: null") +
+            ", Player: (" + playerLocation.getX() + "," + playerLocation.getY() + ")" +
+            (patchPoint != null ? ", Distance: (" + distanceX + "," + distanceY + ")" : "") +
+            ", NearPatch: " + nearPatch +
+            ", InRegion: " + inCorrectRegion +
+            ", State: " + plantState +
+            ", PatchObjID: " + patchObjectId +
+            ", Varbit: " + varbitId + "=" + (varbitId != -1 ? client.getVarbitValue(varbitId) : "N/A") +
+            ", ShowInstructions: " + shouldShowInstructions);
+        
+        if (!shouldShowInstructions) {
+            // Highlight all hops patches when far from patch and no state detected
+            patchHighlighter.highlightHopsPatches(graphics, leftColor);
+        } else {
+            // Highlight specific patch for current location
+            if (patchObjectId != null) {
+                switch (plantState) {
+                    case HARVESTABLE:
+                        plugin.addTextToInfoBox("Harvest Hops.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
+                        break;
+                    case PLANT:
+                        plugin.addTextToInfoBox("Use Hops seed on patch.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
+                        itemHighlighter.highlightHopsSeeds(graphics);
+                        // Debug: show varbit info
+                        int plantVarbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                        plugin.addDebugTextToInfoBox("[HOPS PLANT] Varbit=" + varbitId + " Value=" + plantVarbitValue);
+                        break;
+                    case DEAD:
+                        plugin.addTextToInfoBox("Clear the dead hops patch.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
+                        break;
+                    case DISEASED:
+                        plugin.addTextToInfoBox("Use Plant cure on hops patch.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
+                        itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
+                        break;
+                    case WEEDS:
+                        plugin.addTextToInfoBox("Rake the hops patch.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
+                        // Debug: show varbit info
+                        int weedsVarbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                        plugin.addDebugTextToInfoBox("[HOPS WEEDS] Varbit=" + varbitId + " Value=" + weedsVarbitValue);
+                        break;
+                    case NEEDS_WATER:
+                        plugin.addTextToInfoBox("Water the hops patch.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
+                        // Highlight all watering can variants
+                        for (int canId : Constants.WATERING_CAN_IDS) {
+                            itemHighlighter.itemHighlight(graphics, canId, useItemColor);
+                        }
+                        // Debug: show varbit info
+                        int needsWaterVarbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                        plugin.addDebugTextToInfoBox("[HOPS NEEDS_WATER] Varbit=" + varbitId + " Value=" + needsWaterVarbitValue);
+                        break;
+                    case GROWING:
+                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        if (isComposted) {
+                            hopsPatchDone = true;
+                            return;
+                        }
+                        if (!hopsPatchDone) {
+                            plugin.addTextToInfoBox("Use Compost on patch.");
+                            patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
+                            compostHighlighter.highlightCompost(graphics, true, false, false, 1);
+                        }
+                        break;
+                    case UNKNOWN:
+                        int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                        plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the hops patch to change its state.");
+                        plugin.addDebugTextToInfoBox("[HOPS] Varbit=" + varbitId + " Value=" + varbitValue + " ObjID=" + patchObjectId);
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
+                        break;
+                }
+            } else {
+                // Fallback: highlight all patches if patchObjectId is null
+                patchHighlighter.highlightHopsPatches(graphics, leftColor);
+            }
+        }
+    }
+    
+    /**
+     * Gets the location name from a region ID for hops patches.
+     * @param regionId The region ID
+     * @return The location name, or "Unknown" if not found
+     */
+    private String getHopsLocationNameFromRegionId(int regionId) {
+        switch (regionId) {
+            case 12851: // Lumbridge
+                return "Lumbridge";
+            case 10551: // Seers Village/Camelot
+                return "Seers Village";
+            case 10288: // Yanille
+                return "Yanille";
+            case 11060: // Entrana
+                return "Entrana";
+            case 5421: // Aldarin
+                return "Aldarin";
+            default:
+                return "Unknown";
+        }
+    }
+    
+    /**
+     * Gets the WorldPoint for a hops patch location.
+     * @param locationName The name of the hops location
+     * @return WorldPoint of the patch, or null if location not found
+     */
+    private WorldPoint getHopsPatchPoint(String locationName) {
+        switch (locationName) {
+            case "Lumbridge":
+                return new WorldPoint(3229, 3315, 0);
+            case "Seers Village":
+                return new WorldPoint(2667, 3526, 0);
+            case "Yanille":
+                return new WorldPoint(2576, 3105, 0);
+            case "Entrana":
+                return new WorldPoint(2811, 3337, 0);
+            case "Aldarin":
+                return new WorldPoint(1365, 2939, 0);
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Gets the varbit ID for a hops patch by checking the object composition.
+     * @param objectId The object ID of the hops patch
+     * @return The varbit ID, or -1 if not found
+     */
+    private int getHopsPatchVarbitId(Integer objectId) {
+        if (objectId == null || objectId == -1) {
+            return -1;
+        }
+        ObjectComposition objectComposition = client.getObjectDefinition(objectId);
+        if (objectComposition != null) {
+            return objectComposition.getVarbitId();
+        }
+        return -1;
     }
     
     /**

@@ -40,6 +40,7 @@ public class Constants {
     public static final int VARBIT_FRUIT_TREE_PATCH_STANDARD = 4771;
     public static final int VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD = 7909;
     public static final int VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD = 4772;
+    public static final int VARBIT_HOPS_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_A; // 4771
     // Allotment patch varbits - fallback only (object composition is preferred)
     // These are only used if object composition doesn't provide a varbit ID
     // Different locations use different transmit varbits:
@@ -111,6 +112,10 @@ public class Constants {
         7964, 7965, 34007, 7962, 26579, 7963
     ));
     
+    public static final List<Integer> HOPS_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
+        8175, 8174, 8173, 8176, 55341
+    ));
+    
     // Allotment patch IDs per location
     // Format: [north patch, south patch] for each location
     // Note: Troll Stronghold and Weiss have no allotment patches
@@ -164,6 +169,20 @@ public class Constants {
         FLOWER_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
     }
     
+    // Hops patch IDs per location
+    // Format: single patch ID for each location
+    public static final Map<String, Integer> HOPS_PATCH_IDS_BY_LOCATION;
+    
+    static {
+        Map<String, Integer> patchMap = new HashMap<>();
+        patchMap.put("Lumbridge", 8175);
+        patchMap.put("Seers Village", 8176);
+        patchMap.put("Yanille", 8173);
+        patchMap.put("Entrana", 8174);
+        patchMap.put("Aldarin", 55341);
+        HOPS_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
+    }
+    
     // Legacy support - returns Ardougne patches by default
     @Deprecated
     public static final List<Integer> ALLOTMENT_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -191,6 +210,10 @@ public class Constants {
     public static final List<Integer> ALLOTMENT_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
         ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
         ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED
+    ));
+    
+    public static final List<Integer> HOPS_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.BARLEY_SEED, ItemID.JUTE_SEED, net.runelite.api.ItemID.HAMMERSTONE_SEED, ItemID.ASGARNIAN_HOP_SEED, ItemID.YANILLIAN_HOP_SEED, ItemID.FLAX_SEED, ItemID.KRANDORIAN_HOP_SEED, ItemID.WILDBLOOD_HOP_SEED, ItemID.HEMP_SEED, ItemID.COTTON_SEED
     ));
     
     public static final List<Integer> WATERING_CAN_IDS = Collections.unmodifiableList(Arrays.asList(

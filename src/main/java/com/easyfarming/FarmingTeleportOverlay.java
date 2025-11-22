@@ -580,6 +580,9 @@ public class FarmingTeleportOverlay extends Overlay {
         if (plugin.getFarmingTeleportOverlay().fruitTreeRun) {
             locationEnabledBool = plugin.getFruitTreeLocationEnabled(location.getName());
         }
+        if (plugin.getFarmingTeleportOverlay().hopsRun) {
+            locationEnabledBool = plugin.getHopsLocationEnabled(location.getName());
+        }
         if (locationEnabledBool) {
             if (!isAtDestination) {
                 int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
@@ -941,6 +944,15 @@ public class FarmingTeleportOverlay extends Overlay {
                     farmingStepHandler.fruitTreePatchDone = false;
                 }
             }
+            if (hopsRun) {
+                farmingStepHandler.hopsSteps(graphics, teleport);
+                if (farmingStepHandler.hopsPatchDone) {
+                    this.startSubCases = false;
+                    isAtDestination = false;
+                    this.currentLocationIndex++;
+                    farmingStepHandler.hopsPatchDone = false;
+                }
+            }
         }
     }
 
@@ -971,14 +983,17 @@ public class FarmingTeleportOverlay extends Overlay {
         plugin.getFarmingTeleportOverlay().herbRun = false;
         plugin.getFarmingTeleportOverlay().treeRun = false;
         plugin.getFarmingTeleportOverlay().fruitTreeRun = false;
+        plugin.getFarmingTeleportOverlay().hopsRun = false;
 
         fruitTreeRun = false;
         herbRun = false;
         treeRun = false;
+        hopsRun = false;
 
         plugin.panel.herbButton.setStartStopState(false);
         plugin.panel.treeButton.setStartStopState(false);
         plugin.panel.fruitTreeButton.setStartStopState(false);
+        plugin.panel.hopsButton.setStartStopState(false);
     }
 
     public Boolean herbRun = false;
@@ -986,6 +1001,8 @@ public class FarmingTeleportOverlay extends Overlay {
     public Boolean treeRun = false;
 
     public Boolean fruitTreeRun = false;
+
+    public Boolean hopsRun = false;
 
     @Override
     public Dimension render(Graphics2D graphics) {
@@ -1084,6 +1101,31 @@ public class FarmingTeleportOverlay extends Overlay {
                     default:
                         removeOverlay();
                         // Add any other actions you want to perform when the herb run is complete
+                        break;
+                }
+            } else if (hopsRun) {
+                switch (this.currentLocationIndex) {
+                    case 0:
+                        gettingToLocation(graphics, plugin.getLumbridgeHopsLocation());
+                        break;
+                    case 1:
+                        gettingToLocation(graphics, plugin.getSeersVillageHopsLocation());
+                        break;
+                    case 2:
+                        gettingToLocation(graphics, plugin.getYanilleHopsLocation());
+                        break;
+                    case 3:
+                        gettingToLocation(graphics, plugin.getEntranaHopsLocation());
+                        break;
+                    case 4:
+                        gettingToLocation(graphics, plugin.getAldarinHopsLocation());
+                        break;
+                    case 5:
+                        removeOverlay();
+                        // add more cases for each location in the array
+                    default:
+                        removeOverlay();
+                        // Add any other actions you want to perform when the hops run is complete
                         break;
                 }
             }

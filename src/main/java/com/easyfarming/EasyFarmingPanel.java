@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
+import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
 
 public class EasyFarmingPanel extends PluginPanel
 {
@@ -21,6 +22,7 @@ public class EasyFarmingPanel extends PluginPanel
     private final HerbRunItemAndLocation herbRunItemAndLocation;
     private final TreeRunItemAndLocation treeRunItemAndLocation;
     private  final FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
+    private final HopsRunItemAndLocation hopsRunItemAndLocation;
 	private final EasyFarmingPlugin plugin;
     private final OverlayManager overlayManager;
     private final FarmingTeleportOverlay farmingTeleportOverlay;
@@ -28,13 +30,15 @@ public class EasyFarmingPanel extends PluginPanel
     public StartStopJButton herbButton;
     public StartStopJButton treeButton;
     public StartStopJButton fruitTreeButton;
+    public StartStopJButton hopsButton;
 
-    public EasyFarmingPanel(EasyFarmingPlugin plugin, OverlayManager overlayManager, FarmingTeleportOverlay farmingTeleportOverlay, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation)
+    public EasyFarmingPanel(EasyFarmingPlugin plugin, OverlayManager overlayManager, FarmingTeleportOverlay farmingTeleportOverlay, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation, HopsRunItemAndLocation hopsRunItemAndLocation)
     {
         this.herbRunItemAndLocation = herbRunItemAndLocation;
         this.treeRunItemAndLocation = treeRunItemAndLocation;
         this.farmingTeleportOverlay = farmingTeleportOverlay;
         this.fruitTreeRunItemAndLocation = fruitTreeRunItemAndLocation;
+        this.hopsRunItemAndLocation = hopsRunItemAndLocation;
 
         this.plugin = plugin;
         this.overlayManager = overlayManager;
@@ -129,6 +133,23 @@ public class EasyFarmingPanel extends PluginPanel
         });
         farmRunButtonsPanel.add(fruitTreeButton);
 
+        hopsButton = new StartStopJButton("Hops Run");
+        hopsButton.setFocusable(false);
+        hopsButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                plugin.runOnClientThread(() -> {
+                    plugin.setOverlayActive(!plugin.isOverlayActive());
+
+                    hopsButton.setStartStopState(plugin.isOverlayActive());
+
+                    onHopsButtonClicked();
+                });
+            }
+        });
+        farmRunButtonsPanel.add(hopsButton);
+
         farmRunButtonsContainingPanel.add(farmRunButtonsPanel);
 
         return farmRunButtonsContainingPanel;
@@ -208,6 +229,27 @@ public class EasyFarmingPanel extends PluginPanel
                 } else {
                     logger.debug("Add overlay from button");
                     plugin.getFarmingTeleportOverlay().fruitTreeRun = true;
+                    overlayManager.add(overlay);
+                    overlayManager.add(farmingTeleportOverlay);
+                }
+            }
+        });
+    }
+
+    private void onHopsButtonClicked()
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run() {
+                EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
+
+                if (!plugin.isOverlayActive()) {
+                    farmingTeleportOverlay.removeOverlay();
+                    logger.debug("Remove overlay from button");
+                } else {
+                    logger.debug("Add overlay from button");
+                    plugin.getFarmingTeleportOverlay().hopsRun = true;
                     overlayManager.add(overlay);
                     overlayManager.add(farmingTeleportOverlay);
                 }

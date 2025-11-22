@@ -139,6 +139,13 @@ public class ItemHighlighter {
         }
     }
     
+    public void highlightHopsSeeds(Graphics2D graphics) {
+        Color color = colorProvider.getHighlightUseItemWithAlpha();
+        for (Integer seedId : farmingHelperOverlay.getHopsSeedIds()) {
+            itemHighlight(graphics, seedId, color);
+        }
+    }
+    
     /**
      * Highlights tree saplings in inventory.
      */
