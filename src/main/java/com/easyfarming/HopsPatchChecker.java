@@ -59,7 +59,7 @@ public class HopsPatchChecker {
         KRANDORIAN(
             Arrays.asList(168,169,170,171,172,173,174), 
             Arrays.asList(40,41,42,43,44,45,46), 
-            Arrays.asList(),
+            Arrays.asList(50,51,52,53,54,55,56),
             Arrays.asList(183),
             Arrays.asList(47,48,49)
         ),

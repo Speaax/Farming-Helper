@@ -213,7 +213,7 @@ public class Constants {
     ));
     
     public static final List<Integer> HOPS_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
-        ItemID.BARLEY_SEED, ItemID.JUTE_SEED, net.runelite.api.ItemID.HAMMERSTONE_SEED, ItemID.ASGARNIAN_HOP_SEED, ItemID.YANILLIAN_HOP_SEED, ItemID.FLAX_SEED, ItemID.KRANDORIAN_HOP_SEED, ItemID.WILDBLOOD_HOP_SEED, ItemID.HEMP_SEED, ItemID.COTTON_SEED
+        ItemID.BARLEY_SEED, ItemID.JUTE_SEED, ItemID.HAMMERSTONE_HOP_SEED, ItemID.ASGARNIAN_HOP_SEED, ItemID.YANILLIAN_HOP_SEED, ItemID.FLAX_SEED, ItemID.KRANDORIAN_HOP_SEED, ItemID.WILDBLOOD_HOP_SEED, ItemID.HEMP_SEED, ItemID.COTTON_SEED
     ));
     
     public static final List<Integer> WATERING_CAN_IDS = Collections.unmodifiableList(Arrays.asList(

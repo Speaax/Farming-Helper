@@ -15,7 +15,11 @@ import net.runelite.api.gameval.ItemID;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+import com.easyfarming.locations.LocationData;
+import com.easyfarming.locations.hops.*;
 
 /**
  * Handles farming step logic for herb, flower, tree, and fruit tree patches.
@@ -317,17 +321,34 @@ public class FarmingStepHandler {
      * @return WorldPoint of the patch, or null if location not found
      */
     private WorldPoint getHopsPatchPoint(String locationName) {
+        LocationData locationData = getHopsLocationData(locationName);
+        return locationData != null ? locationData.getPatchPoint() : null;
+    }
+    
+    /**
+     * Gets LocationData for a hops location by name.
+     * @param locationName The name of the hops location
+     * @return LocationData for the location, or null if not found
+     */
+    private LocationData getHopsLocationData(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        
+        // Use empty supplier since we only need the patch point, not teleport data
+        Supplier<List<ItemRequirement>> emptySupplier = () -> Collections.emptyList();
+        
         switch (locationName) {
             case "Lumbridge":
-                return new WorldPoint(3229, 3315, 0);
+                return LumbridgeHopsLocationData.create(emptySupplier);
             case "Seers Village":
-                return new WorldPoint(2667, 3526, 0);
+                return SeersVillageHopsLocationData.create(emptySupplier);
             case "Yanille":
-                return new WorldPoint(2576, 3105, 0);
+                return YanilleHopsLocationData.create(emptySupplier);
             case "Entrana":
-                return new WorldPoint(2811, 3337, 0);
+                return EntranaHopsLocationData.create();
             case "Aldarin":
-                return new WorldPoint(1365, 2939, 0);
+                return AldarinHopsLocationData.create(emptySupplier);
             default:
                 return null;
         }

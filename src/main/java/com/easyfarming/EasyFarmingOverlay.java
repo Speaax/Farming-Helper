@@ -9,7 +9,6 @@ import net.runelite.api.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.api.kit.KitType;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -456,27 +455,40 @@ public class EasyFarmingOverlay extends Overlay {
     /**
      * Scans equipped items and returns a map of item IDs to their counts.
      * Equipped items are counted as 1 each (equipment slots can only hold 1 item).
-     * Uses PlayerComposition.getEquipmentId(KitType) with KitType enum constants.
+     * Uses EquipmentInventorySlot with ItemContainer for reliable detection of all equipped items,
+     * including rings and other items that may not be detected by PlayerComposition.
      */
     private Map<Integer, Integer> getEquippedItems() {
         Map<Integer, Integer> equippedItems = new HashMap<>();
         
-        Player localPlayer = client.getLocalPlayer();
-        if (localPlayer == null) {
+        // Get the equipment ItemContainer using the equipment container ID
+        // Equipment container ID is 94 in RuneLite
+        ItemContainer equipment = client.getItemContainer(94);
+        if (equipment == null) {
             return equippedItems;
         }
         
-        PlayerComposition playerComposition = localPlayer.getPlayerComposition();
-        if (playerComposition == null) {
+        Item[] items = equipment.getItems();
+        if (items == null) {
             return equippedItems;
         }
         
-        // Scan through all KitType enum values to get equipped items
-        for (KitType kitType : KitType.values()) {
-            int itemId = playerComposition.getEquipmentId(kitType);
-            if (itemId > 0) {
-                // Count each equipped item as 1
-                equippedItems.put(itemId, equippedItems.getOrDefault(itemId, 0) + 1);
+        // Iterate through all EquipmentInventorySlot values to check each slot
+        for (EquipmentInventorySlot slot : EquipmentInventorySlot.values()) {
+            try {
+                int slotIdx = slot.getSlotIdx();
+                // Ensure the slot index is within bounds
+                if (slotIdx >= 0 && slotIdx < items.length) {
+                    Item item = items[slotIdx];
+                    if (item != null && item.getId() > 0) {
+                        int itemId = item.getId();
+                        // Count each equipped item as 1
+                        equippedItems.put(itemId, equippedItems.getOrDefault(itemId, 0) + 1);
+                    }
+                }
+            } catch (Exception e) {
+                // Skip invalid slots gracefully
+                continue;
             }
         }
         
@@ -700,10 +712,17 @@ public class EasyFarmingOverlay extends Overlay {
                     inventoryCount = quetzalWhistleCount;
                 } else if (itemId == BASE_EXPLORERS_RING_ID) {
                     // Check if any Explorer's Ring variant is equipped or in inventory
-                    // inventoryItemCounts already includes equipped items from the third pass
+                    // First check inventoryItemCounts (includes equipped items from third pass)
+                    // Then also directly check equippedItems as a fallback to ensure detection
                     boolean hasExplorersRing = false;
                     for (int ringId : EXPLORERS_RING_IDS) {
+                        // Check in inventoryItemCounts first
                         if (inventoryItemCounts.containsKey(ringId) && inventoryItemCounts.get(ringId) > 0) {
+                            hasExplorersRing = true;
+                            break;
+                        }
+                        // Also directly check equipped items as fallback
+                        if (equippedItems.containsKey(ringId) && equippedItems.get(ringId) > 0) {
                             hasExplorersRing = true;
                             break;
                         }

@@ -566,7 +566,7 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "Tree teleport options",
 			description = "Choose what teleport to use for each Herb patch",
-			position = 5,
+			position = 6,
 			closedByDefault = true
 	)
 	String treeTeleportOptionList = "treeTeleportOptionList";
@@ -661,7 +661,7 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "Fruit tree teleport options",
 			description = "Choose what teleport to use for each fruit tree",
-			position = 6,
+			position = 7,
 			closedByDefault = true
 	)
 	String fruitTreeTeleportOptionList = "fruitTreeTeleportOptionList";
@@ -757,7 +757,7 @@ public interface EasyFarmingConfig extends Config
 	@ConfigSection(
 			name = "Hops teleport options",
 			description = "Choose what teleport to use for each Hops patch",
-			position = 7,
+			position = 8,
 			closedByDefault = true
 	)
 	String hopsTeleportOptionList = "hopsTeleportOptionList";
