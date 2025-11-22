@@ -52,14 +52,14 @@ public class HopsPatchChecker {
             Arrays.asList(154,155,156,157,158,159), 
             Arrays.asList(26,27,28,29,30,31), 
             Arrays.asList(163,164,165),
-            Arrays.asList(),
+            Arrays.asList(35),
             Arrays.asList(32,33,34)
         ),
 
         KRANDORIAN(
             Arrays.asList(168,169,170,171,172,173,174), 
             Arrays.asList(40,41,42,43,44,45,46), 
-            Arrays.asList(50,51,52,53,54,55,56),
+            Arrays.asList(50,51,52,53,54,55),
             Arrays.asList(183),
             Arrays.asList(47,48,49)
         ),
@@ -82,7 +82,7 @@ public class HopsPatchChecker {
 
         FLAX(
             Arrays.asList(225,226,227), 
-            Arrays.asList(97, 98), 
+            Arrays.asList(96,97,98), 
             Arrays.asList(),
             Arrays.asList(),
             Arrays.asList(99,100,101)
@@ -93,7 +93,7 @@ public class HopsPatchChecker {
             Arrays.asList(114,115,116,117,118), 
             Arrays.asList(),
             Arrays.asList(),
-            Arrays.asList(247,248,249,250,251)
+            Arrays.asList(119,120,121)
         );
 
         private final List<Integer> growing;
