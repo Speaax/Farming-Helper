@@ -67,18 +67,24 @@ public class MenuHighlighter {
                 }
             }
             
-            // Also check target text
+            // Also check target text - use exact match or starts-with to avoid matching multiple entries
             if (!matches && target != null) {
+                // Use exact match or starts-with, NOT contains (to avoid matching "Camelot Teleport" in multiple entries)
                 if (target.equalsIgnoreCase(option) || 
-                    target.toLowerCase().contains(option.toLowerCase())) {
+                    target.toLowerCase().startsWith(option.toLowerCase())) {
                     matches = true;
                 }
             }
             
             if (matches && optionText != null) {
                 // Only highlight if not already highlighted
-                if (!optionText.startsWith(">>>")) {
-                    String highlightedText = ColorUtil.prependColorTag(">>> " + optionText, color);
+                // Strip color tags using regex (RuneLite color tags are <col=...>text</col>)
+                String rawText = optionText.replaceAll("<col=[^>]*>", "").replaceAll("</col>", "");
+                // Check if it already starts with ">>>" (with or without space)
+                String trimmedText = rawText.trim();
+                if (!trimmedText.startsWith(">>>")) {
+                    // Remove any existing color tags and highlight markers before adding new highlight
+                    String highlightedText = ColorUtil.prependColorTag(">>> " + trimmedText, color);
                     entry.setOption(highlightedText);
                     menu.setMenuEntries(menuEntries);
                 }

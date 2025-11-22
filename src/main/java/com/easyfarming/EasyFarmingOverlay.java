@@ -169,6 +169,15 @@ public class EasyFarmingOverlay extends Overlay {
     public Integer getHopsPatchIdForLocation(String locationName) {
         return Constants.HOPS_PATCH_IDS_BY_LOCATION.get(locationName);
     }
+    
+    /**
+     * Gets fruit tree patch ID for a specific location.
+     * @param locationName The name of the location
+     * @return The patch object ID, or null if location has no fruit tree patch
+     */
+    public Integer getFruitTreePatchIdForLocation(String locationName) {
+        return Constants.FRUIT_TREE_PATCH_IDS_BY_LOCATION.get(locationName);
+    }
     private static final List<Integer> ALLOTMENT_SEED_IDS = Arrays.asList(
         ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
         ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED

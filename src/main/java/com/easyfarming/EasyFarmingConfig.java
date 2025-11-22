@@ -105,7 +105,7 @@ public interface EasyFarmingConfig extends Config
 	@ConfigItem(
 			keyName = "booleanConfigLimpwurt",
 			name = "Limpwurt",
-			description = "Want to include limpwurts in your farm run?",
+			description = "Want to include limpwurts in your herb run?",
 			position = 8,
 			section = generalList
 	)
@@ -113,7 +113,7 @@ public interface EasyFarmingConfig extends Config
 	@ConfigItem(
 			keyName = "booleanConfigAllotment",
 			name = "Allotments",
-			description = "Want to include Allotments in your farm run?",
+			description = "Want to include Allotments in your herb run?",
 			position = 9,
 			section = generalList
 	)

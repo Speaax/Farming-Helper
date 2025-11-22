@@ -82,6 +82,16 @@ public class PatchHighlighter {
     }
     
     /**
+     * Highlights a specific flower patch by object ID.
+     * @param graphics Graphics context
+     * @param objectId The object ID of the specific patch to highlight
+     * @param color The color to use for highlighting
+     */
+    public void highlightSpecificFlowerPatch(Graphics2D graphics, int objectId, Color color) {
+        gameObjectHighlighter.highlightGameObject(objectId, color).render(graphics);
+    }
+    
+    /**
      * Highlights farming patches for a specific location.
      * @param locationName The name of the location
      * @param graphics Graphics context for highlighting

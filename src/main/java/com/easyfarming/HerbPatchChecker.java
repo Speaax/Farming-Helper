@@ -2,85 +2,275 @@ package com.easyfarming;
 
 import net.runelite.api.Client;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+/**
+ * Herb patch state detection using range-based varbit value checks.
+ * 
+ * This implementation uses the exact varbit ranges from RuneLite's PatchImplementation
+ * (HERB section, lines 435-717) to determine crop state without hardcoding all varbit values.
+ * 
+ * Varbit IDs vary by location:
+ * - Standard locations (Ardougne, Catherby, Falador, Kourend, Morytania, Civitas): 4774 (FARMING_TRANSMIT_D)
+ * - Harmony Island: 4772 (FARMING_TRANSMIT_B)
+ * - Troll Stronghold/Weiss: 4771 (FARMING_TRANSMIT_A)
+ * - Farming Guild: 4775
+ * 
+ * Note: The varbit value ranges are the same regardless of which transmit varbit is used.
+ */
 public class HerbPatchChecker {
-    public enum Herb {
-        //Order of lists is "growing, diseased, harvest"
-        GUAM(Arrays.asList(4,5,6,7), Arrays.asList(128,129,130), Arrays.asList(8,9,10)),
-        MARRENTILL(Arrays.asList(11,12,13,14), Arrays.asList(131,132,133), Arrays.asList(15,16,17)),
-        TARROMIN(Arrays.asList(18,19,20,21), Arrays.asList(134,135,136), Arrays.asList(22,23,24)),
-        HARRALANDER(Arrays.asList(25,26,27,28), Arrays.asList(137,138,139), Arrays.asList(29,30,31)),
-        RANARR(Arrays.asList(32,33,34,35), Arrays.asList(140,141,142), Arrays.asList(36,37,38)),
-        TOADFLAX(Arrays.asList(39,40,41,42), Arrays.asList(143,144,145), Arrays.asList(43,44,45)),
-        IRIT(Arrays.asList(46,47,48,49), Arrays.asList(146,147,148), Arrays.asList(50,51,52)),
-        AVANTOE(Arrays.asList(53,54,55,56), Arrays.asList(149,159,151), Arrays.asList(57,58,59)),
-        KWUARM(Arrays.asList(68,69,70,71), Arrays.asList(152,153,154), Arrays.asList(72,73,74)),
-        SNAPDRAGON(Arrays.asList(75,76,77,78), Arrays.asList(155,156,157), Arrays.asList(79,80,81)),
-        CADANTINE(Arrays.asList(82,83,84,85), Arrays.asList(158,159,160), Arrays.asList(86,87,88)),
-        LANTADYME(Arrays.asList(89,90,91,92), Arrays.asList(161,162,163), Arrays.asList(93,94,95)),
-        DWARF_WEED(Arrays.asList(96,97,98,99), Arrays.asList(164,165,166), Arrays.asList(100,101,102)),
-        TORSTOL(Arrays.asList(103,104,105,106), Arrays.asList(167,168,169), Arrays.asList(107,108,109));
-
-        private final List<Integer> growing;
-        private final List<Integer> diseased;
-        private final List<Integer> harvest;
-
-        Herb(List<Integer> growing, List<Integer> diseased, List<Integer> harvest) {
-            this.growing = growing;
-            this.diseased = diseased;
-            this.harvest = harvest;
-        }
-        public List<Integer> getGrowing() {
-            return growing;
-        }
-
-        public List<Integer> getDead() {
-            return diseased;
-        }
-
-        public List<Integer> getHarvest() {
-            return harvest;
-        }
-    }
-
-    // Combine all growing and dead varbit values into single lists
-    private static final List<Integer> growing = Stream.of(Herb.values())
-            .flatMap(herb -> herb.getGrowing().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> diseased = Stream.of(Herb.values())
-            .flatMap(herb -> herb.getDead().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> harvest = Stream.of(Herb.values())
-            .flatMap(herb -> herb.getHarvest().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> WEEDS = Arrays.asList(0, 1, 2);
-    private static final List<Integer> DEAD = Arrays.asList(170, 171, 172);
-
+    
+    /**
+     * Checks the state of a herb patch based on varbit value ranges.
+     * 
+     * This method uses the exact varbit ranges from RuneLite's PatchImplementation
+     * to determine crop state without hardcoding all varbit values.
+     * 
+     * @param client The RuneLite client instance
+     * @param varbitIndex The varbit ID for the patch
+     * @return The current state of the patch
+     */
     public static PlantState checkHerbPatch(Client client, int varbitIndex) {
-        int varbitValue = client.getVarbitValue(varbitIndex);
-
-        if (growing.contains(varbitValue)) {
-            return PlantState.GROWING;
-        } else if (diseased.contains(varbitValue)) {
-            return PlantState.DISEASED;
-        } else if (harvest.contains(varbitValue)) {
+        int value = client.getVarbitValue(varbitIndex);
+        
+        // Check harvestable first (before other states, as harvest values might overlap)
+        // Herbs[Pick,Inspect,Guide] GUAM 8-10
+        if (value >= 8 && value <= 10) {
             return PlantState.HARVESTABLE;
-        } else if (WEEDS.contains(varbitValue)) {
-            return PlantState.WEEDS;
-        } else if (DEAD.contains(varbitValue)) {
+        }
+        // Herbs[Pick,Inspect,Guide] MARRENTILL 15-17
+        if (value >= 15 && value <= 17) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] TARROMIN 22-24
+        if (value >= 22 && value <= 24) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] HARRALANDER 29-31
+        if (value >= 29 && value <= 31) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] RANARR 36-38
+        if (value >= 36 && value <= 38) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] TOADFLAX 43-45
+        if (value >= 43 && value <= 45) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] IRIT 50-52
+        if (value >= 50 && value <= 52) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] AVANTOE 57-59
+        if (value >= 57 && value <= 59) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] HUASCA 64-66
+        if (value >= 64 && value <= 66) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] KWUARM 72-74
+        if (value >= 72 && value <= 74) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] SNAPDRAGON 79-81
+        if (value >= 79 && value <= 81) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] CADANTINE 86-88
+        if (value >= 86 && value <= 88) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] LANTADYME 93-95
+        if (value >= 93 && value <= 95) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] DWARF_WEED 100-102
+        if (value >= 100 && value <= 102) {
+            return PlantState.HARVESTABLE;
+        }
+        // Herbs[Pick,Inspect,Guide] TORSTOL 107-109
+        if (value >= 107 && value <= 109) {
+            return PlantState.HARVESTABLE;
+        }
+        // Goutweed[Pick,Inspect,Guide] 196-197
+        if (value >= 196 && value <= 197) {
+            return PlantState.HARVESTABLE;
+        }
+        
+        // Check dead before diseased, as dead is a more specific state
+        // Dead herbs[Clear,Inspect,Guide] 170-172
+        if (value >= 170 && value <= 172) {
             return PlantState.DEAD;
-        } else if (varbitValue == 3) {
-            return PlantState.PLANT;
-        } else {
+        }
+        // Dead goutweed[Clear,Inspect,Guide] 201-203
+        if (value >= 201 && value <= 203) {
+            return PlantState.DEAD;
+        }
+        
+        // Check weeds BEFORE diseased to avoid false positives
+        // Herb patch[Rake,Inspect,Guide] 0-3 (value 3 = fully raked, ready to plant)
+        // Note: In RuneLite, value 3 is treated as WEEDS with stage 0 (fully raked)
+        // We'll handle value 3 specially in the step handler to show "plant" instead of "rake"
+        if (value >= 0 && value <= 3) {
+            return PlantState.WEEDS;
+        }
+        // Herb patch[Rake,Inspect,Guide] 67
+        if (value == 67) {
+            return PlantState.WEEDS;
+        }
+        // Herb patch[Rake,Inspect,Guide] 176-191
+        if (value >= 176 && value <= 191) {
+            return PlantState.WEEDS;
+        }
+        // Herb patch[Rake,Inspect,Guide] 204-219
+        if (value >= 204 && value <= 219) {
+            return PlantState.WEEDS;
+        }
+        // Herb patch[Rake,Inspect,Guide] 221-255
+        if (value >= 221 && value <= 255) {
+            return PlantState.WEEDS;
+        }
+        
+        // Values 110-127 are not used in herb patches (gap in RuneLite implementation)
+        // If we encounter these values, return UNKNOWN rather than incorrectly matching diseased
+        if (value >= 110 && value <= 127) {
             return PlantState.UNKNOWN;
         }
+        
+        // Check diseased state (only after ensuring value is not weeds or in gap range)
+        // Diseased herbs[Cure,Inspect,Guide] GUAM 128-130
+        if (value >= 128 && value <= 130) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] MARRENTILL 131-133
+        if (value >= 131 && value <= 133) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] TARROMIN 134-136
+        if (value >= 134 && value <= 136) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] HARRALANDER 137-139
+        if (value >= 137 && value <= 139) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] RANARR 140-142
+        if (value >= 140 && value <= 142) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] TOADFLAX 143-145
+        if (value >= 143 && value <= 145) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] IRIT 146-148
+        if (value >= 146 && value <= 148) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] AVANTOE 149-151
+        if (value >= 149 && value <= 151) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] KWUARM 152-154
+        if (value >= 152 && value <= 154) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] SNAPDRAGON 155-157
+        if (value >= 155 && value <= 157) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] CADANTINE 158-160
+        if (value >= 158 && value <= 160) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] LANTADYME 161-163
+        if (value >= 161 && value <= 163) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] DWARF_WEED 164-166
+        if (value >= 164 && value <= 166) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] TORSTOL 167-169
+        if (value >= 167 && value <= 169) {
+            return PlantState.DISEASED;
+        }
+        // Diseased herbs[Cure,Inspect,Guide] HUASCA 173-175
+        if (value >= 173 && value <= 175) {
+            return PlantState.DISEASED;
+        }
+        // Diseased goutweed[Cure,Inspect,Guide] 198-200
+        if (value >= 198 && value <= 200) {
+            return PlantState.DISEASED;
+        }
+        
+        // Growing ranges (checked after other states)
+        // Herbs[Inspect,Guide] GUAM 4-7
+        if (value >= 4 && value <= 7) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] MARRENTILL 11-14
+        if (value >= 11 && value <= 14) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] TARROMIN 18-21
+        if (value >= 18 && value <= 21) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] HARRALANDER 25-28
+        if (value >= 25 && value <= 28) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] RANARR 32-35
+        if (value >= 32 && value <= 35) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] TOADFLAX 39-42
+        if (value >= 39 && value <= 42) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] IRIT 46-49
+        if (value >= 46 && value <= 49) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] AVANTOE 53-56
+        if (value >= 53 && value <= 56) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] HUASCA 60-63
+        if (value >= 60 && value <= 63) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] KWUARM 68-71
+        if (value >= 68 && value <= 71) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] SNAPDRAGON 75-78
+        if (value >= 75 && value <= 78) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] CADANTINE 82-85
+        if (value >= 82 && value <= 85) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] LANTADYME 89-92
+        if (value >= 89 && value <= 92) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] DWARF_WEED 96-99
+        if (value >= 96 && value <= 99) {
+            return PlantState.GROWING;
+        }
+        // Herbs[Inspect,Guide] TORSTOL 103-106
+        if (value >= 103 && value <= 106) {
+            return PlantState.GROWING;
+        }
+        // Goutweed[Inspect,Guide] 192-195
+        if (value >= 192 && value <= 195) {
+            return PlantState.GROWING;
+        }
+        
+        // Unknown state
+        return PlantState.UNKNOWN;
     }
     public enum PlantState {
         GROWING,

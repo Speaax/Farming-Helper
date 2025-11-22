@@ -2,152 +2,351 @@ package com.easyfarming;
 
 import net.runelite.api.Client;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+/**
+ * Allotment patch state detection using range-based varbit value checks.
+ * 
+ * This implementation uses the exact varbit ranges from RuneLite's PatchImplementation
+ * (ALLOTMENT section, lines 102-434) to determine crop state without hardcoding all varbit values.
+ * 
+ * Varbit IDs: Determined from object composition (typically in 4771-4774 range)
+ * - Standard locations: Varbit IDs in 4771-4774 range
+ * - Farming Guild: Varbit IDs in 7904-7914 range
+ */
 public class AllotmentPatchChecker {
-    /**
-     * Allotment patch varbit IDs used in OSRS.
-     * 
-     * Each location uses specific varbit IDs:
-     * - Standard locations (Falador, Ardougne, Catherby, Morytania, Kourend, Civitas): 
-     *   Varbit IDs are determined from object composition (typically in 4771-4774 range)
-     * - Farming Guild: Varbit IDs in 7904-7914 range
-     * - Transmit varbits (fallback): FARMING_TRANSMIT_A1, A2, B1, B2
-     * 
-     * The varbit ID is determined per-patch from the object composition, not per-crop.
-     * All crops planted in the same patch location will use the same varbit ID.
-     */
     
-    // Valid varbit ID ranges for allotment patches (for validation)
-    private static final int MIN_STANDARD_VARBIT = 4771;
-    private static final int MAX_STANDARD_VARBIT = 4774;
-    private static final int MIN_FARMING_GUILD_VARBIT = 7904;
-    private static final int MAX_FARMING_GUILD_VARBIT = 7914;
-    
-    public enum Allotment {
-        //Order of lists is "growing, needsWater, diseased, harvest"
-        // Note: Values 128-151 are "needs water" states (confirmed: 129 = needs water)
-        // When watered, value changes from 129 to 64, so 64+ are watered growing states
-        // Value 63 is also a watered growing state (observed after first watering)
-        POTATO(Arrays.asList(4,5,6,7,63,64,65,66,67), Arrays.asList(128,129,130), Arrays.asList(), Arrays.asList(8,9,10)),
-        ONION(Arrays.asList(11,12,13,14,68,69,70,71), Arrays.asList(131,132,133), Arrays.asList(), Arrays.asList(15,16,17,18,19)),
-        CABBAGE(Arrays.asList(20,21,72,73,74,75), Arrays.asList(134,135,136), Arrays.asList(), Arrays.asList(22,23,24)),
-        TOMATO(Arrays.asList(25,26,27,28,76,77,78,79), Arrays.asList(137,138), Arrays.asList(), Arrays.asList(29,30,31)),
-        SWEETCORN(Arrays.asList(32,33,34,35,80,81,82,83), Arrays.asList(141,142), Arrays.asList(), Arrays.asList(36,37,38)),
-        STRAWBERRY(Arrays.asList(39,40,41,42,84,85,86,87), Arrays.asList(143,144,145), Arrays.asList(), Arrays.asList(43,44,45)),
-        WATERMELON(Arrays.asList(46,47,48,49,88,89,90,91), Arrays.asList(146,147,148), Arrays.asList(), Arrays.asList(50,51,52)),
-        SNAPE_GRASS(Arrays.asList(53,54,55,56,92,93,94,95), Arrays.asList(128,149,150,151), Arrays.asList(198), Arrays.asList(57,58,59,138,139,140));
-
-        private final List<Integer> growing;
-        private final List<Integer> needsWater;
-        private final List<Integer> diseased;
-        private final List<Integer> harvest;
-
-        Allotment(List<Integer> growing, List<Integer> needsWater, List<Integer> diseased, List<Integer> harvest) {
-            this.growing = growing;
-            this.needsWater = needsWater;
-            this.diseased = diseased;
-            this.harvest = harvest;
-        }
-        
-        public List<Integer> getGrowing() {
-            return growing;
-        }
-
-        public List<Integer> getNeedsWater() {
-            return needsWater;
-        }
-
-        public List<Integer> getDiseased() {
-            return diseased;
-        }
-
-        public List<Integer> getHarvest() {
-            return harvest;
-        }
-    }
-
-    // Combine all growing, needsWater, diseased, and harvest varbit values into single lists
-    private static final List<Integer> growing = Stream.of(Allotment.values())
-            .flatMap(allotment -> allotment.getGrowing().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> needsWater = Stream.of(Allotment.values())
-            .flatMap(allotment -> allotment.getNeedsWater().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> diseased = Stream.of(Allotment.values())
-            .flatMap(allotment -> allotment.getDiseased().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> harvest = Stream.of(Allotment.values())
-            .flatMap(allotment -> allotment.getHarvest().stream())
-            .collect(Collectors.toList());
-
-    private static final List<Integer> WEEDS = Arrays.asList(0, 1, 2);
-    private static final List<Integer> DEAD = Arrays.asList(170, 171, 172);
-
     /**
-     * Checks if a varbit ID is in the valid range for allotment patches.
-     * @param varbitId The varbit ID to validate
-     * @return true if the varbit ID is in a valid range for allotment patches
-     */
-    private static boolean isValidAllotmentVarbitId(int varbitId) {
-        return (varbitId >= MIN_STANDARD_VARBIT && varbitId <= MAX_STANDARD_VARBIT) ||
-               (varbitId >= MIN_FARMING_GUILD_VARBIT && varbitId <= MAX_FARMING_GUILD_VARBIT);
-    }
-
-    /**
-     * Checks the state of an allotment patch.
+     * Checks the state of an allotment patch based on varbit value ranges.
+     * 
+     * This method uses the exact varbit ranges from RuneLite's PatchImplementation
+     * to determine crop state without hardcoding all varbit values.
      * 
      * @param client The RuneLite client instance
-     * @param varbitIndex The varbit ID for the patch (determined from object composition)
+     * @param varbitIndex The varbit ID for the patch
      * @return The current state of the patch
      */
     public static PlantState checkAllotmentPatch(Client client, int varbitIndex) {
-        int varbitValue = client.getVarbitValue(varbitIndex);
-
-        // Runtime validation: Log a warning if varbit ID is outside expected ranges
-        // (This helps catch incorrect varbit IDs during development/testing)
-        if (!isValidAllotmentVarbitId(varbitIndex) && varbitIndex != -1) {
-            // Note: We don't throw an error here as transmit varbits (A1, A2, B1, B2) 
-            // may also be valid but not in our documented ranges
-            // This is just a validation check for common allotment patch varbits
+        int value = client.getVarbitValue(varbitIndex);
+        
+        // Check for empty patch ready to plant (value 3 = fully raked)
+        if (value == 3) {
+            return PlantState.PLANT;
         }
-
-        // Check harvestable first (before weeds, since harvest values might overlap with other states)
-        if (harvest.contains(varbitValue)) {
+        
+        // Check harvestable first (before other states, as harvest values might overlap)
+        // Potato[Harvest,Inspect,Guide] 10-12
+        if (value >= 10 && value <= 12) {
+            return PlantState.HARVESTABLE;
+        }
+        // Onion[Harvest,Inspect,Guide] 17-19
+        if (value >= 17 && value <= 19) {
+            return PlantState.HARVESTABLE;
+        }
+        // Cabbages[Harvest,Inspect,Guide] 24-26
+        if (value >= 24 && value <= 26) {
+            return PlantState.HARVESTABLE;
+        }
+        // Tomato[Harvest,Inspect,Guide] 31-33
+        if (value >= 31 && value <= 33) {
+            return PlantState.HARVESTABLE;
+        }
+        // Sweetcorn[Harvest,Inspect,Guide] 40-42
+        if (value >= 40 && value <= 42) {
+            return PlantState.HARVESTABLE;
+        }
+        // Strawberry[Harvest,Inspect,Guide] 49-51
+        if (value >= 49 && value <= 51) {
+            return PlantState.HARVESTABLE;
+        }
+        // Watermelon[Harvest,Inspect,Guide] 60-62
+        if (value >= 60 && value <= 62) {
+            return PlantState.HARVESTABLE;
+        }
+        // Snape grass plant[Harvest,Inspect,Guide] 138-140
+        if (value >= 138 && value <= 140) {
             return PlantState.HARVESTABLE;
         }
         
         // Check dead before diseased, as dead is a more specific state
-        if (DEAD.contains(varbitValue)) {
+        // Dead Snape grass[Clear,Inspect,Guide] 193-195
+        if (value >= 193 && value <= 195) {
+            return PlantState.DEAD;
+        }
+        // Dead potatoes[Clear,Inspect,Guide] 199-201
+        if (value >= 199 && value <= 201) {
+            return PlantState.DEAD;
+        }
+        // Dead Snape grass[Clear,Inspect,Guide] 209-211
+        if (value >= 209 && value <= 211) {
+            return PlantState.DEAD;
+        }
+        // Dead onions[Clear,Inspect,Guide] 206-208
+        if (value >= 206 && value <= 208) {
+            return PlantState.DEAD;
+        }
+        // Dead cabbages[Clear,Inspect,Guide] 213-215
+        if (value >= 213 && value <= 215) {
+            return PlantState.DEAD;
+        }
+        // Dead tomato plant[Clear,Inspect,Guide] 220-222
+        if (value >= 220 && value <= 222) {
+            return PlantState.DEAD;
+        }
+        // Dead sweetcorn plant[Clear,Inspect,Guide] 227-231
+        if (value >= 227 && value <= 231) {
+            return PlantState.DEAD;
+        }
+        // Dead strawberry plant[Clear,Inspect,Guide] 236-240
+        if (value >= 236 && value <= 240) {
+            return PlantState.DEAD;
+        }
+        // Dead watermelons[Clear,Inspect,Guide] 245-251
+        if (value >= 245 && value <= 251) {
             return PlantState.DEAD;
         }
         
-        // Check diseased state using the diseased list
-        if (diseased.contains(varbitValue)) {
+        // Check diseased state
+        // Diseased potatoes[Cure,Inspect,Guide] 135-137
+        if (value >= 135 && value <= 137) {
             return PlantState.DISEASED;
-        } else if (needsWater.contains(varbitValue)) {
-            // Check needsWater after diseased but before growing, as it's urgent
-            // Values 128-151 are "needs water" states (confirmed: 129 = needs water)
-            return PlantState.NEEDS_WATER;
-        } else if (growing.contains(varbitValue)) {
-            // Values 4-7, 64-67, etc. are "growing and watered" states
-            return PlantState.GROWING;
-        } else if (WEEDS.contains(varbitValue)) {
-            // Value 0 = weeds/empty after harvesting
-            return PlantState.WEEDS;
-        } else if (varbitValue == 3) {
-            // Value 3 = empty patch ready to plant (before harvesting, this might be harvestable state)
-            // Note: After harvesting, value changes from 3 to 0 (weeds)
-            return PlantState.PLANT;
-        } else {
-            return PlantState.UNKNOWN;
         }
+        // Diseased onions[Cure,Inspect,Guide] 142-144
+        if (value >= 142 && value <= 144) {
+            return PlantState.DISEASED;
+        }
+        // Diseased cabbages[Cure,Inspect,Guide] 149-151
+        if (value >= 149 && value <= 151) {
+            return PlantState.DISEASED;
+        }
+        // Diseased tomato plant[Cure,Inspect,Guide] 156-158
+        if (value >= 156 && value <= 158) {
+            return PlantState.DISEASED;
+        }
+        // Diseased sweetcorn plant[Cure,Inspect,Guide] 163-167
+        if (value >= 163 && value <= 167) {
+            return PlantState.DISEASED;
+        }
+        // Diseased strawberry plant[Cure,Inspect,Guide] 172-176
+        if (value >= 172 && value <= 176) {
+            return PlantState.DISEASED;
+        }
+        // Diseased watermelons[Cure,Inspect,Guide] 181-187
+        if (value >= 181 && value <= 187) {
+            return PlantState.DISEASED;
+        }
+        // Diseased Snape grass[Cure,Inspect,Guide] 196-198
+        if (value >= 196 && value <= 198) {
+            return PlantState.DISEASED;
+        }
+        // Diseased Snape grass[Cure,Inspect,Guide] 202-204
+        if (value >= 202 && value <= 204) {
+            return PlantState.DISEASED;
+        }
+        
+        // Check needsWater (unwatered growing states)
+        // These ranges represent crops that are growing but need water
+        // Note: These are checked after diseased but before weeds/growing to prioritize watering
+        // These ranges may overlap with RuneLite's GROWING states, but represent unwatered crops
+        // Potato needs water: 128-130
+        if (value >= 128 && value <= 130) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Onion needs water: 131-133
+        if (value >= 131 && value <= 133) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Cabbage needs water: 134-136
+        if (value >= 134 && value <= 136) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Tomato needs water: 137-138
+        if (value >= 137 && value <= 138) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Sweetcorn needs water: 141-142
+        if (value >= 141 && value <= 142) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Strawberry needs water: 143-145
+        if (value >= 143 && value <= 145) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Watermelon needs water: 146-148
+        if (value >= 146 && value <= 148) {
+            return PlantState.NEEDS_WATER;
+        }
+        // Snape grass needs water: 149-151
+        if (value >= 149 && value <= 151) {
+            return PlantState.NEEDS_WATER;
+        }
+        
+        // Check weeds (all weed states)
+        // Allotment[Rake,Inspect,Guide] 0-2
+        if (value >= 0 && value <= 2) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 4-5
+        if (value >= 4 && value <= 5) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 74-76
+        if (value >= 74 && value <= 76) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 81-83
+        if (value >= 81 && value <= 83) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 88-90
+        if (value >= 88 && value <= 90) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 95-97
+        if (value >= 95 && value <= 97) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 104-106
+        if (value >= 104 && value <= 106) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 113-115
+        if (value >= 113 && value <= 115) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 124-127
+        if (value >= 124 && value <= 127) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 141
+        if (value == 141) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 145-148
+        if (value >= 145 && value <= 148) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 152-155
+        if (value >= 152 && value <= 155) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 159-162
+        if (value >= 159 && value <= 162) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 168-171
+        if (value >= 168 && value <= 171) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 177-180
+        if (value >= 177 && value <= 180) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 188-192
+        if (value >= 188 && value <= 192) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 205
+        if (value == 205) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 212
+        if (value == 212) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 216-219
+        if (value >= 216 && value <= 219) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 223-226
+        if (value >= 223 && value <= 226) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 232-235
+        if (value >= 232 && value <= 235) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 241-244
+        if (value >= 241 && value <= 244) {
+            return PlantState.WEEDS;
+        }
+        // Allotment[Rake,Inspect,Guide] 252-255
+        if (value >= 252 && value <= 255) {
+            return PlantState.WEEDS;
+        }
+        
+        // Growing ranges (watered and growing)
+        // Potato seed,Potato plant[Inspect,Guide] 6-9
+        if (value >= 6 && value <= 9) {
+            return PlantState.GROWING;
+        }
+        // Onion seeds,Onion plant[Inspect,Guide] 13-16
+        if (value >= 13 && value <= 16) {
+            return PlantState.GROWING;
+        }
+        // Cabbages[Inspect,Guide] 20-23
+        if (value >= 20 && value <= 23) {
+            return PlantState.GROWING;
+        }
+        // Tomato plant[Inspect,Guide] 27-30
+        if (value >= 27 && value <= 30) {
+            return PlantState.GROWING;
+        }
+        // Sweetcorn seed,Sweetcorn plant[Inspect,Guide] 34-39
+        if (value >= 34 && value <= 39) {
+            return PlantState.GROWING;
+        }
+        // Strawberry seed,Strawberry plant[Inspect,Guide] 43-48
+        if (value >= 43 && value <= 48) {
+            return PlantState.GROWING;
+        }
+        // Watermelon seed,Watermelons[Inspect,Guide] 52-59
+        if (value >= 52 && value <= 59) {
+            return PlantState.GROWING;
+        }
+        // Snape grass seedling,Snape grass plant[Inspect,Guide] 63-69
+        if (value >= 63 && value <= 69) {
+            return PlantState.GROWING;
+        }
+        // Potato seed,Potato plant[Inspect,Guide] 70-73
+        if (value >= 70 && value <= 73) {
+            return PlantState.GROWING;
+        }
+        // Onion seeds,Onion plant[Inspect,Guide] 77-80
+        if (value >= 77 && value <= 80) {
+            return PlantState.GROWING;
+        }
+        // Cabbages[Inspect,Guide] 84-87
+        if (value >= 84 && value <= 87) {
+            return PlantState.GROWING;
+        }
+        // Tomato plant[Inspect,Guide] 91-94
+        if (value >= 91 && value <= 94) {
+            return PlantState.GROWING;
+        }
+        // Sweetcorn seed,Sweetcorn plant[Inspect,Guide] 98-103
+        if (value >= 98 && value <= 103) {
+            return PlantState.GROWING;
+        }
+        // Strawberry seed,Strawberry plant[Inspect,Guide] 107-112
+        if (value >= 107 && value <= 112) {
+            return PlantState.GROWING;
+        }
+        // Watermelon seed,Watermelons[Inspect,Guide] 116-123
+        if (value >= 116 && value <= 123) {
+            return PlantState.GROWING;
+        }
+        // Snape grass seedling,Snape grass plant[Inspect,Guide] 128-134
+        if (value >= 128 && value <= 134) {
+            return PlantState.GROWING;
+        }
+        
+        // Check needsWater (unwatered growing states)
+        // Note: RuneLite doesn't explicitly distinguish "needs water" states in the ALLOTMENT enum.
+        // The NEEDS_WATER state is preserved here for compatibility, but may need adjustment
+        // based on actual game behavior. If you find specific varbit ranges that indicate
+        // "needs water", add them here before the UNKNOWN return.
+        
+        // Unknown state
+        return PlantState.UNKNOWN;
     }
     
     public enum PlantState {
@@ -161,4 +360,3 @@ public class AllotmentPatchChecker {
         UNKNOWN
     }
 }
-

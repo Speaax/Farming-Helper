@@ -146,9 +146,9 @@ public class Constants {
         patchMap.put("Farming Guild", 33979);
         patchMap.put("Harmony Island", 9372);
         patchMap.put("Kourend", 27115);
-        patchMap.put("Morytania", 18816);
-        patchMap.put("Troll Stronghold", 33176);
-        patchMap.put("Weiss", 8153);
+        patchMap.put("Morytania", 8153);
+        patchMap.put("Troll Stronghold", 18816);
+        patchMap.put("Weiss", 33176);
         patchMap.put("Civitas illa Fortis", 50697);
         HERB_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
     }
@@ -181,6 +181,21 @@ public class Constants {
         patchMap.put("Entrana", 8174);
         patchMap.put("Aldarin", 55341);
         HOPS_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
+    }
+    
+    // Fruit tree patch IDs per location
+    // Format: single patch ID for each location
+    public static final Map<String, Integer> FRUIT_TREE_PATCH_IDS_BY_LOCATION;
+    
+    static {
+        Map<String, Integer> patchMap = new HashMap<>();
+        patchMap.put("Brimhaven", 7964);
+        patchMap.put("Catherby", 7965);
+        patchMap.put("Farming Guild", 34007);
+        patchMap.put("Gnome Stronghold", 7962);
+        patchMap.put("Tree Gnome Village", 7963);
+        patchMap.put("Lletya", 26579);
+        FRUIT_TREE_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
     }
     
     // Legacy support - returns Ardougne patches by default

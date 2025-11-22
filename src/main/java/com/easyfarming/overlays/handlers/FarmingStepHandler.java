@@ -20,6 +20,13 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.hops.*;
+import com.easyfarming.locations.ArdougneLocationData;
+import com.easyfarming.locations.CatherbyLocationData;
+import com.easyfarming.locations.FaladorLocationData;
+import com.easyfarming.locations.FarmingGuildLocationData;
+import com.easyfarming.locations.KourendLocationData;
+import com.easyfarming.locations.MorytaniaLocationData;
+import com.easyfarming.locations.CivitasLocationData;
 
 /**
  * Handles farming step logic for herb, flower, tree, and fruit tree patches.
@@ -134,8 +141,18 @@ public class FarmingStepHandler {
                     itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
                     break;
                 case WEEDS:
-                    plugin.addTextToInfoBox("Rake the herb patch.");
-                    patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    // Check if value is 3 (fully raked, ready to plant)
+                    int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                    if (varbitValue == 3) {
+                        // Fully raked patch, ready to plant
+                        plugin.addTextToInfoBox("Use Herb seed on patch.");
+                        patchHighlighter.highlightHerbPatches(graphics, useItemColor);
+                        itemHighlighter.highlightHerbSeeds(graphics);
+                    } else {
+                        // Needs raking
+                        plugin.addTextToInfoBox("Rake the herb patch.");
+                        patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    }
                     break;
                 case GROWING:
                     boolean isComposted = patchStateChecker.patchIsComposted();
@@ -406,38 +423,63 @@ public class FarmingStepHandler {
             if (varbitId != -1) {
                 plantState = FlowerPatchChecker.checkFlowerPatch(client, varbitId);
             }
-            switch (plantState) {
-                case HARVESTABLE:
-                    plugin.addTextToInfoBox("Harvest Limwurt root.");
-                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
-                    break;
-                case DISEASED:
-                    plugin.addTextToInfoBox("Cure the diseased Limwurt.");
-                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
-                    break;
-                case WEEDS:
-                    plugin.addTextToInfoBox("Rake the flower patch.");
-                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
-                    break;
-                case DEAD:
-                    plugin.addTextToInfoBox("Clear the dead flower patch.");
-                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
-                    break;
-                case PLANT:
-                    plugin.addTextToInfoBox("Use Limwurt seed on the patch.");
-                    patchHighlighter.highlightFlowerPatches(graphics, useItemColor);
-                    itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
-                    break;
-                case GROWING:
-                    plugin.addTextToInfoBox("Use Compost on patch.");
-                    compostHighlighter.highlightCompost(graphics, false, false, false, 2);
-                    if (patchStateChecker.patchIsComposted()) {
-                        flowerPatchDone = true;
+            // Get patch location for this flower location
+            WorldPoint patchPoint = getFlowerPatchPoint(locationName);
+            
+            // Check if player is near the patch location
+            boolean nearPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
+            boolean inCorrectRegion = currentRegionId == Constants.REGION_FARMING_GUILD || 
+                                     getLocationNameFromRegionId(currentRegionId).equals(locationName);
+            
+            // Show instructions if: near patch OR (valid state detected AND we're in correct region)
+            boolean shouldShowInstructions = nearPatch || (plantState != FlowerPatchChecker.PlantState.UNKNOWN && inCorrectRegion);
+            
+            if (!shouldShowInstructions) {
+                // Highlight all flower patches when far from patch and no state detected
+                patchHighlighter.highlightFlowerPatches(graphics, leftColor);
+            } else {
+                // Highlight specific patch for current location
+                if (patchObjectId != null) {
+                    switch (plantState) {
+                        case HARVESTABLE:
+                            plugin.addTextToInfoBox("Harvest Limwurt root.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                            break;
+                        case DISEASED:
+                            plugin.addTextToInfoBox("Cure the diseased Limwurt.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                            itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
+                            break;
+                        case WEEDS:
+                            plugin.addTextToInfoBox("Rake the flower patch.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                            break;
+                        case DEAD:
+                            plugin.addTextToInfoBox("Clear the dead flower patch.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                            break;
+                        case PLANT:
+                            plugin.addTextToInfoBox("Use Limwurt seed on the patch.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
+                            itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
+                            break;
+                        case GROWING:
+                            plugin.addTextToInfoBox("Use Compost on patch.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
+                            compostHighlighter.highlightCompost(graphics, false, false, false, 2);
+                            if (patchStateChecker.patchIsComposted()) {
+                                flowerPatchDone = true;
+                            }
+                            break;
+                        case UNKNOWN:
+                            plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the flower patch to change its state.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                            break;
                     }
-                    break;
-                case UNKNOWN:
-                    // Handle unknown state if needed
-                    break;
+                } else {
+                    // Fallback: highlight all flower patches if patch ID not found
+                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
+                }
             }
         } else {
             flowerPatchDone = true;
@@ -472,8 +514,45 @@ public class FarmingStepHandler {
                 return "Troll Stronghold";
             case Constants.REGION_WEISS:
                 return "Weiss";
+            case Constants.REGION_GNOME_STRONGHOLD:
+            case Constants.REGION_GNOME_STRONGHOLD_ALT:
+                return "Gnome Stronghold";
             default:
                 return "Unknown";
+        }
+    }
+    
+    /**
+     * Gets the fruit tree location name from a region ID.
+     * @param regionId The region ID
+     * @return The location name, or null if not found
+     */
+    private String getFruitTreeLocationNameFromRegionId(int regionId) {
+        switch (regionId) {
+            case Constants.REGION_ARDOUGNE:
+            case Constants.REGION_ARDOUGNE_ALT:
+                return "Brimhaven";  // Brimhaven is in Ardougne region
+            case Constants.REGION_CATHERBY:
+                return "Catherby";
+            case Constants.REGION_FARMING_GUILD:
+                return "Farming Guild";
+            case 9265:  // Lletya region
+                return "Lletya";
+            case 10033:  // Tree Gnome Village region (spirit tree)
+                return "Tree Gnome Village";
+            case Constants.REGION_GNOME_STRONGHOLD:
+            case Constants.REGION_GNOME_STRONGHOLD_ALT:
+                // Region 9782 is shared between Gnome Stronghold and Tree Gnome Village
+                // Need to distinguish by checking distance to patch points
+                WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+                WorldPoint treeGnomeVillagePoint = new WorldPoint(2490, 3180, 0);
+                WorldPoint gnomeStrongholdPoint = new WorldPoint(2436, 3415, 0);
+                if (playerLocation.distanceTo(treeGnomeVillagePoint) < playerLocation.distanceTo(gnomeStrongholdPoint)) {
+                    return "Tree Gnome Village";
+                }
+                return "Gnome Stronghold";
+            default:
+                return null;
         }
     }
     
@@ -523,6 +602,68 @@ public class FarmingStepHandler {
             return objectComposition.getVarbitId();
         }
         return -1;
+    }
+    
+    /**
+     * Gets the varbit ID for a fruit tree patch by checking the object composition.
+     * @param objectId The object ID of the fruit tree patch
+     * @return The varbit ID, or -1 if not found
+     */
+    private int getFruitTreePatchVarbitId(Integer objectId) {
+        if (objectId == null || objectId == -1) {
+            return -1;
+        }
+        ObjectComposition objectComposition = client.getObjectDefinition(objectId);
+        if (objectComposition != null) {
+            return objectComposition.getVarbitId();
+        }
+        return -1;
+    }
+    
+    /**
+     * Gets the WorldPoint for a flower patch at a given location.
+     * Flower patches are typically at the same location as herb patches.
+     * @param locationName The name of the location
+     * @return WorldPoint of the patch, or null if location not found
+     */
+    private WorldPoint getFlowerPatchPoint(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        
+        // Use empty supplier since we only need the patch point, not teleport data
+        Supplier<List<ItemRequirement>> emptySupplier = () -> Collections.emptyList();
+        LocationData locationData = null;
+        
+        switch (locationName) {
+            case "Ardougne":
+                locationData = ArdougneLocationData.create(emptySupplier);
+                break;
+            case "Catherby":
+                locationData = CatherbyLocationData.create(emptySupplier);
+                break;
+            case "Falador":
+                locationData = FaladorLocationData.create(emptySupplier);
+                break;
+            case "Farming Guild":
+                locationData = FarmingGuildLocationData.create(emptySupplier);
+                break;
+            case "Kourend":
+                locationData = KourendLocationData.create(emptySupplier);
+                break;
+            case "Morytania":
+                locationData = MorytaniaLocationData.create();
+                break;
+            case "Civitas illa Fortis":
+                locationData = CivitasLocationData.create(emptySupplier);
+                break;
+            default:
+                return null;
+        }
+        
+        // Flower patches are typically at the same location as herb patches
+        // Return the location's patch point (herb patch point)
+        return locationData != null ? locationData.getPatchPoint() : null;
     }
     
     /**
@@ -945,19 +1086,37 @@ public class FarmingStepHandler {
      */
     public void fruitTreeSteps(Graphics2D graphics, Location.Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        FruitTreePatchChecker.PlantState plantState;
+        FruitTreePatchChecker.PlantState plantState = FruitTreePatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
-        // 4771 brimhaven, catherby, Lletya, tree gnome village
-        // 7909 farming guild
-        // 4772 gnome stronghold
-        if (currentRegionId == Constants.REGION_FARMING_GUILD) {
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Constants.VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD);
-        } else if (currentRegionId == Constants.REGION_GNOME_STRONGHOLD || currentRegionId == Constants.REGION_GNOME_STRONGHOLD_ALT) {
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Constants.VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD);
-        } else {
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Constants.VARBIT_FRUIT_TREE_PATCH_STANDARD);
+        // Get location name from region ID
+        String locationName = getFruitTreeLocationNameFromRegionId(currentRegionId);
+        
+        // Get patch object ID for this location
+        Integer patchObjectId = locationName != null ? farmingHelperOverlay.getFruitTreePatchIdForLocation(locationName) : null;
+        
+        int varbitId = -1;
+        
+        // Try to get varbit from object composition
+        if (patchObjectId != null) {
+            varbitId = getFruitTreePatchVarbitId(patchObjectId);
+        }
+        
+        // Fallback: If object composition fails, use location-specific varbits
+        if (varbitId == -1) {
+            if (currentRegionId == Constants.REGION_FARMING_GUILD) {
+                varbitId = Constants.VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD;
+            } else if (currentRegionId == Constants.REGION_GNOME_STRONGHOLD || currentRegionId == Constants.REGION_GNOME_STRONGHOLD_ALT) {
+                varbitId = Constants.VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD;
+            } else {
+                varbitId = Constants.VARBIT_FRUIT_TREE_PATCH_STANDARD;
+            }
+        }
+        
+        // Check state for fruit tree patch
+        if (varbitId != -1) {
+            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, varbitId);
         }
         
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
@@ -970,8 +1129,18 @@ public class FarmingStepHandler {
                     patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
                     break;
                 case WEEDS:
-                    plugin.addTextToInfoBox("Rake the fruit tree patch.");
-                    patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
+                    // Check if value is 3 (fully raked, ready to plant)
+                    int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                    if (varbitValue == 3) {
+                        // Fully raked patch, ready to plant
+                        plugin.addTextToInfoBox("Use Sapling on the patch.");
+                        patchHighlighter.highlightFruitTreePatches(graphics, useItemColor);
+                        itemHighlighter.highlightFruitTreeSapling(graphics);
+                    } else {
+                        // Needs raking
+                        plugin.addTextToInfoBox("Rake the fruit tree patch.");
+                        patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
+                    }
                     break;
                 case DEAD:
                     plugin.addTextToInfoBox("Clear the dead fruit tree patch.");
