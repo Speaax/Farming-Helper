@@ -675,7 +675,6 @@ public class FarmingStepHandler {
             case HARVESTABLE: return 7;
             case DEAD: return 6;
             case DISEASED: return 5;
-            case NEEDS_WATER: return 4;
             case WEEDS: return 3;
             case PLANT: return 2;
             case GROWING: return 1;
@@ -812,13 +811,6 @@ public class FarmingStepHandler {
                     plugin.addTextToInfoBox("Use Plant cure on north patch. Buy at GE or in farming guild/catherby, and store at Tool Leprechaun for easy access.");
                     patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
                     itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
-                    break;
-                case NEEDS_WATER:
-                    plugin.addTextToInfoBox("Water the north patch.");
-                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
-                    for (int canId : Constants.WATERING_CAN_IDS) {
-                        itemHighlighter.itemHighlight(graphics, canId, useItemColor);
-                    }
                     break;
                 case WEEDS:
                     plugin.addTextToInfoBox("Rake the north patch.");
@@ -963,13 +955,6 @@ public class FarmingStepHandler {
                     plugin.addTextToInfoBox("Use Plant cure on south patch. Buy at GE or in farming guild/catherby, and store at Tool Leprechaun for easy access.");
                     patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
                     itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
-                    break;
-                case NEEDS_WATER:
-                    plugin.addTextToInfoBox("Water the south patch.");
-                    patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
-                    for (int canId : Constants.WATERING_CAN_IDS) {
-                        itemHighlighter.itemHighlight(graphics, canId, useItemColor);
-                    }
                     break;
                 case WEEDS:
                     plugin.addTextToInfoBox("Rake the south patch.");
@@ -1183,7 +1168,7 @@ public class FarmingStepHandler {
     
     /**
      * Encapsulates allotment patch state tracking.
-     * Manages current patch index, completion status, and compost state for both patches.
+     * Manages current patch index, completion status, compost state, and crop type for both patches.
      */
     private static class AllotmentPatchState {
         private int currentIndex = 0;
@@ -1257,7 +1242,7 @@ public class FarmingStepHandler {
         
         /**
          * Resets all state to initial values.
-         * Sets current index to 0 and clears all completion and compost flags.
+         * Sets current index to 0 and clears all completion, compost, and crop type flags.
          */
         public void reset() {
             currentIndex = 0;

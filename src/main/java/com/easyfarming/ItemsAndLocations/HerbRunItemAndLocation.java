@@ -213,14 +213,6 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             );
         }
 
-        // Add watering can if allotments are enabled (only one needed for entire run)
-        if (config.generalAllotment()) {
-            allRequirements.merge(
-                Constants.WATERING_CAN_IDS.get(0), // Base watering can ID
-                1,
-                Integer::sum
-            );
-        }
 
         return allRequirements;
     }
