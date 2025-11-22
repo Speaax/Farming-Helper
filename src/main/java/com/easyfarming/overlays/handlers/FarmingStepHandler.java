@@ -182,6 +182,16 @@ public class FarmingStepHandler {
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
+        // Check if player is in Civitas and using Quetzal_Transport for Aldarin
+        // Civitas teleport can land in either region 6704 or 6705
+        // If so, show instructions to use Renu to fly to Aldarin
+        if ((currentRegionId == 6704 || currentRegionId == 6705) && teleport != null && 
+            "Quetzal_Transport".equals(teleport.getEnumOption())) {
+            plugin.addTextToInfoBox("Fly Renu to Aldarin.");
+            gameObjectHighlighter.highlightGameObject(52815, useItemColor).render(graphics);
+            return;
+        }
+        
         // Get location name from region ID
         String locationName = getHopsLocationNameFromRegionId(currentRegionId);
         
@@ -208,12 +218,10 @@ public class FarmingStepHandler {
         
         // Get patch location for this hops location
         WorldPoint patchPoint = getHopsPatchPoint(locationName);
-        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         
         // Check if player is near the patch location (not the teleport point)
         // Use a larger range (20 tiles) to account for patches that may be spread out
         boolean nearPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
-        boolean inCorrectRegion = currentRegionId == teleport.getRegionId();
         
         // If we have a valid plant state (not UNKNOWN), show instructions
         // This ensures instructions show when player is at the patch, even if proximity/region checks fail
@@ -221,22 +229,6 @@ public class FarmingStepHandler {
         // Show instructions if: near patch OR (valid state detected AND we're in a hops region)
         boolean isHopsRegion = locationName != null && !locationName.equals("Unknown");
         boolean shouldShowInstructions = nearPatch || (plantState != HopsPatchChecker.PlantState.UNKNOWN && isHopsRegion);
-        
-        // Always show debug output to help diagnose issues
-        int distanceX = patchPoint != null ? Math.abs(playerLocation.getX() - patchPoint.getX()) : -1;
-        int distanceY = patchPoint != null ? Math.abs(playerLocation.getY() - patchPoint.getY()) : -1;
-        plugin.addDebugTextToInfoBox("[HOPS] Location: " + locationName + 
-            ", RegionID: " + currentRegionId +
-            ", TeleportRegionID: " + teleport.getRegionId() +
-            (patchPoint != null ? ", Patch: (" + patchPoint.getX() + "," + patchPoint.getY() + ")" : ", Patch: null") +
-            ", Player: (" + playerLocation.getX() + "," + playerLocation.getY() + ")" +
-            (patchPoint != null ? ", Distance: (" + distanceX + "," + distanceY + ")" : "") +
-            ", NearPatch: " + nearPatch +
-            ", InRegion: " + inCorrectRegion +
-            ", State: " + plantState +
-            ", PatchObjID: " + patchObjectId +
-            ", Varbit: " + varbitId + "=" + (varbitId != -1 ? client.getVarbitValue(varbitId) : "N/A") +
-            ", ShowInstructions: " + shouldShowInstructions);
         
         if (!shouldShowInstructions) {
             // Highlight all hops patches when far from patch and no state detected
@@ -253,9 +245,6 @@ public class FarmingStepHandler {
                         plugin.addTextToInfoBox("Use Hops seed on patch.");
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
                         itemHighlighter.highlightHopsSeeds(graphics);
-                        // Debug: show varbit info
-                        int plantVarbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
-                        plugin.addDebugTextToInfoBox("[HOPS PLANT] Varbit=" + varbitId + " Value=" + plantVarbitValue);
                         break;
                     case DEAD:
                         plugin.addTextToInfoBox("Clear the dead hops patch.");
@@ -269,9 +258,6 @@ public class FarmingStepHandler {
                     case WEEDS:
                         plugin.addTextToInfoBox("Rake the hops patch.");
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
-                        // Debug: show varbit info
-                        int weedsVarbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
-                        plugin.addDebugTextToInfoBox("[HOPS WEEDS] Varbit=" + varbitId + " Value=" + weedsVarbitValue);
                         break;
                     case NEEDS_WATER:
                         plugin.addTextToInfoBox("Water the hops patch.");
@@ -280,9 +266,6 @@ public class FarmingStepHandler {
                         for (int canId : Constants.WATERING_CAN_IDS) {
                             itemHighlighter.itemHighlight(graphics, canId, useItemColor);
                         }
-                        // Debug: show varbit info
-                        int needsWaterVarbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
-                        plugin.addDebugTextToInfoBox("[HOPS NEEDS_WATER] Varbit=" + varbitId + " Value=" + needsWaterVarbitValue);
                         break;
                     case GROWING:
                         boolean isComposted = patchStateChecker.patchIsComposted();
@@ -297,9 +280,7 @@ public class FarmingStepHandler {
                         }
                         break;
                     case UNKNOWN:
-                        int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
                         plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the hops patch to change its state.");
-                        plugin.addDebugTextToInfoBox("[HOPS] Varbit=" + varbitId + " Value=" + varbitValue + " ObjID=" + patchObjectId);
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
                         break;
                 }
@@ -772,9 +753,7 @@ public class FarmingStepHandler {
         
         // Handle early returns in a single place
         if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
-            int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
             plugin.addTextToInfoBox("Allotment patch state unknown - north patch");
-            plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] Varbit=" + varbitId + " Value=" + varbitValue);
             return;
         }
         
@@ -834,9 +813,7 @@ public class FarmingStepHandler {
                     }
                     break;
                 case UNKNOWN:
-                    int varbitValueNorth = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the north allotment patch to change its state.");
-                    plugin.addDebugTextToInfoBox("[ALLOTMENT NORTH] Varbit=" + varbitId + " Value=" + varbitValueNorth);
                     break;
             }
         }
@@ -922,9 +899,7 @@ public class FarmingStepHandler {
         
         // If state is unknown, show message and return
         if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
-            int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
             plugin.addTextToInfoBox("Allotment patch state unknown - south patch");
-            plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] Varbit=" + varbitId + " Value=" + varbitValue);
             return;
         }
         
@@ -989,9 +964,7 @@ public class FarmingStepHandler {
                     }
                     break;
                 case UNKNOWN:
-                    int varbitValueSouth = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the south allotment patch to change its state.");
-                    plugin.addDebugTextToInfoBox("[ALLOTMENT SOUTH] Varbit=" + varbitId + " Value=" + varbitValueSouth);
                     break;
             }
         }

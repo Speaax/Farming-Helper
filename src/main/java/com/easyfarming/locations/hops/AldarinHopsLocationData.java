@@ -8,7 +8,7 @@ import com.easyfarming.locations.TeleportData;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -45,19 +45,22 @@ public class AldarinHopsLocationData {
             houseTeleportSupplier
         ));
 
-        // Quetzal Transport System
+        // Quetzal Transport System (via Civitas)
+        // First teleport to Civitas, then use Renu to fly to Aldarin
         locationData.addTeleport(new TeleportData(
             "Quetzal_Transport",
-            Teleport.Category.ITEM,
-            "Teleport to Aldarin with Quetzal Transport System.",
-            ItemID.HG_QUETZALWHISTLE_BASIC,
+            Teleport.Category.SPELLBOOK,
+            "Teleport to Civitas with Civitas teleport spell, then fly Renu to Aldarin. Run north to hops patch.",
+            0,
             "",
-            0,
-            0,
-            5421,
-            ALDARIN_HOPS_PATCH_POINT,
-            () -> Collections.singletonList(
-                new ItemRequirement(ItemID.HG_QUETZALWHISTLE_BASIC, 1)
+            218, // Spellbook interface group ID
+            43,  // Civitas teleport interface child ID
+            6704, // Civitas region ID (teleport can land in 6704 or 6705)
+            new WorldPoint(1586, 3099, 0), // Civitas/Hunter's Guild point
+            () -> Arrays.asList(
+                new ItemRequirement(ItemID.LAWRUNE, 2),
+                new ItemRequirement(ItemID.EARTHRUNE, 1),
+                new ItemRequirement(ItemID.FIRERUNE, 1)
             )
         ));
         

@@ -78,6 +78,23 @@ public class SeersVillageHopsLocationData {
                 new ItemRequirement(ItemID.POH_TABLET_CAMELOTTELEPORT, 1)
             )
         ));
+
+        // Seers Village (Camelot teleport with diary goes to Seers)
+        locationData.addTeleport(new TeleportData(
+            "Seers_Village",
+            Teleport.Category.SPELLBOOK,
+            "Teleport to Seers Village with Camelot Teleport (requires hard Kandarin Diary), and run northwest to hops patch.",
+            0,
+            "",
+            218,
+            34,
+            10551,
+            SEERS_VILLAGE_HOPS_PATCH_POINT,
+            () -> Arrays.asList(
+                new ItemRequirement(ItemID.AIRRUNE, 5),
+                new ItemRequirement(ItemID.LAWRUNE, 1)
+            )
+        ));
         
         
         return locationData;

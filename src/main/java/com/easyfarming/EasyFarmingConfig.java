@@ -766,7 +766,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Teleport,
-		Lumbridge_Tele_Tab
+		Lumbridge_Tele_Tab,
+		Chronicle
 	}
 	@ConfigItem(
 			position = 1,
@@ -781,7 +782,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus_Camelot,
 		Camelot_Teleport,
-		Camelot_Tele_Tab
+		Camelot_Tele_Tab,
+		Seers_Village
 	}
 	@ConfigItem(
 			position = 2,
@@ -795,7 +797,8 @@ public interface EasyFarmingConfig extends Config
 	enum HopsOptionEnumYanilleTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Watchtower_Teleport
+		Watchtower_Teleport,
+		Yanille
 	}
 	@ConfigItem(
 			position = 3,

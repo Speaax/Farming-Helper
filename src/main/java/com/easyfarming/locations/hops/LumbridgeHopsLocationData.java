@@ -79,6 +79,22 @@ public class LumbridgeHopsLocationData {
                 new ItemRequirement(ItemID.POH_TABLET_LUMBRIDGETELEPORT, 1)
             )
         ));
+
+        // Chronicle
+        locationData.addTeleport(new TeleportData(
+            "Chronicle",
+            Teleport.Category.ITEM,
+            "Teleport to Champions' Guild with Chronicle, and run south to hops patch.",
+            ItemID.CHRONICLE,
+            "",
+            0,
+            0,
+            12851,
+            LUMBRIDGE_HOPS_PATCH_POINT,
+            () -> Collections.singletonList(
+                new ItemRequirement(ItemID.CHRONICLE, 1)
+            )
+        ));
         
         
         return locationData;

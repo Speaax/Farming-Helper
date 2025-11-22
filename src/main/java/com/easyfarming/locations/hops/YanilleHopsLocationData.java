@@ -60,6 +60,22 @@ public class YanilleHopsLocationData {
                 new ItemRequirement(ItemID.LAWRUNE, 2)
             )
         ));
+
+        // Yanille Teleport (Watchtower teleport with diary goes to Yanille)
+        locationData.addTeleport(new TeleportData(
+            "Yanille",
+            Teleport.Category.SPELLBOOK,
+            "Teleport to Yanille with Watchtower Teleport (requires hard Ardougne Diary), and run north to hops patch.",
+            0,
+            "",
+            218,
+            47,
+            10288,
+            YANILLE_HOPS_PATCH_POINT,
+            () -> Collections.singletonList(
+                new ItemRequirement(ItemID.LAWRUNE, 2)
+            )
+        ));
         
         return locationData;
     }

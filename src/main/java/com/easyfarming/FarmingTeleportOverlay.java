@@ -219,6 +219,20 @@ public class FarmingTeleportOverlay extends Overlay {
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         WorldPoint targetLocation = teleport.getPoint();
         
+        // Special handling for Quetzal_Transport to Aldarin
+        // The teleport point is in Civitas, but we need to check if player is in Aldarin near the patch
+        if (teleport != null && "Quetzal_Transport".equals(teleport.getEnumOption()) && 
+            "Aldarin".equals(location.getName())) {
+            // If player is in Aldarin region (5421), check proximity to Aldarin patch point
+            if (currentRegionId == 5421) {
+                WorldPoint aldarinPatchPoint = new WorldPoint(1365, 2939, 0);
+                boolean nearAldarinPatch = areaCheck.isPlayerWithinArea(aldarinPatchPoint, 20);
+                if (nearAldarinPatch) {
+                    return true;
+                }
+            }
+        }
+        
         // Check if player is in the correct region
         boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
         
