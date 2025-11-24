@@ -15,6 +15,7 @@ import net.runelite.api.gameval.ItemID;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -118,9 +119,12 @@ public class FarmingStepHandler {
         }
         
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
-            // Should be replaced with a pathing system, pointing arrow or something else eventually
+            // Navigation handles hint arrows when far away - don't set here
             patchHighlighter.highlightHerbPatches(graphics, leftColor);
         } else {
+            // Don't set hint arrow at patch - it's distracting when you're already there
+            // Only use hint arrows for NPC interactions (e.g., Tool Leprechaun for compost)
+            
             switch (plantState) {
                 case HARVESTABLE:
                     plugin.addTextToInfoBox("Harvest Herbs.");
@@ -158,11 +162,21 @@ public class FarmingStepHandler {
                     boolean isComposted = patchStateChecker.patchIsComposted();
                     if (isComposted) {
                         herbPatchDone = true;
+                        // Clear hint arrow when patch is done
+                        clearHintArrow();
                         // Don't show anything - transition will happen on next frame
                         return;
                     }
                     if (!herbPatchDone) {
                         plugin.addTextToInfoBox("Use Compost on patch.");
+                        Integer compostId = itemHighlighter.selectedCompostID();
+                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                        if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
+                            setHintArrowToNPC("Tool Leprechaun");
+                        } else {
+                            // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                            clearHintArrow();
+                        }
                         compostHighlighter.highlightCompost(graphics, true, false, false, 1);
                     }
                     break;
@@ -271,11 +285,20 @@ public class FarmingStepHandler {
                         boolean isComposted = patchStateChecker.patchIsComposted();
                         if (isComposted) {
                             hopsPatchDone = true;
+                            clearHintArrow();
                             return;
                         }
                         if (!hopsPatchDone) {
                             plugin.addTextToInfoBox("Use Compost on patch.");
                             patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
+                            Integer compostId = itemHighlighter.selectedCompostID();
+                            // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                            if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
+                                setHintArrowToNPC("Tool Leprechaun");
+                            } else {
+                                // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                                clearHintArrow();
+                            }
                             compostHighlighter.highlightCompost(graphics, true, false, false, 1);
                         }
                         break;
@@ -1016,6 +1039,10 @@ public class FarmingStepHandler {
                 case REMOVE:
                     plugin.addTextToInfoBox("Pay to remove tree, or cut it down and clear the patch.");
                     farmerHighlighter.highlightTreeFarmers(graphics);
+                    // Set hint arrow to first available tree farmer
+                    setHintArrowToFirstAvailableNPC(Arrays.asList(
+                        "Alain", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
+                    ));
                     break;
                 case UNKNOWN:
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the tree patch to change its state.");
@@ -1024,14 +1051,28 @@ public class FarmingStepHandler {
                     if (config.generalPayForProtection()) {
                         plugin.addTextToInfoBox("Pay to protect the patch.");
                         farmerHighlighter.highlightTreeFarmers(graphics);
+                        // Set hint arrow to first available tree farmer
+                        setHintArrowToFirstAvailableNPC(Arrays.asList(
+                            "Alain", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
+                        ));
                         if (patchStateChecker.patchIsProtected()) {
                             treePatchDone = true;
+                            clearHintArrow();
                         }
                     } else {
                         plugin.addTextToInfoBox("Use Compost on patch.");
+                        Integer compostId = itemHighlighter.selectedCompostID();
+                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                        if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
+                            setHintArrowToNPC("Tool Leprechaun");
+                        } else {
+                            // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                            clearHintArrow();
+                        }
                         compostHighlighter.highlightCompost(graphics, false, true, false, 1);
                         if (patchStateChecker.patchIsComposted()) {
                             treePatchDone = true;
+                            clearHintArrow();
                         }
                     }
                     break;
@@ -1116,6 +1157,10 @@ public class FarmingStepHandler {
                 case REMOVE:
                     plugin.addTextToInfoBox("Pay to remove fruit tree, or cut it down and clear the patch.");
                     farmerHighlighter.highlightFruitTreeFarmers(graphics);
+                    // Set hint arrow to first available fruit tree farmer
+                    setHintArrowToFirstAvailableNPC(Arrays.asList(
+                        "Bolongo", "Ellena", "Garth", "Gileth", "Liliwen", "Nikkie"
+                    ));
                     break;
                 case UNKNOWN:
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the tree patch to change its state.");
@@ -1124,19 +1169,108 @@ public class FarmingStepHandler {
                     if (config.generalPayForProtection()) {
                         plugin.addTextToInfoBox("Pay to protect the patch.");
                         farmerHighlighter.highlightFruitTreeFarmers(graphics);
+                        // Set hint arrow to first available fruit tree farmer
+                        setHintArrowToFirstAvailableNPC(Arrays.asList(
+                            "Bolongo", "Ellena", "Garth", "Gileth", "Liliwen", "Nikkie"
+                        ));
                         if (patchStateChecker.patchIsProtected()) {
                             fruitTreePatchDone = true;
+                            clearHintArrow();
                         }
                     } else {
                         plugin.addTextToInfoBox("Use Compost on patch.");
+                        Integer compostId = itemHighlighter.selectedCompostID();
+                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                        if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
+                            setHintArrowToNPC("Tool Leprechaun");
+                        } else {
+                            // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                            clearHintArrow();
+                        }
                         compostHighlighter.highlightCompost(graphics, false, false, true, 1);
                         if (patchStateChecker.patchIsComposted()) {
                             fruitTreePatchDone = true;
+                            clearHintArrow();
                         }
                     }
                     break;
             }
         }
+    }
+    
+    /**
+     * Sets a hint arrow pointing to the specified WorldPoint.
+     * @param point The WorldPoint to point the hint arrow to
+     */
+    private void setHintArrow(WorldPoint point) {
+        if (point != null && client != null) {
+            try {
+                client.setHintArrow(point);
+            } catch (Exception e) {
+                // Silently handle any exceptions (e.g., if called from wrong thread)
+                // Hint arrows will be set on next frame
+            }
+        }
+    }
+    
+    /**
+     * Sets a hint arrow pointing to an NPC by name.
+     * @param npcName The name of the NPC to point the hint arrow to
+     */
+    private void setHintArrowToNPC(String npcName) {
+        if (npcName == null || client == null) {
+            return;
+        }
+        
+        try {
+            net.runelite.api.IndexedObjectSet<? extends net.runelite.api.NPC> npcs = client.getTopLevelWorldView().npcs();
+            if (npcs != null) {
+                for (net.runelite.api.NPC npc : npcs) {
+                    if (npc != null && npc.getName() != null && npc.getName().equals(npcName)) {
+                        client.setHintArrow(npc);
+                        return; // Found the NPC, set arrow and return
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Silently handle any exceptions
+        }
+    }
+    
+    /**
+     * Sets hint arrow to the first available NPC from a list of NPC names.
+     * @param npcNames List of NPC names to search for
+     */
+    private void setHintArrowToFirstAvailableNPC(List<String> npcNames) {
+        if (client != null && npcNames != null) {
+            try {
+                net.runelite.api.IndexedObjectSet<? extends net.runelite.api.NPC> npcs = client.getTopLevelWorldView().npcs();
+                if (npcs != null) {
+                    for (String npcName : npcNames) {
+                        for (net.runelite.api.NPC npc : npcs) {
+                            if (npc != null && npc.getName() != null && npc.getName().equals(npcName)) {
+                                client.setHintArrow(npc);
+                                return; // Found an NPC, set arrow and return
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Silently handle any exceptions
+            }
+        }
+        // If no NPC found, clear any existing hint arrow
+        if (client != null) {
+            client.clearHintArrow();
+        }
+    }
+    
+    /**
+     * Clears the hint arrow using the client's clearHintArrow method.
+     * Public method to allow clearing from other classes (e.g., when overlay is removed).
+     */
+    public void clearHintArrow() {
+        client.clearHintArrow();
     }
     
     /**

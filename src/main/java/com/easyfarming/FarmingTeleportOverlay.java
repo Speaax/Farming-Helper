@@ -273,6 +273,184 @@ public class FarmingTeleportOverlay extends Overlay {
     }
     
     /**
+     * Gets the herb patch WorldPoint for a location by name.
+     * @param locationName The name of the location
+     * @return WorldPoint of the herb patch, or null if location not found
+     */
+    private WorldPoint getHerbPatchPointForLocation(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        
+        // Use hardcoded coordinates to ensure we get the correct herb patch point
+        // These match the coordinates in the LocationData classes
+        switch (locationName) {
+            case "Ardougne":
+                return new WorldPoint(2670, 3374, 0);
+            case "Catherby":
+                return new WorldPoint(2813, 3463, 0);
+            case "Falador":
+                return new WorldPoint(3058, 3307, 0);
+            case "Farming Guild":
+                return new WorldPoint(1238, 3726, 0);
+            case "Harmony Island":
+                return new WorldPoint(3789, 2837, 0);
+            case "Kourend":
+                return new WorldPoint(1738, 3550, 0);
+            case "Morytania":
+                return new WorldPoint(3601, 3525, 0);
+            case "Troll Stronghold":
+                return new WorldPoint(2824, 3696, 0);
+            case "Weiss":
+                return new WorldPoint(2847, 3931, 0);
+            case "Civitas illa Fortis":
+                return new WorldPoint(1586, 3099, 0);
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Gets the tree patch WorldPoint for a location by name.
+     * @param locationName The name of the location
+     * @return WorldPoint of the tree patch, or null if location not found
+     */
+    private WorldPoint getTreePatchPointForLocation(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        
+        // Use hardcoded coordinates to ensure we get the correct tree patch point
+        // These match the coordinates in the LocationData classes
+        switch (locationName) {
+            case "Falador":
+                return new WorldPoint(3000, 3373, 0);
+            case "Farming Guild":
+                return new WorldPoint(1232, 3736, 0);
+            case "Gnome Stronghold":
+                return new WorldPoint(2436, 3415, 0);
+            case "Lumbridge":
+                return new WorldPoint(3193, 3231, 0);
+            case "Taverley":
+                return new WorldPoint(2936, 3438, 0);
+            case "Varrock":
+                return new WorldPoint(3229, 3459, 0);
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Gets the fruit tree patch WorldPoint for a location by name.
+     * @param locationName The name of the location
+     * @return WorldPoint of the fruit tree patch, or null if location not found
+     */
+    private WorldPoint getFruitTreePatchPointForLocation(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        
+        // Use hardcoded coordinates to ensure we get the correct fruit tree patch point
+        // These match the coordinates in the LocationData classes
+        switch (locationName) {
+            case "Brimhaven":
+                return new WorldPoint(2764, 3212, 0);
+            case "Catherby":
+                return new WorldPoint(2860, 3433, 0);
+            case "Farming Guild":
+                return new WorldPoint(1243, 3759, 0);
+            case "Gnome Stronghold":
+                return new WorldPoint(2475, 3446, 0);
+            case "Lletya":
+                return new WorldPoint(2346, 3162, 0);
+            case "Tree Gnome Village":
+                return new WorldPoint(2490, 3180, 0);
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Gets the hops patch WorldPoint for a location by name.
+     * @param locationName The name of the location
+     * @return WorldPoint of the hops patch, or null if location not found
+     */
+    private WorldPoint getHopsPatchPointForLocation(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        
+        // Use hardcoded coordinates to ensure we get the correct hops patch point
+        // These match the coordinates in the LocationData classes
+        switch (locationName) {
+            case "Aldarin":
+                return new WorldPoint(1365, 2939, 0);
+            case "Entrana":
+                return new WorldPoint(2811, 3337, 0);
+            case "Lumbridge":
+                return new WorldPoint(3229, 3315, 0);
+            case "Seers Village":
+                return new WorldPoint(2667, 3526, 0);
+            case "Yanille":
+                return new WorldPoint(2576, 3105, 0);
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Sets hint arrow to an NPC by name.
+     * @param npcName The name of the NPC
+     */
+    private void setHintArrowToNPC(String npcName) {
+        if (client != null && npcName != null) {
+            try {
+                IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
+                if (npcs != null) {
+                    for (NPC npc : npcs) {
+                        if (npc != null && npc.getName() != null && npc.getName().equals(npcName)) {
+                            client.setHintArrow(npc);
+                            return; // Found the NPC, set arrow and return
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Silently handle any exceptions
+            }
+        }
+        // If NPC not found, clear any existing hint arrow
+        if (client != null) {
+            client.clearHintArrow();
+        }
+    }
+    
+    /**
+     * Sets hint arrow to an NPC by ID.
+     * @param npcId The ID of the NPC
+     */
+    private void setHintArrowToNPCById(int npcId) {
+        if (client != null) {
+            try {
+                IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
+                if (npcs != null) {
+                    for (NPC npc : npcs) {
+                        if (npc != null && npc.getId() == npcId) {
+                            client.setHintArrow(npc);
+                            return; // Found the NPC, set arrow and return
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Silently handle any exceptions
+            }
+        }
+        // If NPC not found, clear any existing hint arrow
+        if (client != null) {
+            client.clearHintArrow();
+        }
+    }
+    
+    /**
      * Checks if player is near any farming patches of the specified type
      * @param locationName The name of the location to check for
      * @return true if player is near any farming patch of this type
@@ -430,6 +608,9 @@ public class FarmingTeleportOverlay extends Overlay {
                    plugin.getEasyFarmingOverlay().isEctophial(teleport.getId())) {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), leftColor);
                     // itemHighlight(graphics, teleport.getId(), leftClickColorWithAlpha);
+                } else if (plugin.getEasyFarmingOverlay().isTeleportCrystal(teleport.getId())) {
+                    // Teleport crystals need special handling - highlight all crystal variants
+                    itemHighlighter.highlightTeleportCrystal(graphics);
                 } else {
                     itemHighlighter.itemHighlight(graphics, teleport.getId(), rightColor);
                     // itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
@@ -598,9 +779,92 @@ public class FarmingTeleportOverlay extends Overlay {
             locationEnabledBool = plugin.getHopsLocationEnabled(location.getName());
         }
         if (locationEnabledBool) {
+            int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+            
+            // Get patch point directly from location name to ensure correct coordinates
+            WorldPoint patchPoint = null;
+            int clearDistance = 5; // Default distance
+            
+            if (herbRun) {
+                patchPoint = getHerbPatchPointForLocation(location.getName());
+                // Morytania uses 10 tile threshold, others use 5 tiles
+                if (patchPoint != null) {
+                    clearDistance = "Morytania".equals(location.getName()) ? 10 : 5;
+                }
+            } else if (treeRun) {
+                patchPoint = getTreePatchPointForLocation(location.getName());
+            } else if (fruitTreeRun) {
+                patchPoint = getFruitTreePatchPointForLocation(location.getName());
+            } else if (hopsRun) {
+                patchPoint = getHopsPatchPointForLocation(location.getName());
+            }
+            
+            // Special handling for Brimhaven: If in Ardougne region, point to Captain Barnaby
+            // Brimhaven fruit tree patch is in region 10547 (same as Ardougne), but we need to check
+            // if player is in Ardougne city area (not yet in Brimhaven)
+            if (fruitTreeRun && "Brimhaven".equals(location.getName())) {
+                if (currentRegionId == 10547) {
+                    // Check if player is near the Brimhaven patch (already in Brimhaven area)
+                    boolean nearBrimhavenPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
+                    if (!nearBrimhavenPatch) {
+                        // Player is in Ardougne region but not near Brimhaven patch - needs to take boat
+                        // Set hint arrow to Captain Barnaby (boat captain in Ardougne)
+                        setHintArrowToNPC("Captain Barnaby");
+                    } else {
+                        // Player is near Brimhaven patch, clear arrow
+                        client.clearHintArrow();
+                    }
+                } else if (patchPoint != null) {
+                    // Player is in a different region, use normal patch navigation
+                    boolean nearPatch = areaCheck.isPlayerWithinArea(patchPoint, clearDistance);
+                    if (nearPatch) {
+                        client.clearHintArrow();
+                    } else if (!isAtDestination) {
+                        client.setHintArrow(patchPoint);
+                    }
+                }
+            } else if (hopsRun && "Entrana".equals(location.getName())) {
+                // Special handling for Entrana: If in Port Sarim region (11060), point to Entrana monks
+                // Once on Entrana (near patch), point to patch instead
+                if (currentRegionId == 11060) {
+                    // Check if player is near the Entrana patch (already on Entrana)
+                    boolean nearEntranaPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
+                    if (!nearEntranaPatch) {
+                        // Player is in Port Sarim region but not near Entrana patch - needs to take boat
+                        // Set hint arrow to Entrana monks (NPC ID 1165) at Port Sarim
+                        setHintArrowToNPCById(1165);
+                    } else {
+                        // Player is on Entrana near the patch - point to patch
+                        boolean nearPatch = areaCheck.isPlayerWithinArea(patchPoint, clearDistance);
+                        if (nearPatch) {
+                            client.clearHintArrow();
+                        } else if (!isAtDestination) {
+                            client.setHintArrow(patchPoint);
+                        }
+                    }
+                } else if (patchPoint != null) {
+                    // Player is in a different region, use normal patch navigation
+                    boolean nearPatch = areaCheck.isPlayerWithinArea(patchPoint, clearDistance);
+                    if (nearPatch) {
+                        client.clearHintArrow();
+                    } else if (!isAtDestination) {
+                        client.setHintArrow(patchPoint);
+                    }
+                }
+            } else if (patchPoint != null) {
+                // Handle hint arrows for all farming run types
+                // Clear when within threshold, set when further away
+                boolean nearPatch = areaCheck.isPlayerWithinArea(patchPoint, clearDistance);
+                if (nearPatch) {
+                    // Clear hint arrow when within threshold - step handlers will handle NPC interactions if needed
+                    client.clearHintArrow();
+                } else if (!isAtDestination) {
+                    // Set hint arrow pointing to patch when navigating (and not at destination)
+                    client.setHintArrow(patchPoint);
+                }
+            }
+            
             if (!isAtDestination) {
-                int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-                
                 // Use adaptive detection to determine if we should proceed to farming
                 if (shouldProceedToFarming(location, teleport)) {
                     this.currentTeleportCase = 1;
@@ -991,6 +1255,7 @@ public class FarmingTeleportOverlay extends Overlay {
         farmingStepHandler.flowerPatchDone = false;
         farmingStepHandler.treePatchDone = false;
         farmingStepHandler.fruitTreePatchDone = false;
+        farmingStepHandler.clearHintArrow();
 
         plugin.setItemsCollected(false);
 
