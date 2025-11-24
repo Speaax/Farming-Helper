@@ -233,6 +233,21 @@ public class FarmingTeleportOverlay extends Overlay {
             }
         }
         
+        // Special handling for Entrana - accepts both region 11060 and 11316
+        if ("Entrana".equals(location.getName())) {
+            // Entrana spans multiple regions (11060 and 11316)
+            boolean inEntranaRegion = (currentRegionId == 11060 || currentRegionId == 11316);
+            if (inEntranaRegion) {
+                WorldPoint entranaPatchPoint = getHopsPatchPointForLocation("Entrana");
+                if (entranaPatchPoint != null) {
+                    boolean nearEntranaPatch = areaCheck.isPlayerWithinArea(entranaPatchPoint, 20);
+                    if (nearEntranaPatch) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
         // Check if player is in the correct region
         boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
         
@@ -399,54 +414,155 @@ public class FarmingTeleportOverlay extends Overlay {
     }
     
     /**
-     * Sets hint arrow to an NPC by name.
+     * Sets hint arrow to an NPC location using a two-step approach:
+     * 1. Points to a WorldPoint near the NPC when far away
+     * 2. Switches to pointing at the NPC when within range and loaded
      * @param npcName The name of the NPC
+     * @param npcLocation The WorldPoint near where the NPC is located
+     * @param switchDistance The distance at which to switch from WorldPoint to NPC (default 15 tiles)
      */
-    private void setHintArrowToNPC(String npcName) {
-        if (client != null && npcName != null) {
-            try {
-                IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
-                if (npcs != null) {
-                    for (NPC npc : npcs) {
-                        if (npc != null && npc.getName() != null && npc.getName().equals(npcName)) {
-                            client.setHintArrow(npc);
-                            return; // Found the NPC, set arrow and return
-                        }
+    private void setHintArrowToNPCLocation(String npcName, WorldPoint npcLocation, int switchDistance) {
+        if (client == null || npcName == null || npcLocation == null) {
+            return;
+        }
+        
+        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        int distanceToLocation = playerLocation.distanceTo(npcLocation);
+        
+        // Try to find the NPC
+        NPC targetNpc = null;
+        try {
+            IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
+            if (npcs != null) {
+                for (NPC npc : npcs) {
+                    if (npc != null && npc.getName() != null && npc.getName().equals(npcName)) {
+                        targetNpc = npc;
+                        break;
                     }
                 }
-            } catch (Exception e) {
-                // Silently handle any exceptions
             }
+        } catch (Exception e) {
+            // Silently handle any exceptions
         }
-        // If NPC not found, clear any existing hint arrow
-        if (client != null) {
-            client.clearHintArrow();
+        
+        // If NPC is found and player is within switch distance, point to NPC
+        if (targetNpc != null && distanceToLocation <= switchDistance) {
+            client.setHintArrow(targetNpc);
+        } else {
+            // Otherwise, point to the WorldPoint near the NPC
+            client.setHintArrow(npcLocation);
         }
     }
     
     /**
-     * Sets hint arrow to an NPC by ID.
-     * @param npcId The ID of the NPC
+     * Sets hint arrow to an NPC location using a two-step approach (with default 15 tile switch distance):
+     * 1. Points to a WorldPoint near the NPC when far away
+     * 2. Switches to pointing at the NPC when within range and loaded
+     * @param npcName The name of the NPC
+     * @param npcLocation The WorldPoint near where the NPC is located
      */
-    private void setHintArrowToNPCById(int npcId) {
-        if (client != null) {
-            try {
-                IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
-                if (npcs != null) {
-                    for (NPC npc : npcs) {
-                        if (npc != null && npc.getId() == npcId) {
-                            client.setHintArrow(npc);
-                            return; // Found the NPC, set arrow and return
+    private void setHintArrowToNPCLocation(String npcName, WorldPoint npcLocation) {
+        setHintArrowToNPCLocation(npcName, npcLocation, 15);
+    }
+    
+    /**
+     * Sets hint arrow to an NPC location by ID using a two-step approach:
+     * 1. Points to a WorldPoint near the NPC when far away
+     * 2. Switches to pointing at the NPC when within range and loaded
+     * @param npcId The ID of the NPC
+     * @param npcLocation The WorldPoint near where the NPC is located
+     * @param switchDistance The distance at which to switch from WorldPoint to NPC (default 15 tiles)
+     */
+    private void setHintArrowToNPCLocationById(int npcId, WorldPoint npcLocation, int switchDistance) {
+        if (client == null || npcLocation == null) {
+            return;
+        }
+        
+        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        int distanceToLocation = playerLocation.distanceTo(npcLocation);
+        
+        // Try to find the NPC
+        NPC targetNpc = null;
+        try {
+            IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
+            if (npcs != null) {
+                for (NPC npc : npcs) {
+                    if (npc != null) {
+                        // Check both getId() and getComposition().getId() as NPC IDs can vary
+                        int npcCompositionId = npc.getId();
+                        if (npcCompositionId == npcId) {
+                            targetNpc = npc;
+                            break;
+                        }
+                        // Also check the composition ID in case it's different
+                        if (npc.getComposition() != null) {
+                            int compositionId = npc.getComposition().getId();
+                            if (compositionId == npcId) {
+                                targetNpc = npc;
+                                break;
+                            }
                         }
                     }
                 }
-            } catch (Exception e) {
-                // Silently handle any exceptions
             }
+        } catch (Exception e) {
+            // Silently handle any exceptions
         }
-        // If NPC not found, clear any existing hint arrow
-        if (client != null) {
-            client.clearHintArrow();
+        
+        // If NPC is found and player is within switch distance, point to NPC
+        if (targetNpc != null && distanceToLocation <= switchDistance) {
+            client.setHintArrow(targetNpc);
+        } else {
+            // Otherwise, point to the WorldPoint near the NPC
+            client.setHintArrow(npcLocation);
+        }
+    }
+    
+    /**
+     * Sets hint arrow to an NPC location by ID using a two-step approach (with default 15 tile switch distance):
+     * 1. Points to a WorldPoint near the NPC when far away
+     * 2. Switches to pointing at the NPC when within range and loaded
+     * @param npcId The ID of the NPC
+     * @param npcLocation The WorldPoint near where the NPC is located
+     */
+    private void setHintArrowToNPCLocationById(int npcId, WorldPoint npcLocation) {
+        setHintArrowToNPCLocationById(npcId, npcLocation, 15);
+    }
+    
+    /**
+     * Gets the WorldPoint location for a specific NPC by name.
+     * @param npcName The name of the NPC
+     * @return WorldPoint near the NPC location, or null if not found
+     */
+    private WorldPoint getNPCLocation(String npcName) {
+        if (npcName == null) {
+            return null;
+        }
+        
+        // NPC locations - these should be near where the NPCs spawn
+        switch (npcName) {
+            case "Captain Barnaby":
+                // Captain Barnaby is at Ardougne docks, near the boat to Brimhaven
+                // TODO: Verify exact coordinates
+                return new WorldPoint(2675, 3265, 0);
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Gets the WorldPoint location for a specific NPC by ID.
+     * @param npcId The ID of the NPC
+     * @return WorldPoint near the NPC location, or null if not found
+     */
+    private WorldPoint getNPCLocationById(int npcId) {
+        switch (npcId) {
+            case 1165: // Entrana monk at Port Sarim
+                // Entrana monks are at Port Sarim docks, near the boat to Entrana
+                // TODO: Verify exact coordinates
+                return new WorldPoint(3042, 3235, 0);
+            default:
+                return null;
         }
     }
     
@@ -808,8 +924,11 @@ public class FarmingTeleportOverlay extends Overlay {
                     boolean nearBrimhavenPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
                     if (!nearBrimhavenPatch) {
                         // Player is in Ardougne region but not near Brimhaven patch - needs to take boat
-                        // Set hint arrow to Captain Barnaby (boat captain in Ardougne)
-                        setHintArrowToNPC("Captain Barnaby");
+                        // Set hint arrow to Captain Barnaby location (switches to NPC when close)
+                        WorldPoint captainBarnabyLocation = getNPCLocation("Captain Barnaby");
+                        if (captainBarnabyLocation != null) {
+                            setHintArrowToNPCLocation("Captain Barnaby", captainBarnabyLocation);
+                        }
                     } else {
                         // Player is near Brimhaven patch, clear arrow
                         client.clearHintArrow();
@@ -824,31 +943,26 @@ public class FarmingTeleportOverlay extends Overlay {
                     }
                 }
             } else if (hopsRun && "Entrana".equals(location.getName())) {
-                // Special handling for Entrana: If in Port Sarim region (11060), point to Entrana monks
+                // Special handling for Entrana: Point to Entrana monks at Port Sarim
                 // Once on Entrana (near patch), point to patch instead
-                if (currentRegionId == 11060) {
-                    // Check if player is near the Entrana patch (already on Entrana)
-                    boolean nearEntranaPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
-                    if (!nearEntranaPatch) {
-                        // Player is in Port Sarim region but not near Entrana patch - needs to take boat
-                        // Set hint arrow to Entrana monks (NPC ID 1165) at Port Sarim
-                        setHintArrowToNPCById(1165);
-                    } else {
-                        // Player is on Entrana near the patch - point to patch
-                        boolean nearPatch = areaCheck.isPlayerWithinArea(patchPoint, clearDistance);
-                        if (nearPatch) {
-                            client.clearHintArrow();
-                        } else if (!isAtDestination) {
-                            client.setHintArrow(patchPoint);
-                        }
-                    }
-                } else if (patchPoint != null) {
-                    // Player is in a different region, use normal patch navigation
+                WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+                boolean nearEntranaPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
+                
+                if (nearEntranaPatch) {
+                    // Player is on Entrana near the patch - point to patch
                     boolean nearPatch = areaCheck.isPlayerWithinArea(patchPoint, clearDistance);
                     if (nearPatch) {
                         client.clearHintArrow();
                     } else if (!isAtDestination) {
                         client.setHintArrow(patchPoint);
+                    }
+                } else {
+                    // Player is not on Entrana - point to Entrana monks at Port Sarim
+                    // This works whether player is at Port Sarim or navigating to it
+                    // Arrow will point to WorldPoint when far, switch to NPC when within range
+                    WorldPoint entranaMonkLocation = getNPCLocationById(1165);
+                    if (entranaMonkLocation != null) {
+                        setHintArrowToNPCLocationById(1165, entranaMonkLocation);
                     }
                 }
             } else if (patchPoint != null) {
