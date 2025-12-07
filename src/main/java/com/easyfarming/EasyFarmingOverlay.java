@@ -18,8 +18,6 @@ import net.runelite.client.ui.overlay.components.PanelComponent;
 import java.awt.image.BufferedImage;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
 
 import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
