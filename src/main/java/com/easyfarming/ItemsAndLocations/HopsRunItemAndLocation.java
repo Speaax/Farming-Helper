@@ -49,7 +49,7 @@ public class HopsRunItemAndLocation extends ItemAndLocation
                 // Use BARLEY_SEED as default for hops seeds, code later will allow for any seed to be used
                 allRequirements.merge(
                     ItemID.BARLEY_SEED,
-                    4, // Hops patches require 4 seeds (except jute which requires 3)
+                    3, // Hops patches require 3 seeds per patch
                     Integer::sum
                 );
 

@@ -149,30 +149,31 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                 }
 
                 // Add allotment seed requirements if enabled
+                // Only add requirements if this location actually has allotment patches
                 if (config.generalAllotment()) {
-                    int allotmentPatches = 2; // Most locations have 2 allotment patches
-                    if (location.getName().equals("Harmony Island")) {
-                        allotmentPatches = 1; // Harmony only has 1 allotment patch
-                    }
-                    
-                    // Each allotment patch requires 3 seeds
-                    int seedsPerPatch = 3;
-                    int totalAllotmentSeeds = allotmentPatches * seedsPerPatch;
-                    
-                    // Use SNAPE_GRASS_SEED as base ID (similar to GUAM_SEED for herbs)
-                    allRequirements.merge(
-                        Constants.BASE_ALLOTMENT_SEED_ID,
-                        totalAllotmentSeeds,
-                        Integer::sum
-                    );
-
-                    // Allotment patches also need compost (same as herb patches)
-                    if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                    List<Integer> allotmentPatchIds = Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.get(location.getName());
+                    if (allotmentPatchIds != null && !allotmentPatchIds.isEmpty()) {
+                        int allotmentPatches = allotmentPatchIds.size(); // Number of patches at this location
+                        
+                        // Each allotment patch requires 3 seeds
+                        int seedsPerPatch = 3;
+                        int totalAllotmentSeeds = allotmentPatches * seedsPerPatch;
+                        
+                        // Use SNAPE_GRASS_SEED as base ID (similar to GUAM_SEED for herbs)
                         allRequirements.merge(
-                            selectedCompostID(),
-                            allotmentPatches,
+                            Constants.BASE_ALLOTMENT_SEED_ID,
+                            totalAllotmentSeeds,
                             Integer::sum
                         );
+
+                        // Allotment patches also need compost (same as herb patches)
+                        if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                            allRequirements.merge(
+                                selectedCompostID(),
+                                allotmentPatches,
+                                Integer::sum
+                            );
+                        }
                     }
                 }
             }

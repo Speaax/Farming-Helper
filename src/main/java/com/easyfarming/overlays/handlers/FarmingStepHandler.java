@@ -159,6 +159,7 @@ public class FarmingStepHandler {
                     }
                     break;
                 case GROWING:
+                    // Check if compost was just applied (from chat message) - this sets herbPatchDone
                     boolean isComposted = patchStateChecker.patchIsComposted();
                     if (isComposted) {
                         herbPatchDone = true;
@@ -167,18 +168,23 @@ public class FarmingStepHandler {
                         // Don't show anything - transition will happen on next frame
                         return;
                     }
-                    if (!herbPatchDone) {
-                        plugin.addTextToInfoBox("Use Compost on patch.");
-                        Integer compostId = itemHighlighter.selectedCompostID();
-                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
-                        if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
-                            setHintArrowToNPC("Tool Leprechaun");
-                        } else {
-                            // Clear hint arrow if compost is in inventory (no NPC interaction needed)
-                            clearHintArrow();
-                        }
-                        compostHighlighter.highlightCompost(graphics, true, false, false, 1);
+                    // If herbPatchDone is already true (compost was applied earlier), don't show compost instruction
+                    if (herbPatchDone) {
+                        // Clear hint arrow and return - patch is already composted
+                        clearHintArrow();
+                        return;
                     }
+                    // Patch is GROWING but not composted yet - show compost instruction
+                    plugin.addTextToInfoBox("Use Compost on patch.");
+                    Integer compostId = itemHighlighter.selectedCompostID();
+                    // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                    if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
+                        setHintArrowToNPC("Tool Leprechaun");
+                    } else {
+                        // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                        clearHintArrow();
+                    }
+                    compostHighlighter.highlightCompost(graphics, true, false, false, 1);
                     break;
                 case UNKNOWN:
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the herb patch to change its state.");
@@ -692,6 +698,18 @@ public class FarmingStepHandler {
      * Calls north patch handler first, then south patch handler when north is done.
      */
     public void allotmentSteps(Graphics2D graphics, Location.Teleport teleport) {
+        // Check if this location has allotment patches
+        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        String locationName = getLocationNameFromRegionId(currentRegionId);
+        List<Integer> allotmentPatchIds = farmingHelperOverlay.getAllotmentPatchIdsForLocation(locationName);
+        
+        // If this location has no allotment patches, mark as done immediately
+        if (allotmentPatchIds == null || allotmentPatchIds.isEmpty()) {
+            this.allotmentPatchDone = true;
+            allotmentPatchState.reset();
+            return;
+        }
+        
         // Handle north patch first
         if (allotmentPatchState.getCurrentIndex() == 0) {
             allotmentNorthSteps(graphics, teleport);
@@ -823,6 +841,8 @@ public class FarmingStepHandler {
                     if (patchStateChecker.patchIsComposted()) {
                         // Mark as composted (persistent)
                         allotmentPatchState.markComposted(0);
+                        // Clear hint arrow when patch is composted
+                        clearHintArrow();
                         return;
                     }
                     // Patch is GROWING but not composted yet - show compost instruction
@@ -831,8 +851,14 @@ public class FarmingStepHandler {
                     Integer compostId = itemHighlighter.selectedCompostID();
                     if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
                         itemHighlighter.itemHighlight(graphics, compostId, useItemColor);
+                        // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                        clearHintArrow();
                     } else {
                         compostHighlighter.withdrawCompost(graphics);
+                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                        if (compostId != null) {
+                            setHintArrowToNPC("Tool Leprechaun");
+                        }
                     }
                     break;
                 case UNKNOWN:
@@ -966,6 +992,8 @@ public class FarmingStepHandler {
                     if (isComposted) {
                         // Mark as composted (persistent)
                         allotmentPatchState.markComposted(1);
+                        // Clear hint arrow when patch is composted
+                        clearHintArrow();
                         return;
                     }
                     // Safety check: If already composted (shouldn't reach here due to early return, but just in case)
@@ -982,8 +1010,14 @@ public class FarmingStepHandler {
                     Integer compostId = itemHighlighter.selectedCompostID();
                     if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
                         itemHighlighter.itemHighlight(graphics, compostId, useItemColor);
+                        // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                        clearHintArrow();
                     } else {
                         compostHighlighter.withdrawCompost(graphics);
+                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                        if (compostId != null) {
+                            setHintArrowToNPC("Tool Leprechaun");
+                        }
                     }
                     break;
                 case UNKNOWN:

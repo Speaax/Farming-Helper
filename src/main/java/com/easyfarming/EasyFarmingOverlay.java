@@ -3,6 +3,8 @@ package com.easyfarming;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
@@ -12,12 +14,14 @@ import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
-import net.runelite.client.ui.overlay.components.ImageComponent;
 import net.runelite.client.ui.overlay.components.PanelComponent;
 import java.awt.image.BufferedImage;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Iterator;
 
-import java.awt.Color;
 import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
@@ -33,8 +37,11 @@ public class EasyFarmingOverlay extends Overlay {
     private final Client client;
     private final EasyFarmingPlugin plugin;
     private final PanelComponent panelComponent = new PanelComponent();
-    @Inject
-    private ItemManager itemManager;
+    private final ItemManager itemManager;
+    private final InfoBoxManager infoBoxManager;
+    
+    // Track current InfoBoxes by item ID
+    private final Map<Integer, RequiredItemInfoBox> currentInfoBoxes = new HashMap<>();
 
     public static final List<Integer> TELEPORT_CRYSTAL_IDS = Arrays.asList(ItemID.MOURNING_TELEPORT_CRYSTAL_1, ItemID.MOURNING_TELEPORT_CRYSTAL_2, ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4, ItemID.MOURNING_TELEPORT_CRYSTAL_5);
     private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
@@ -394,10 +401,11 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
     @Inject
-    public EasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation, HopsRunItemAndLocation hopsRunItemAndLocation) {
+    public EasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, InfoBoxManager infoBoxManager, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation, HopsRunItemAndLocation hopsRunItemAndLocation) {
         this.client = client;
         this.plugin = plugin;
         this.itemManager = itemManager;
+        this.infoBoxManager = infoBoxManager;
         this.herbRunItemAndLocation = herbRunItemAndLocation;
         this.treeRunItemAndLocation = treeRunItemAndLocation;
         this.fruitTreeRunItemAndLocation = fruitTreeRunItemAndLocation;
@@ -507,10 +515,13 @@ public class EasyFarmingOverlay extends Overlay {
     public Map<Integer, Integer> itemsToCheck;
     @Override
     public Dimension render(Graphics2D graphics) {
-        if (plugin.isOverlayActive() && !plugin.areItemsCollected()) {
-            if (!plugin.isOverlayActive()) {
-                return null;
-            }
+        // Clean up InfoBoxes if overlay is inactive
+        if (!plugin.isOverlayActive()) {
+            clearAllInfoBoxes();
+            return null;
+        }
+        
+        if (!plugin.areItemsCollected()) {
             plugin.addTextToInfoBox("Grab all the items needed");
             // List of items to check
             Map<Integer, Integer> itemsToCheck = null;
@@ -609,7 +620,6 @@ public class EasyFarmingOverlay extends Overlay {
             }
 
             panelComponent.getChildren().clear();
-            int yOffset = 0;
 
             // Single inventory scan to build comprehensive item count map (including rune pouch expansions)
             Map<Integer, Integer> inventoryItemCounts = new HashMap<>();
@@ -768,39 +778,59 @@ public class EasyFarmingOverlay extends Overlay {
                     int missingCount = count - inventoryCount;
                     BufferedImage itemImage = itemManager.getImage(itemId);
                     if (itemImage != null) {
-                        ImageComponent imageComponent = new ImageComponent(itemImage);
-                        panelComponent.getChildren().add(imageComponent);
-
                         // Add the missing item and count to the list
                         missingItemsWithCounts.add(new AbstractMap.SimpleEntry<>(itemId, missingCount));
-
-                        yOffset += itemImage.getHeight() + 2; // Update yOffset for the next item
                     }
                 }
             }
             plugin.setTeleportOverlayActive(allItemsCollected);
-            Dimension panelSize = panelComponent.render(graphics);
-
-            // Draw item count on top of the overlay
-            yOffset = 0;
+            
+            // Update InfoBoxes - remove ones that are no longer needed, add/update ones that are
+            Set<Integer> currentMissingItemIds = new HashSet<>();
             for (AbstractMap.SimpleEntry<Integer, Integer> pair : missingItemsWithCounts) {
-                int itemId = pair.getKey();
-                int missingCount = pair.getValue();
-
-                BufferedImage itemImage = itemManager.getImage(itemId);
-                if (itemImage != null) {
-                    // Draw item count
-                    if (missingCount > 1) {
-                        String countText = Integer.toString(missingCount);
-                        int textX = 2; // Calculate X position for the count text
-                        int textY = yOffset + 15; // Calculate Y position for the count text
-                        graphics.setColor(Color.WHITE);
-                        graphics.drawString(countText, textX, textY);
+                currentMissingItemIds.add(pair.getKey());
+            }
+            
+            // Remove InfoBoxes for items that are no longer missing
+            if (infoBoxManager != null) {
+                Iterator<Map.Entry<Integer, RequiredItemInfoBox>> iterator = currentInfoBoxes.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Integer, RequiredItemInfoBox> entry = iterator.next();
+                    int itemId = entry.getKey();
+                    if (!currentMissingItemIds.contains(itemId)) {
+                        infoBoxManager.removeInfoBox(entry.getValue());
+                        iterator.remove();
                     }
-
-                    yOffset += itemImage.getHeight() + 2; // Update yOffset for the next item
                 }
             }
+            
+            // Add or update InfoBoxes for missing items
+            if (infoBoxManager != null) {
+                for (AbstractMap.SimpleEntry<Integer, Integer> pair : missingItemsWithCounts) {
+                    int itemId = pair.getKey();
+                    int missingCount = pair.getValue();
+                    
+                    BufferedImage itemImage = itemManager.getImage(itemId);
+                    if (itemImage != null) {
+                        RequiredItemInfoBox existingInfoBox = currentInfoBoxes.get(itemId);
+                        if (existingInfoBox != null) {
+                            // Update existing InfoBox if count changed
+                            if (existingInfoBox.getMissingCount() != missingCount) {
+                                infoBoxManager.removeInfoBox(existingInfoBox);
+                                RequiredItemInfoBox newInfoBox = new RequiredItemInfoBox(itemImage, plugin, itemId, missingCount);
+                                infoBoxManager.addInfoBox(newInfoBox);
+                                currentInfoBoxes.put(itemId, newInfoBox);
+                            }
+                        } else {
+                            // Create new InfoBox
+                            RequiredItemInfoBox infoBox = new RequiredItemInfoBox(itemImage, plugin, itemId, missingCount);
+                            infoBoxManager.addInfoBox(infoBox);
+                            currentInfoBoxes.put(itemId, infoBox);
+                        }
+                    }
+                }
+            }
+            
             // Check if all items have been collected
             if (missingItemsWithCounts.isEmpty()) {
                 plugin.setItemsCollected(true);
@@ -808,8 +838,21 @@ public class EasyFarmingOverlay extends Overlay {
                 plugin.setItemsCollected(false);
             }
 
-            return panelSize;
+            // Render panel (for any other content if needed)
+            return panelComponent.render(graphics);
         }
+        
+        // If items are collected, clear all InfoBoxes
+        clearAllInfoBoxes();
         return null;
+    }
+    
+    private void clearAllInfoBoxes() {
+        if (infoBoxManager != null) {
+            for (RequiredItemInfoBox infoBox : currentInfoBoxes.values()) {
+                infoBoxManager.removeInfoBox(infoBox);
+            }
+        }
+        currentInfoBoxes.clear();
     }
 }

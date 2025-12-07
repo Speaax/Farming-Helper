@@ -21,6 +21,7 @@ import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.EventBus;
@@ -160,6 +161,8 @@ public class EasyFarmingPlugin extends Plugin
 	private EasyFarmingConfig config;
 	@Inject
 	public OverlayManager overlayManager;
+	@Inject
+	public InfoBoxManager infoBoxManager;
 
 	@Getter
     @Setter
@@ -216,13 +219,13 @@ public class EasyFarmingPlugin extends Plugin
 	}
 	
 	@Provides
-	EasyFarmingOverlay provideEasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager,
+	EasyFarmingOverlay provideEasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, InfoBoxManager infoBoxManager,
 	                                             HerbRunItemAndLocation herbRunItemAndLocation,
 	                                             TreeRunItemAndLocation treeRunItemAndLocation,
 	                                             FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation,
 	                                             HopsRunItemAndLocation hopsRunItemAndLocation)
 	{
-		return new EasyFarmingOverlay(client, plugin, itemManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
+		return new EasyFarmingOverlay(client, plugin, itemManager, infoBoxManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
 	}
 
     public void addTextToInfoBox(String text) {
@@ -324,7 +327,7 @@ public class EasyFarmingPlugin extends Plugin
 		treeRunItemAndLocation = new TreeRunItemAndLocation(config, client, this);
 		fruitTreeRunItemAndLocation = new FruitTreeRunItemAndLocation(config, client, this);
 		hopsRunItemAndLocation = new HopsRunItemAndLocation(config, client, this);
-		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
+		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, infoBoxManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
 
 		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
