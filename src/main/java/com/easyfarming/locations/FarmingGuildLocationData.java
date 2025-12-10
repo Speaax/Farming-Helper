@@ -2,6 +2,7 @@ package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -11,27 +12,37 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Farming Guild.
+ * Location definition for Farming Guild.
  */
 public class FarmingGuildLocationData {
     
     private static final WorldPoint FARMING_GUILD_HERB_PATCH_POINT = new WorldPoint(1238, 3726, 0);
     
     /**
-     * Creates LocationData for Farming Guild.
+     * Gets the patch point for Farming Guild herb patch.
+     * @return The WorldPoint for the Farming Guild herb patch
+     */
+    public static WorldPoint getPatchPoint() {
+        return FARMING_GUILD_HERB_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Farming Guild.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     * @return A Location instance for Farming Guild
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumOptionEnumFarmingGuildTeleport,
+            config,
             "Farming Guild",
-            true, // farmLimps
-            FARMING_GUILD_HERB_PATCH_POINT,
-            EasyFarmingConfig::enumOptionEnumFarmingGuildTeleport
+            true // farmLimps
         );
         
         // Jewellery box
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Jewellery_box",
             Teleport.Category.JEWELLERY_BOX,
             "Teleport to Farming guild with Jewellery box.",
@@ -41,11 +52,11 @@ public class FarmingGuildLocationData {
             0,
             4922,
             FARMING_GUILD_HERB_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Skills Necklace
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Skills_Necklace",
             Teleport.Category.ITEM,
             "Teleport to Farming guild using Skills necklace.",
@@ -55,12 +66,12 @@ public class FarmingGuildLocationData {
             0,
             4922,
             FARMING_GUILD_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

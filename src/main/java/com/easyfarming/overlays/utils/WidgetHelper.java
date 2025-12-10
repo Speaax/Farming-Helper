@@ -118,5 +118,51 @@ public class WidgetHelper {
         }
         return 161;
     }
+    
+    /**
+     * Gets the widget group ID for the spellbook icon in the tab bar.
+     * Detects whether we're in fixed classic mode (548) or resizable mode (161/164).
+     * @return The group ID for the tab bar containing the spellbook icon
+     */
+    public int getSpellbookIconGroupId() {
+        // Check for fixed classic mode first (548)
+        if (isInterfaceOpen(548, 63)) {
+            return 548;
+        }
+        // Check for resizable mode (161 or 164)
+        if (isInterfaceOpen(161, 65) || isInterfaceOpen(161, 58)) {
+            return 161;
+        }
+        if (isInterfaceOpen(164, 58) || isInterfaceOpen(164, 65)) {
+            return 164;
+        }
+        // Default to resizable mode
+        return 161;
+    }
+    
+    /**
+     * Gets the child ID for the spellbook icon in the tab bar.
+     * Based on screenshots:
+     * - Resizable classic mode (161): child ID 72 (ICON6)
+     * - Resizable modern mode (164): child ID 65 (ICON6)
+     * - Fixed classic mode (548): child ID 77 (ICON6)
+     * @return The child ID for the spellbook icon
+     */
+    public int getSpellbookIconChildId() {
+        int groupId = getSpellbookIconGroupId();
+        
+        // Fixed classic mode uses widget 548, child 77
+        if (groupId == 548) {
+            return 77;
+        }
+        
+        // Resizable modern mode (164) uses child ID 65
+        if (groupId == 164) {
+            return 65;
+        }
+        
+        // Resizable classic mode (161) uses child ID 72
+        return 72;
+    }
 }
 

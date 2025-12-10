@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.core.Teleport;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
@@ -61,7 +62,7 @@ public class HopsRunItemAndLocation extends ItemAndLocation
                     );
                 }
 
-                Location.Teleport teleport = location.getSelectedTeleport();
+                Teleport teleport = location.getSelectedTeleport();
 
                 Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
 
@@ -161,46 +162,31 @@ public class HopsRunItemAndLocation extends ItemAndLocation
 
     private void setupLumbridgeLocation()
     {
-        com.easyfarming.locations.LocationData lumbridgeData = 
-            com.easyfarming.locations.hops.LumbridgeHopsLocationData.create(createHouseTeleportSupplier());
-        
-        lumbridgeHopsLocation = com.easyfarming.locations.LocationFactory.createLocation(lumbridgeData, config);
+        lumbridgeHopsLocation = com.easyfarming.locations.hops.LumbridgeHopsLocationData.create(config, createHouseTeleportSupplier());
         locations.add(lumbridgeHopsLocation);
     }
 
     private void setupSeersVillageLocation()
     {
-        com.easyfarming.locations.LocationData seersVillageData = 
-            com.easyfarming.locations.hops.SeersVillageHopsLocationData.create(createHouseTeleportSupplier());
-        
-        seersVillageHopsLocation = com.easyfarming.locations.LocationFactory.createLocation(seersVillageData, config);
+        seersVillageHopsLocation = com.easyfarming.locations.hops.SeersVillageHopsLocationData.create(config, createHouseTeleportSupplier());
         locations.add(seersVillageHopsLocation);
     }
 
     private void setupYanilleLocation()
     {
-        com.easyfarming.locations.LocationData yanilleData = 
-            com.easyfarming.locations.hops.YanilleHopsLocationData.create(createHouseTeleportSupplier());
-        
-        yanilleHopsLocation = com.easyfarming.locations.LocationFactory.createLocation(yanilleData, config);
+        yanilleHopsLocation = com.easyfarming.locations.hops.YanilleHopsLocationData.create(config, createHouseTeleportSupplier());
         locations.add(yanilleHopsLocation);
     }
 
     private void setupEntranaLocation()
     {
-        com.easyfarming.locations.LocationData entranaData = 
-            com.easyfarming.locations.hops.EntranaHopsLocationData.create();
-        
-        entranaHopsLocation = com.easyfarming.locations.LocationFactory.createLocation(entranaData, config);
+        entranaHopsLocation = com.easyfarming.locations.hops.EntranaHopsLocationData.create(config);
         locations.add(entranaHopsLocation);
     }
 
     private void setupAldarinLocation()
     {
-        com.easyfarming.locations.LocationData aldarinData = 
-            com.easyfarming.locations.hops.AldarinHopsLocationData.create(createHouseTeleportSupplier());
-        
-        aldarinHopsLocation = com.easyfarming.locations.LocationFactory.createLocation(aldarinData, config);
+        aldarinHopsLocation = com.easyfarming.locations.hops.AldarinHopsLocationData.create(config, createHouseTeleportSupplier());
         locations.add(aldarinHopsLocation);
     }
 }

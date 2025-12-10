@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.util.*;
 import java.util.List;
+import com.easyfarming.core.Teleport;
 import com.easyfarming.utils.Constants;
 
 
@@ -207,6 +208,52 @@ public class FarmingTeleportOverlay extends Overlay {
         // Default fallback to resizable classic mode
         return 161;
     }
+    
+    /**
+     * Gets the widget group ID for the spellbook icon in the tab bar.
+     * Detects whether we're in fixed classic mode (548) or resizable mode (161/164).
+     * @return The group ID for the tab bar containing the spellbook icon
+     */
+    private int getSpellbookIconGroupId() {
+        // Check for fixed classic mode first (548)
+        if (isInterfaceOpen(548, 63)) {
+            return 548;
+        }
+        // Check for resizable mode (161 or 164)
+        if (isInterfaceOpen(161, 65) || isInterfaceOpen(161, 58)) {
+            return 161;
+        }
+        if (isInterfaceOpen(164, 58) || isInterfaceOpen(164, 65)) {
+            return 164;
+        }
+        // Default to resizable mode
+        return 161;
+    }
+    
+    /**
+     * Gets the child ID for the spellbook icon in the tab bar.
+     * Based on screenshots:
+     * - Resizable classic mode (161): child ID 72 (ICON6)
+     * - Resizable modern mode (164): child ID 65 (ICON6)
+     * - Fixed classic mode (548): child ID 77 (ICON6)
+     * @return The child ID for the spellbook icon
+     */
+    private int getSpellbookIconChildId() {
+        int groupId = getSpellbookIconGroupId();
+        
+        // Fixed classic mode uses widget 548, child 77
+        if (groupId == 548) {
+            return 77;
+        }
+        
+        // Resizable modern mode (164) uses child ID 65
+        if (groupId == 164) {
+            return 65;
+        }
+        
+        // Resizable classic mode (161) uses child ID 72
+        return 72;
+    }
 
     /**
      * Enhanced location detection that handles edge cases and adapts to player's current situation
@@ -214,7 +261,7 @@ public class FarmingTeleportOverlay extends Overlay {
      * @param teleport The selected teleport method
      * @return true if player should proceed to farming phase, false if still navigating
      */
-    private boolean shouldProceedToFarming(Location location, Location.Teleport teleport) {
+    private boolean shouldProceedToFarming(Location location, Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         WorldPoint targetLocation = teleport.getPoint();
@@ -620,7 +667,7 @@ public class FarmingTeleportOverlay extends Overlay {
      * @param teleport The selected teleport method
      * @param graphics Graphics context for highlighting
      */
-    private void adaptiveHighlighting(Location location, Location.Teleport teleport, Graphics2D graphics) {
+    private void adaptiveHighlighting(Location location, Teleport teleport, Graphics2D graphics) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         WorldPoint targetLocation = teleport.getPoint();
@@ -713,7 +760,7 @@ public class FarmingTeleportOverlay extends Overlay {
      * @param teleport The teleport method to highlight
      * @param graphics Graphics context for highlighting
      */
-    private void highlightTeleportMethod(Location.Teleport teleport, Graphics2D graphics) {
+    private void highlightTeleportMethod(Teleport teleport, Graphics2D graphics) {
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color rightColor = colorProvider.getRightClickColorWithAlpha();
         switch (teleport.getCategory()) {
@@ -742,8 +789,9 @@ public class FarmingTeleportOverlay extends Overlay {
                     widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
                     // interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
                 } else {
-                    widgetHighlighter.interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
-                    // interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
+                    // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
+                    widgetHighlighter.interfaceOverlay(getSpellbookIconGroupId(), getSpellbookIconChildId()).render(graphics);
+                    // interfaceOverlay(getSpellbookIconGroupId(), getSpellbookIconChildId()).render(graphics);
                 }
                 break;
             case PORTAL_NEXUS:
@@ -835,8 +883,9 @@ public class FarmingTeleportOverlay extends Overlay {
                 switch (tabState) {
                             case INVENTORY:
                             case REST:
-                                widgetHighlighter.interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
-                                // interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
+                                // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
+                                widgetHighlighter.interfaceOverlay(getSpellbookIconGroupId(), getSpellbookIconChildId()).render(graphics);
+                                // interfaceOverlay(getSpellbookIconGroupId(), getSpellbookIconChildId()).render(graphics);
                                 break;
                     case SPELLBOOK:
                         // Highlight the "Teleport to House" spell using correct child ID from widget inspector
@@ -880,7 +929,7 @@ public class FarmingTeleportOverlay extends Overlay {
 
     public void gettingToLocation(Graphics2D graphics, Location location) {
         updateColors();
-        Location.Teleport teleport = location.getSelectedTeleport();
+        Teleport teleport = location.getSelectedTeleport();
         Boolean locationEnabledBool = false;
         if (plugin.getFarmingTeleportOverlay().herbRun) {
             locationEnabledBool = plugin.getHerbLocationEnabled(location.getName());
@@ -1223,8 +1272,9 @@ public class FarmingTeleportOverlay extends Overlay {
                         switch (tabState) {
                             case REST:
                             case INVENTORY:
-                                widgetHighlighter.interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
-                                // interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
+                                // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
+                                widgetHighlighter.interfaceOverlay(getSpellbookIconGroupId(), getSpellbookIconChildId()).render(graphics);
+                                // interfaceOverlay(getSpellbookIconGroupId(), getSpellbookIconChildId()).render(graphics);
                                 if (currentRegionId == teleport.getRegionId()) {
                                     this.currentTeleportCase = 1;
                                     isAtDestination = true;
@@ -1259,7 +1309,7 @@ public class FarmingTeleportOverlay extends Overlay {
 
     private boolean farmLimps = false;
 
-    public void farming(Graphics2D graphics, Location.Teleport teleport) {
+    public void farming(Graphics2D graphics, Teleport teleport) {
         if (this.startSubCases) {
             if (herbRun) {
                 if (this.subCase == 1) {

@@ -2,6 +2,7 @@ package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -11,27 +12,37 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Troll Stronghold.
+ * Location definition for Troll Stronghold.
  */
 public class TrollStrongholdLocationData {
     
     private static final WorldPoint TROLL_STRONGHOLD_HERB_PATCH_POINT = new WorldPoint(2824, 3696, 0);
     
     /**
-     * Creates LocationData for Troll Stronghold.
+     * Gets the patch point for Troll Stronghold herb patch.
+     * @return The WorldPoint for the Troll Stronghold herb patch
+     */
+    public static WorldPoint getPatchPoint() {
+        return TROLL_STRONGHOLD_HERB_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Troll Stronghold.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     * @return A Location instance for Troll Stronghold
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumOptionEnumTrollStrongholdTeleport,
+            config,
             "Troll Stronghold",
-            false, // farmLimps
-            TROLL_STRONGHOLD_HERB_PATCH_POINT,
-            EasyFarmingConfig::enumOptionEnumTrollStrongholdTeleport
+            false // farmLimps
         );
         
         // Stony Basalt
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Stony_Basalt",
             Teleport.Category.ITEM,
             "Teleport to Troll Stronghold with Stony Basalt.",
@@ -41,13 +52,13 @@ public class TrollStrongholdLocationData {
             0,
             11321,
             TROLL_STRONGHOLD_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.STRONGHOLD_TELEPORT_BASALT, 1)
             )
         ));
         
         // Portal Nexus
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Troll Stronghold with Portal Nexus.",
@@ -57,10 +68,10 @@ public class TrollStrongholdLocationData {
             13,
             11321,
             TROLL_STRONGHOLD_HERB_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
-        return locationData;
+        return location;
     }
 }
 

@@ -11,6 +11,11 @@ import javax.inject.Inject;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 
+/**
+ * Overlay that displays text information in the top-left corner of the game screen.
+ * Used to show current farming step instructions and debug information.
+ * Only renders when the overlay is active.
+ */
 public class EasyFarmingOverlayInfoBox extends Overlay {
     private final Client client;
     private final PanelComponent panelComponent = new PanelComponent();

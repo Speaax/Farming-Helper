@@ -10,6 +10,24 @@ import net.runelite.api.gameval.ItemID;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class for farming run type implementations (Herb, Tree, FruitTree, Hops).
+ * 
+ * Architecture:
+ * - This class and its subclasses (HerbRunItemAndLocation, TreeRunItemAndLocation, etc.) 
+ *   represent the "business logic" layer for calculating item requirements per run type.
+ * - They use the data-driven locations.* package to create Location instances,
+ *   which provides a clean separation between data and logic.
+ * - Subclasses create Location instances directly using LocationData classes (e.g., ArdougneLocationData.create()),
+ *   which return Location instances using core.Teleport directly, then calculate item 
+ *   requirements based on enabled locations.
+ * 
+ * Relationship to locations.* package:
+ * - locations.* contains LocationData classes that define location data (teleports, coordinates, etc.)
+ * - These classes now return Location instances directly using core.Teleport
+ * - This allows locations to be defined as data rather than hardcoded in business logic
+ * - The canonical teleport model is core.Teleport, used throughout the codebase
+ */
 public class ItemAndLocation
 {
     protected EasyFarmingConfig config;

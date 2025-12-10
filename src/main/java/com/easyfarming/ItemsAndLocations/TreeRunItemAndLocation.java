@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.core.Teleport;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
 
@@ -67,7 +68,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
                     );
                 }
 
-                Location.Teleport teleport = location.getSelectedTeleport();
+                Teleport teleport = location.getSelectedTeleport();
 
                 Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
 
@@ -142,65 +143,52 @@ public class TreeRunItemAndLocation extends ItemAndLocation
 
     private void setupFaladorLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData faladorData = com.easyfarming.locations.tree.FaladorTreeLocationData.create(
+        faladorTreeLocation = com.easyfarming.locations.tree.FaladorTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        faladorTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(faladorData, config);
         locations.add(faladorTreeLocation);
     }
 
     private void setupFarmingGuildLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData farmingGuildData = com.easyfarming.locations.tree.FarmingGuildTreeLocationData.create(
+        farmingGuildTreeLocation = com.easyfarming.locations.tree.FarmingGuildTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        farmingGuildTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(farmingGuildData, config);
         locations.add(farmingGuildTreeLocation);
     }
 
     private void setupGnomeStrongholdLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData gnomeStrongholdData = com.easyfarming.locations.tree.GnomeStrongholdTreeLocationData.create();
-        
-        gnomeStrongholdTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(gnomeStrongholdData, config);
+        gnomeStrongholdTreeLocation = com.easyfarming.locations.tree.GnomeStrongholdTreeLocationData.create(config);
         locations.add(gnomeStrongholdTreeLocation);
     }
 
     private void setupLumbridgeLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData lumbridgeData = com.easyfarming.locations.tree.LumbridgeTreeLocationData.create(
+        lumbridgeTreeLocation = com.easyfarming.locations.tree.LumbridgeTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        lumbridgeTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(lumbridgeData, config);
         locations.add(lumbridgeTreeLocation);
     }
 
     private void setupTaverleyLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData taverleyData = com.easyfarming.locations.tree.TaverleyTreeLocationData.create(
+        taverleyTreeLocation = com.easyfarming.locations.tree.TaverleyTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        taverleyTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(taverleyData, config);
         locations.add(taverleyTreeLocation);
     }
 
     private void setupVarrockLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData varrockData = com.easyfarming.locations.tree.VarrockTreeLocationData.create(
+        varrockTreeLocation = com.easyfarming.locations.tree.VarrockTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        varrockTreeLocation = com.easyfarming.locations.LocationFactory.createLocation(varrockData, config);
         locations.add(varrockTreeLocation);
     }
 }

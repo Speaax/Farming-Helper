@@ -12,11 +12,12 @@ import java.util.function.Function;
  * This class and related classes in the locations.* package were designed to replace
  * the current ItemsAndLocations.* package structure, but the migration was never completed.
  * 
- * Currently only used by LocationFactory (which is also unused).
+ * Part of an incomplete refactor; do not modify without coordinating.
  * 
- * SPARED FROM PURGING: This appears to be part of an unimplemented feature/refactoring
- * and may be completed in the future.
+ * @deprecated This is part of an incomplete refactor. The data-driven approach using this class
+ *             is still being used, but the architecture may change in future refactors.
  */
+@Deprecated
 public class LocationData {
     private final String name;
     private final boolean farmLimps;

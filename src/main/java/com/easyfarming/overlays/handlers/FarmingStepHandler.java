@@ -1,6 +1,7 @@
 package com.easyfarming.overlays.handlers;
 
 import com.easyfarming.*;
+import com.easyfarming.core.Teleport;
 import com.easyfarming.overlays.highlighting.*;
 import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.PatchStateChecker;
@@ -19,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-import com.easyfarming.locations.LocationData;
 import com.easyfarming.locations.hops.*;
 import com.easyfarming.locations.ArdougneLocationData;
 import com.easyfarming.locations.CatherbyLocationData;
@@ -81,7 +81,7 @@ public class FarmingStepHandler {
     /**
      * Handles herb patch farming steps.
      */
-    public void herbSteps(Graphics2D graphics, Location.Teleport teleport) {
+    public void herbSteps(Graphics2D graphics, Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HerbPatchChecker.PlantState plantState = HerbPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -196,7 +196,7 @@ public class FarmingStepHandler {
     /**
      * Handles hops patch farming steps.
      */
-    public void hopsSteps(Graphics2D graphics, Location.Teleport teleport) {
+    public void hopsSteps(Graphics2D graphics, Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HopsPatchChecker.PlantState plantState = HopsPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -348,34 +348,21 @@ public class FarmingStepHandler {
      * @return WorldPoint of the patch, or null if location not found
      */
     private WorldPoint getHopsPatchPoint(String locationName) {
-        LocationData locationData = getHopsLocationData(locationName);
-        return locationData != null ? locationData.getPatchPoint() : null;
-    }
-    
-    /**
-     * Gets LocationData for a hops location by name.
-     * @param locationName The name of the hops location
-     * @return LocationData for the location, or null if not found
-     */
-    private LocationData getHopsLocationData(String locationName) {
         if (locationName == null) {
             return null;
         }
         
-        // Use empty supplier since we only need the patch point, not teleport data
-        Supplier<List<ItemRequirement>> emptySupplier = () -> Collections.emptyList();
-        
         switch (locationName) {
             case "Lumbridge":
-                return LumbridgeHopsLocationData.create(emptySupplier);
+                return LumbridgeHopsLocationData.getPatchPoint();
             case "Seers Village":
-                return SeersVillageHopsLocationData.create(emptySupplier);
+                return SeersVillageHopsLocationData.getPatchPoint();
             case "Yanille":
-                return YanilleHopsLocationData.create(emptySupplier);
+                return YanilleHopsLocationData.getPatchPoint();
             case "Entrana":
-                return EntranaHopsLocationData.create();
+                return EntranaHopsLocationData.getPatchPoint();
             case "Aldarin":
-                return AldarinHopsLocationData.create(emptySupplier);
+                return AldarinHopsLocationData.getPatchPoint();
             default:
                 return null;
         }
@@ -438,58 +425,64 @@ public class FarmingStepHandler {
             
             // Check if player is near the patch location
             boolean nearPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
-            boolean inCorrectRegion = currentRegionId == Constants.REGION_FARMING_GUILD || 
-                                     getLocationNameFromRegionId(currentRegionId).equals(locationName);
             
-            // Show instructions if: near patch OR (valid state detected AND we're in correct region)
-            boolean shouldShowInstructions = nearPatch || (plantState != FlowerPatchChecker.PlantState.UNKNOWN && inCorrectRegion);
-            
-            if (!shouldShowInstructions) {
-                // Highlight all flower patches when far from patch and no state detected
-                patchHighlighter.highlightFlowerPatches(graphics, leftColor);
-            } else {
-                // Highlight specific patch for current location
-                if (patchObjectId != null) {
-                    switch (plantState) {
-                        case HARVESTABLE:
-                            plugin.addTextToInfoBox("Harvest Limwurt root.");
-                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
-                            break;
-                        case DISEASED:
-                            plugin.addTextToInfoBox("Cure the diseased Limwurt.");
-                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
-                            itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
-                            break;
-                        case WEEDS:
-                            plugin.addTextToInfoBox("Rake the flower patch.");
-                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
-                            break;
-                        case DEAD:
-                            plugin.addTextToInfoBox("Clear the dead flower patch.");
-                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
-                            break;
-                        case PLANT:
+            // Always highlight specific patch if patchObjectId is available, similar to herb patches
+            if (patchObjectId != null) {
+                switch (plantState) {
+                    case HARVESTABLE:
+                        plugin.addTextToInfoBox("Harvest Limwurt root.");
+                        patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                        break;
+                    case DISEASED:
+                        plugin.addTextToInfoBox("Cure the diseased Limwurt.");
+                        patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                        itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
+                        break;
+                    case WEEDS:
+                        // Check if value is 3 (fully raked, ready to plant) - similar to herb patches
+                        int varbitValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
+                        if (varbitValue == 3) {
+                            // Fully raked patch, ready to plant
                             plugin.addTextToInfoBox("Use Limwurt seed on the patch.");
                             patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
                             itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
-                            break;
-                        case GROWING:
-                            plugin.addTextToInfoBox("Use Compost on patch.");
-                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
-                            compostHighlighter.highlightCompost(graphics, false, false, false, 2);
-                            if (patchStateChecker.patchIsComposted()) {
-                                flowerPatchDone = true;
-                            }
-                            break;
-                        case UNKNOWN:
+                        } else {
+                            // Needs raking - always highlight when WEEDS state is detected
+                            plugin.addTextToInfoBox("Rake the flower patch.");
+                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                        }
+                        break;
+                    case DEAD:
+                        plugin.addTextToInfoBox("Clear the dead flower patch.");
+                        patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
+                        break;
+                    case PLANT:
+                        plugin.addTextToInfoBox("Use Limwurt seed on the patch.");
+                        patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
+                        itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
+                        break;
+                    case GROWING:
+                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
+                        compostHighlighter.highlightCompost(graphics, false, false, false, 2);
+                        if (patchStateChecker.patchIsComposted()) {
+                            flowerPatchDone = true;
+                        }
+                        break;
+                    case UNKNOWN:
+                        // If near patch, highlight it even if state is unknown
+                        if (nearPatch) {
                             plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the flower patch to change its state.");
                             patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
-                            break;
-                    }
-                } else {
-                    // Fallback: highlight all flower patches if patch ID not found
-                    patchHighlighter.highlightFlowerPatches(graphics, leftColor);
+                        } else {
+                            // Far from patch and unknown state - highlight all patches
+                            patchHighlighter.highlightFlowerPatches(graphics, leftColor);
+                        }
+                        break;
                 }
+            } else {
+                // Fallback: highlight all flower patches if patch ID not found
+                patchHighlighter.highlightFlowerPatches(graphics, leftColor);
             }
         } else {
             flowerPatchDone = true;
@@ -641,39 +634,26 @@ public class FarmingStepHandler {
             return null;
         }
         
-        // Use empty supplier since we only need the patch point, not teleport data
-        Supplier<List<ItemRequirement>> emptySupplier = () -> Collections.emptyList();
-        LocationData locationData = null;
-        
+        // Flower patches are typically at the same location as herb patches
+        // Return the location's patch point (herb patch point)
         switch (locationName) {
             case "Ardougne":
-                locationData = ArdougneLocationData.create(emptySupplier);
-                break;
+                return ArdougneLocationData.getPatchPoint();
             case "Catherby":
-                locationData = CatherbyLocationData.create(emptySupplier);
-                break;
+                return CatherbyLocationData.getPatchPoint();
             case "Falador":
-                locationData = FaladorLocationData.create(emptySupplier);
-                break;
+                return FaladorLocationData.getPatchPoint();
             case "Farming Guild":
-                locationData = FarmingGuildLocationData.create(emptySupplier);
-                break;
+                return FarmingGuildLocationData.getPatchPoint();
             case "Kourend":
-                locationData = KourendLocationData.create(emptySupplier);
-                break;
+                return KourendLocationData.getPatchPoint();
             case "Morytania":
-                locationData = MorytaniaLocationData.create();
-                break;
+                return MorytaniaLocationData.getPatchPoint();
             case "Civitas illa Fortis":
-                locationData = CivitasLocationData.create(emptySupplier);
-                break;
+                return CivitasLocationData.getPatchPoint();
             default:
                 return null;
         }
-        
-        // Flower patches are typically at the same location as herb patches
-        // Return the location's patch point (herb patch point)
-        return locationData != null ? locationData.getPatchPoint() : null;
     }
     
     /**
@@ -697,7 +677,7 @@ public class FarmingStepHandler {
      * Handles allotment patch farming steps.
      * Calls north patch handler first, then south patch handler when north is done.
      */
-    public void allotmentSteps(Graphics2D graphics, Location.Teleport teleport) {
+    public void allotmentSteps(Graphics2D graphics, Teleport teleport) {
         // Check if this location has allotment patches
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         String locationName = getLocationNameFromRegionId(currentRegionId);
@@ -742,7 +722,7 @@ public class FarmingStepHandler {
      * Completely separate from south patch handling.
      * Once we move to south patch (index 1), this method should never be called.
      */
-    private void allotmentNorthSteps(Graphics2D graphics, Location.Teleport teleport) {
+    private void allotmentNorthSteps(Graphics2D graphics, Teleport teleport) {
         // Safety check: If we're not on north patch (index 0), return immediately
         // This ensures we never process north patch once we've moved forward
         if (allotmentPatchState.getCurrentIndex() != 0) {
@@ -873,7 +853,7 @@ public class FarmingStepHandler {
      * Completely separate from north patch handling - only deals with south patch (index 1).
      * North patch is completely ignored once we reach this point.
      */
-    private void allotmentSouthSteps(Graphics2D graphics, Location.Teleport teleport) {
+    private void allotmentSouthSteps(Graphics2D graphics, Teleport teleport) {
         // Safety check: If we're not on south patch (index 1), return immediately
         // This ensures we only process south patch when we're supposed to
         if (allotmentPatchState.getCurrentIndex() != 1) {
@@ -1030,7 +1010,7 @@ public class FarmingStepHandler {
     /**
      * Handles tree patch farming steps.
      */
-    public void treeSteps(Graphics2D graphics, Location.Teleport teleport) {
+    public void treeSteps(Graphics2D graphics, Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         TreePatchChecker.PlantState plantState;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -1117,7 +1097,7 @@ public class FarmingStepHandler {
     /**
      * Handles fruit tree patch farming steps.
      */
-    public void fruitTreeSteps(Graphics2D graphics, Location.Teleport teleport) {
+    public void fruitTreeSteps(Graphics2D graphics, Teleport teleport) {
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         FruitTreePatchChecker.PlantState plantState = FruitTreePatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();

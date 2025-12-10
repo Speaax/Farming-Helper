@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.core.Teleport;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
@@ -11,6 +12,14 @@ import net.runelite.api.gameval.ItemID;
 import java.util.*;
 import java.util.function.Supplier;
 
+/**
+ * Manages herb run locations and calculates item requirements for herb farming runs.
+ * 
+ * Uses the data-driven locations.* package to create Location instances:
+ * - Creates Location instances directly using classes like ArdougneLocationData, CatherbyLocationData, etc.
+ * - These classes now return Location instances directly using core.Teleport
+ * - Calculates item requirements based on enabled locations and selected teleports
+ */
 public class HerbRunItemAndLocation extends ItemAndLocation
 {
     public Location ardougneLocation;
@@ -66,7 +75,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                     );
                 }
 
-                Location.Teleport teleport = location.getSelectedTeleport();
+                Teleport teleport = location.getSelectedTeleport();
 
                 Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
 
@@ -240,100 +249,61 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
     private void setupCivitasLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData civitasData = 
-            com.easyfarming.locations.CivitasLocationData.create(createHouseTeleportSupplier());
-        
-        civitasLocation = com.easyfarming.locations.LocationFactory.createLocation(civitasData, config);
+        civitasLocation = com.easyfarming.locations.CivitasLocationData.create(config, createHouseTeleportSupplier());
         locations.add(civitasLocation);
     }
 
     private void setupArdougneLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData ardougneData = 
-            com.easyfarming.locations.ArdougneLocationData.create(createHouseTeleportSupplier());
-        
-        ardougneLocation = com.easyfarming.locations.LocationFactory.createLocation(ardougneData, config);
+        ardougneLocation = com.easyfarming.locations.ArdougneLocationData.create(config, createHouseTeleportSupplier());
         locations.add(ardougneLocation);
     }
 
     private void setupCatherbyLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData catherbyData = 
-            com.easyfarming.locations.CatherbyLocationData.create(createHouseTeleportSupplier());
-        
-        catherbyLocation = com.easyfarming.locations.LocationFactory.createLocation(catherbyData, config);
+        catherbyLocation = com.easyfarming.locations.CatherbyLocationData.create(config, createHouseTeleportSupplier());
         locations.add(catherbyLocation);
     }
 
     private void setupFaladorLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData faladorData = 
-            com.easyfarming.locations.FaladorLocationData.create(createHouseTeleportSupplier());
-        
-        faladorLocation = com.easyfarming.locations.LocationFactory.createLocation(faladorData, config);
+        faladorLocation = com.easyfarming.locations.FaladorLocationData.create(config, createHouseTeleportSupplier());
         locations.add(faladorLocation);
     }
 
     private void setupFarmingGuildLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData farmingGuildData = 
-            com.easyfarming.locations.FarmingGuildLocationData.create(createHouseTeleportSupplier());
-        
-        farmingGuildLocation = com.easyfarming.locations.LocationFactory.createLocation(farmingGuildData, config);
+        farmingGuildLocation = com.easyfarming.locations.FarmingGuildLocationData.create(config, createHouseTeleportSupplier());
         locations.add(farmingGuildLocation);
     }
 
     private void setupHarmonyLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData harmonyData = 
-            com.easyfarming.locations.HarmonyLocationData.create(createHouseTeleportSupplier());
-        
-        harmonyLocation = com.easyfarming.locations.LocationFactory.createLocation(harmonyData, config);
+        harmonyLocation = com.easyfarming.locations.HarmonyLocationData.create(config, createHouseTeleportSupplier());
         locations.add(harmonyLocation);
     }
 
     private void setupKourendLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData kourendData = 
-            com.easyfarming.locations.KourendLocationData.create(createHouseTeleportSupplier());
-        
-        kourendLocation = com.easyfarming.locations.LocationFactory.createLocation(kourendData, config);
+        kourendLocation = com.easyfarming.locations.KourendLocationData.create(config, createHouseTeleportSupplier());
         locations.add(kourendLocation);
     }
 
     private void setupMorytaniaLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData morytaniaData = com.easyfarming.locations.MorytaniaLocationData.create();
-        
-        morytaniaLocation = com.easyfarming.locations.LocationFactory.createLocation(morytaniaData, config);
+        morytaniaLocation = com.easyfarming.locations.MorytaniaLocationData.create(config);
         locations.add(morytaniaLocation);
     }
 
     private void setupTrollStrongholdLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData trollStrongholdData = 
-            com.easyfarming.locations.TrollStrongholdLocationData.create(createHouseTeleportSupplier());
-        
-        trollStrongholdLocation = com.easyfarming.locations.LocationFactory.createLocation(trollStrongholdData, config);
+        trollStrongholdLocation = com.easyfarming.locations.TrollStrongholdLocationData.create(config, createHouseTeleportSupplier());
         locations.add(trollStrongholdLocation);
     }
 
     private void setupWeissLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        com.easyfarming.locations.LocationData weissData = 
-            com.easyfarming.locations.WeissLocationData.create(createHouseTeleportSupplier());
-        
-        weissLocation = com.easyfarming.locations.LocationFactory.createLocation(weissData, config);
+        weissLocation = com.easyfarming.locations.WeissLocationData.create(config, createHouseTeleportSupplier());
         locations.add(weissLocation);
     }
 

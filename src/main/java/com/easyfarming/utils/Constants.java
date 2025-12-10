@@ -159,9 +159,9 @@ public class Constants {
     
     static {
         Map<String, Integer> patchMap = new HashMap<>();
-        patchMap.put("Ardougne", 7847);
-        patchMap.put("Catherby", 7849);
-        patchMap.put("Falador", 7848);
+        patchMap.put("Ardougne", 7849);
+        patchMap.put("Catherby", 7848);
+        patchMap.put("Falador", 7847);
         patchMap.put("Farming Guild", 33649);
         patchMap.put("Kourend", 27111);
         patchMap.put("Morytania", 7850);

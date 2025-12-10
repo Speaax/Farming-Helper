@@ -2,6 +2,7 @@ package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -12,27 +13,37 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Falador.
+ * Location definition for Falador.
  */
 public class FaladorLocationData {
     
     private static final WorldPoint FALADOR_HERB_PATCH_POINT = new WorldPoint(3058, 3307, 0);
     
     /**
-     * Creates LocationData for Falador.
+     * Gets the patch point for Falador herb patch.
+     * @return The WorldPoint for the Falador herb patch
+     */
+    public static WorldPoint getPatchPoint() {
+        return FALADOR_HERB_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Falador.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     * @return A Location instance for Falador
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumOptionEnumFaladorTeleport,
+            config,
             "Falador",
-            true, // farmLimps
-            FALADOR_HERB_PATCH_POINT,
-            EasyFarmingConfig::enumOptionEnumFaladorTeleport
+            true // farmLimps
         );
         
         // Portal Nexus
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Falador with Portal Nexus, and run south-east.",
@@ -42,11 +53,11 @@ public class FaladorLocationData {
             13,
             11828,
             FALADOR_HERB_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Explorers ring
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Explorers_ring",
             Teleport.Category.ITEM,
             "Teleport to Falador with Explorers ring, and run slightly north.",
@@ -56,13 +67,13 @@ public class FaladorLocationData {
             0,
             12083,
             FALADOR_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.LUMBRIDGE_RING_MEDIUM, 1)
             )
         ));
         
         // Falador Teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Falador_Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Falador with standard spellbook, and run south-east.",
@@ -72,7 +83,7 @@ public class FaladorLocationData {
             29,
             11828,
             FALADOR_HERB_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.AIRRUNE, 3),
                 new ItemRequirement(ItemID.LAWRUNE, 1),
                 new ItemRequirement(ItemID.WATERRUNE, 1)
@@ -80,7 +91,7 @@ public class FaladorLocationData {
         ));
         
         // Falador Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Falador_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Falador with Falador Tele Tab, and run south-east.",
@@ -90,13 +101,13 @@ public class FaladorLocationData {
             0,
             11828,
             FALADOR_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.POH_TABLET_FALADORTELEPORT, 1)
             )
         ));
         
         // Draynor Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Draynor_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Draynor Manor with Draynor Manor Tele Tab, and run south-west.",
@@ -106,12 +117,12 @@ public class FaladorLocationData {
             0,
             12340,
             FALADOR_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.TELETAB_DRAYNOR, 1)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

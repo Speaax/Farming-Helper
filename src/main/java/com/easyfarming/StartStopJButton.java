@@ -3,6 +3,11 @@ package com.easyfarming;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * A JButton that can toggle between "Start" and "Stop" states.
+ * Changes its text and background color based on the current state.
+ * Used for run type buttons (Herb Run, Tree Run, etc.) in the plugin panel.
+ */
 public class StartStopJButton extends JButton {
     private String originalText;
 

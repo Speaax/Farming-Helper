@@ -72,7 +72,8 @@ public class TeleportHighlighter {
                 if (tabState == InventoryTabChecker.TabState.SPELLBOOK) {
                     widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
                 } else {
-                    widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookTabGroupId(), widgetHelper.getSpellbookTabChildId()).render(graphics);
+                    // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
+                    widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookIconGroupId(), widgetHelper.getSpellbookIconChildId()).render(graphics);
                 }
                 break;
             case PORTAL_NEXUS:

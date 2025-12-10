@@ -2,6 +2,7 @@ package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -12,33 +13,37 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Civitas illa Fortis.
- * This is a test case for migrating from code-based location setup to data-driven setup.
- * 
- * Usage:
- *   Supplier<List<ItemRequirement>> houseTeleSupplier = () -> itemAndLocation.getHouseTeleportItemRequirements();
- *   LocationData civitasData = CivitasLocationData.create(houseTeleSupplier);
- *   Location civitasLocation = LocationFactory.createLocation(civitasData, config);
+ * Location definition for Civitas illa Fortis.
  */
 public class CivitasLocationData {
     
     private static final WorldPoint CIVITAS_HERB_PATCH_POINT = new WorldPoint(1586, 3099, 0);
     
     /**
-     * Creates LocationData for Civitas illa Fortis.
+     * Gets the patch point for Civitas illa Fortis herb patch.
+     * @return The WorldPoint for the Civitas herb patch
+     */
+    public static WorldPoint getPatchPoint() {
+        return CIVITAS_HERB_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Civitas illa Fortis.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     * @return A Location instance for Civitas illa Fortis
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumOptionEnumCivitasTeleport,
+            config,
             "Civitas illa Fortis",
-            true, // farmLimps
-            CIVITAS_HERB_PATCH_POINT,
-            EasyFarmingConfig::enumOptionEnumCivitasTeleport
+            true // farmLimps
         );
         
         // Portal Nexus teleport
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Civitas illa Fortis with Portal Nexus.",
@@ -48,11 +53,11 @@ public class CivitasLocationData {
             13,
             6192,
             CIVITAS_HERB_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Civitas Teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Civitas_Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Civitas illa Fortis with standard spellbook, and run west.",
@@ -62,7 +67,7 @@ public class CivitasLocationData {
             43,
             6192,
             CIVITAS_HERB_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.LAWRUNE, 2),
                 new ItemRequirement(ItemID.EARTHRUNE, 1),
                 new ItemRequirement(ItemID.FIRERUNE, 1)
@@ -70,7 +75,7 @@ public class CivitasLocationData {
         ));
         
         // Civitas Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Civitas_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Civitas illa Fortis with Civitas teleport tab, and run west.",
@@ -80,13 +85,13 @@ public class CivitasLocationData {
             0,
             6192,
             CIVITAS_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.POH_TABLET_FORTISTELEPORT, 1)
             )
         ));
         
         // Quetzal whistle
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Quetzal_whistle",
             Teleport.Category.ITEM,
             "Teleport to the Hunter's Guild with the quetzal whistle, and run north.",
@@ -96,13 +101,13 @@ public class CivitasLocationData {
             0,
             6192,
             CIVITAS_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.HG_QUETZALWHISTLE_BASIC, 1)
             )
         ));
         
         // Hunter Skillcape
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Hunter_Skillcape",
             Teleport.Category.ITEM,
             "Teleport to Civitas illa Fortis with Hunter skillcape.",
@@ -112,12 +117,12 @@ public class CivitasLocationData {
             0,
             6192,
             CIVITAS_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.SKILLCAPE_HUNTING, 1)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

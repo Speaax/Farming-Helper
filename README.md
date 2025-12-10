@@ -113,6 +113,29 @@ If you encounter any issues:
 2. Verify you have the required quests/levels for specific locations
 3. Ensure your teleport preferences are correctly configured
 
+## Architecture Notes
+
+### Teleport Model
+
+The plugin uses a canonical teleport model (`com.easyfarming.core.Teleport`) for all teleport-related functionality:
+
+- **Canonical Model**: `com.easyfarming.core.Teleport` is the single source of truth for teleport data
+- **Location Integration**: `Location` class stores and returns `core.Teleport` instances directly
+- **Data-Driven Approach**: Location data is defined in the `locations.*` package using `LocationData` classes
+- **Factory Pattern**: `LocationFactory` creates `Location` instances from `LocationData`
+
+When adding new locations or teleport options:
+1. Create a `LocationData` class in the appropriate subdirectory (e.g., `locations/herbs/`, `locations/tree/`)
+2. Use `TeleportData` to define teleport options with `core.Teleport.Category` enum
+3. Use `LocationFactory.createLocation()` to create `Location` instances
+
+### Package Structure
+
+- **`locations.*`**: Data layer - defines location data (teleports, coordinates, etc.)
+- **`ItemsAndLocations.*`**: Business logic layer - calculates item requirements per run type
+- **`core.*`**: Core models - `Teleport` and `Location` (if applicable) canonical models
+- **`overlays.*`**: UI layer - rendering and highlighting logic
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.

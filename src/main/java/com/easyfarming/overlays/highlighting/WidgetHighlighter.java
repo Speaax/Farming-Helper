@@ -31,17 +31,19 @@ public class WidgetHighlighter {
                 Client client = WidgetHighlighter.this.client;
                 if (client != null) {
                     Widget widget = client.getWidget(groupId, childId);
-                    if (widget != null) {
+                    if (widget != null && !widget.isHidden()) {
                         Rectangle bounds = widget.getBounds();
-                        Color color = colorProvider.getLeftClickColorWithAlpha();
-                        graphics.setColor(color);
-                        
-                        AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.65f);
-                        graphics.setComposite(alphaComposite);
-                        
-                        graphics.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-                        
-                        graphics.setComposite(AlphaComposite.SrcOver);
+                        if (bounds != null && bounds.width > 0 && bounds.height > 0) {
+                            Color color = colorProvider.getLeftClickColorWithAlpha();
+                            graphics.setColor(color);
+                            
+                            AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.65f);
+                            graphics.setComposite(alphaComposite);
+                            
+                            graphics.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                            
+                            graphics.setComposite(AlphaComposite.SrcOver);
+                        }
                     }
                 }
                 return null;

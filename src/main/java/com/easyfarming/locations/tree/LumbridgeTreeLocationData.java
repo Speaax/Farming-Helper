@@ -2,9 +2,8 @@ package com.easyfarming.locations.tree;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
-import com.easyfarming.locations.LocationData;
-import com.easyfarming.locations.TeleportData;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
@@ -14,26 +13,28 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Lumbridge Tree patch.
+ * Location definition for Lumbridge Tree patch.
  */
 public class LumbridgeTreeLocationData {
     
     private static final WorldPoint LUMBRIDGE_TREE_PATCH_POINT = new WorldPoint(3193, 3231, 0);
     
     /**
-     * Creates LocationData for Lumbridge Tree patch.
+     * Creates Location for Lumbridge Tree patch.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * @return A Location instance for Lumbridge Tree patch
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumTreeLumbridgeTeleport,
+            config,
             "Lumbridge",
-            false, // farmLimps
-            LUMBRIDGE_TREE_PATCH_POINT,
-            EasyFarmingConfig::enumTreeLumbridgeTeleport
+            false // farmLimps
         );
         
         // Portal Nexus
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Lumbridge with Portal Nexus.",
@@ -43,11 +44,11 @@ public class LumbridgeTreeLocationData {
             13,
             12850,
             LUMBRIDGE_TREE_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Lumbridge with spellbook.",
@@ -57,7 +58,7 @@ public class LumbridgeTreeLocationData {
             26,
             12850,
             LUMBRIDGE_TREE_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.AIRRUNE, 3),
                 new ItemRequirement(ItemID.LAWRUNE, 1),
                 new ItemRequirement(ItemID.EARTHRUNE, 1)
@@ -65,7 +66,7 @@ public class LumbridgeTreeLocationData {
         ));
         
         // Lumbridge Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Lumbridge_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Lumbridge with Lumbridge Tele Tab.",
@@ -75,12 +76,12 @@ public class LumbridgeTreeLocationData {
             0,
             12850,
             LUMBRIDGE_TREE_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.POH_TABLET_LUMBRIDGETELEPORT, 1)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

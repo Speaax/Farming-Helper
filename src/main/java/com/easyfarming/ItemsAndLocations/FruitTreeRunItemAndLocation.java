@@ -4,10 +4,9 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
+import com.easyfarming.core.Teleport;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
-import com.easyfarming.locations.LocationData;
-import com.easyfarming.locations.LocationFactory;
 import com.easyfarming.locations.fruittree.BrimhavenFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.CatherbyFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.FarmingGuildFruitTreeLocationData;
@@ -76,7 +75,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                     );
                 }
 
-                Location.Teleport teleport = location.getSelectedTeleport();
+                Teleport teleport = location.getSelectedTeleport();
 
                 Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
 
@@ -155,61 +154,46 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
 
     private void setupBrimhavenLocations()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        LocationData brimhavenData = BrimhavenFruitTreeLocationData.create(
+        brimhavenFruitTreeLocation = BrimhavenFruitTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        brimhavenFruitTreeLocation = LocationFactory.createLocation(brimhavenData, config);
         locations.add(brimhavenFruitTreeLocation);
     }
 
     private void setupCatherbyLocations()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        LocationData catherbyData = CatherbyFruitTreeLocationData.create(
+        catherbyFruitTreeLocation = CatherbyFruitTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        catherbyFruitTreeLocation = LocationFactory.createLocation(catherbyData, config);
         locations.add(catherbyFruitTreeLocation);
     }
 
     private void setupFarmingGuildLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        LocationData farmingGuildData = FarmingGuildFruitTreeLocationData.create(
+        farmingGuildFruitTreeLocation = FarmingGuildFruitTreeLocationData.create(
+            config,
             () -> getHouseTeleportItemRequirements()
         );
-        
-        farmingGuildFruitTreeLocation = LocationFactory.createLocation(farmingGuildData, config);
         locations.add(farmingGuildFruitTreeLocation);
     }
 
     private void setupGnomeStrongholdLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        LocationData gnomeStrongholdData = GnomeStrongholdFruitTreeLocationData.create();
-        
-        gnomeStrongholdFruitTreeLocation = LocationFactory.createLocation(gnomeStrongholdData, config);
+        gnomeStrongholdFruitTreeLocation = GnomeStrongholdFruitTreeLocationData.create(config);
         locations.add(gnomeStrongholdFruitTreeLocation);
     }
 
     private void setupLletyaLocation()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        LocationData lletyaData = LletyaFruitTreeLocationData.create();
-        
-        lletyaFruitTreeLocation = LocationFactory.createLocation(lletyaData, config);
+        lletyaFruitTreeLocation = LletyaFruitTreeLocationData.create(config);
         locations.add(lletyaFruitTreeLocation);
     }
 
     private void setupTreeGnomeVillage()
     {
-        // NEW APPROACH: Using LocationData pattern for data-driven setup
-        LocationData treeGnomeVillageData = TreeGnomeVillageFruitTreeLocationData.create();
-        
-        treeGnomeVillageFruitTreeLocation = LocationFactory.createLocation(treeGnomeVillageData, config);
+        treeGnomeVillageFruitTreeLocation = TreeGnomeVillageFruitTreeLocationData.create(config);
         locations.add(treeGnomeVillageFruitTreeLocation);
     }
 }

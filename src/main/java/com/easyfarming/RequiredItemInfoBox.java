@@ -6,6 +6,11 @@ import net.runelite.client.ui.overlay.infobox.InfoBox;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+/**
+ * InfoBox that displays missing item requirements for farming runs.
+ * Shows the item icon and the count of missing items (if greater than 1).
+ * Used in the overlay to indicate which items the player still needs to gather.
+ */
 public class RequiredItemInfoBox extends InfoBox {
     private final int itemId;
     private final int missingCount;

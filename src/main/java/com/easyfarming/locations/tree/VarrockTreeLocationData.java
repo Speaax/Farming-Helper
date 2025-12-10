@@ -2,9 +2,8 @@ package com.easyfarming.locations.tree;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
-import com.easyfarming.locations.LocationData;
-import com.easyfarming.locations.TeleportData;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
@@ -14,26 +13,28 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Varrock Tree patch.
+ * Location definition for Varrock Tree patch.
  */
 public class VarrockTreeLocationData {
     
     private static final WorldPoint VARROCK_TREE_PATCH_POINT = new WorldPoint(3229, 3459, 0);
     
     /**
-     * Creates LocationData for Varrock Tree patch.
+     * Creates Location for Varrock Tree patch.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * @return A Location instance for Varrock Tree patch
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumTreeVarrockTeleport,
+            config,
             "Varrock",
-            false, // farmLimps
-            VARROCK_TREE_PATCH_POINT,
-            EasyFarmingConfig::enumTreeVarrockTeleport
+            false // farmLimps
         );
         
         // Portal Nexus
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Varrock with Portal Nexus.",
@@ -43,11 +44,11 @@ public class VarrockTreeLocationData {
             13,
             12853,
             VARROCK_TREE_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Varrock with spellbook.",
@@ -57,7 +58,7 @@ public class VarrockTreeLocationData {
             23,
             12853,
             VARROCK_TREE_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.AIRRUNE, 3),
                 new ItemRequirement(ItemID.LAWRUNE, 1),
                 new ItemRequirement(ItemID.FIRERUNE, 1)
@@ -65,7 +66,7 @@ public class VarrockTreeLocationData {
         ));
         
         // Varrock Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Varrock_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Varrock with Varrock Tele Tab.",
@@ -75,12 +76,12 @@ public class VarrockTreeLocationData {
             0,
             12853,
             VARROCK_TREE_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.POH_TABLET_VARROCKTELEPORT, 1)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

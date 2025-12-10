@@ -2,9 +2,8 @@ package com.easyfarming.locations.hops;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
-import com.easyfarming.locations.LocationData;
-import com.easyfarming.locations.TeleportData;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
@@ -14,26 +13,36 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Lumbridge Hops patch.
+ * Location definition for Lumbridge Hops patch.
  */
 public class LumbridgeHopsLocationData {
     
     private static final WorldPoint LUMBRIDGE_HOPS_PATCH_POINT = new WorldPoint(3229, 3315, 0);
     
     /**
-     * Creates LocationData for Lumbridge Hops patch.
-     * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * Gets the patch point for Lumbridge Hops patch.
+     * @return The WorldPoint for the Lumbridge Hops patch
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static WorldPoint getPatchPoint() {
+        return LUMBRIDGE_HOPS_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Lumbridge Hops patch.
+     * @param config The EasyFarmingConfig instance
+     * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * @return A Location instance for Lumbridge Hops patch
+     */
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumHopsLumbridgeTeleport,
+            config,
             "Lumbridge",
-            false, // farmLimps
-            LUMBRIDGE_HOPS_PATCH_POINT,
-            EasyFarmingConfig::enumHopsLumbridgeTeleport
+            false // farmLimps
         );
         
         // Portal Nexus
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Lumbridge with Portal Nexus, and run north to hops patch.",
@@ -43,11 +52,11 @@ public class LumbridgeHopsLocationData {
             13,
             12851,
             LUMBRIDGE_HOPS_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
 
         // Lumbridge Teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Lumbridge with spellbook, and run north to hops patch.",
@@ -57,7 +66,7 @@ public class LumbridgeHopsLocationData {
             26,
             12851,
             LUMBRIDGE_HOPS_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.AIRRUNE, 3),
                 new ItemRequirement(ItemID.LAWRUNE, 1),
                 new ItemRequirement(ItemID.EARTHRUNE, 1)
@@ -65,7 +74,7 @@ public class LumbridgeHopsLocationData {
         ));
 
         // Lumbridge Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Lumbridge_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Lumbridge with Lumbridge Tele Tab, and run north to hops patch.",
@@ -75,13 +84,13 @@ public class LumbridgeHopsLocationData {
             0,
             12851,
             LUMBRIDGE_HOPS_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.POH_TABLET_LUMBRIDGETELEPORT, 1)
             )
         ));
 
         // Chronicle
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Chronicle",
             Teleport.Category.ITEM,
             "Teleport to Champions' Guild with Chronicle, and run south to hops patch.",
@@ -91,13 +100,12 @@ public class LumbridgeHopsLocationData {
             0,
             12851,
             LUMBRIDGE_HOPS_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.CHRONICLE, 1)
             )
         ));
         
-        
-        return locationData;
+        return location;
     }
 }
 

@@ -2,6 +2,7 @@ package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
@@ -12,27 +13,37 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Catherby.
+ * Location definition for Catherby.
  */
 public class CatherbyLocationData {
     
     private static final WorldPoint CATHERBY_HERB_PATCH_POINT = new WorldPoint(2813, 3463, 0);
     
     /**
-     * Creates LocationData for Catherby.
+     * Gets the patch point for Catherby herb patch.
+     * @return The WorldPoint for the Catherby herb patch
+     */
+    public static WorldPoint getPatchPoint() {
+        return CATHERBY_HERB_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Catherby.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     * @return A Location instance for Catherby
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumOptionEnumCatherbyTeleport,
+            config,
             "Catherby",
-            true, // farmLimps
-            CATHERBY_HERB_PATCH_POINT,
-            EasyFarmingConfig::enumOptionEnumCatherbyTeleport
+            true // farmLimps
         );
         
         // Portal Nexus Catherby
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus_Catherby",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Catherby with Portal Nexus.",
@@ -42,11 +53,11 @@ public class CatherbyLocationData {
             13,
             11061,
             CATHERBY_HERB_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Portal Nexus Camelot
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus_Camelot",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Camelot with Portal Nexus.",
@@ -56,11 +67,11 @@ public class CatherbyLocationData {
             13,
             11062,
             CATHERBY_HERB_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Camelot Teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Camelot_Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Camelot using the standard spellbook, and run east to Catherby herb patch.",
@@ -70,14 +81,14 @@ public class CatherbyLocationData {
             34,
             11062,
             CATHERBY_HERB_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.AIRRUNE, 5),
                 new ItemRequirement(ItemID.LAWRUNE, 1)
             )
         ));
         
         // Camelot Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Camelot_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Camelot using a Camelot tele tab, and run east to Catherby herb patch.",
@@ -87,13 +98,13 @@ public class CatherbyLocationData {
             0,
             11062,
             CATHERBY_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.POH_TABLET_CAMELOTTELEPORT, 1)
             )
         ));
         
         // Catherby Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Catherby_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Catherby using Catherby teleport tab.",
@@ -103,12 +114,12 @@ public class CatherbyLocationData {
             0,
             11061,
             CATHERBY_HERB_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

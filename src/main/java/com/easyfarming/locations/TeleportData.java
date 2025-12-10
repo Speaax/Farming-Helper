@@ -12,11 +12,12 @@ import java.util.function.Supplier;
  * This class and related classes in the locations.* package were designed to replace
  * the current ItemsAndLocations.* package structure, but the migration was never completed.
  * 
- * Currently only used by LocationData/LocationFactory (which are also unused).
+ * Part of an incomplete refactor; do not modify without coordinating.
  * 
- * SPARED FROM PURGING: This appears to be part of an unimplemented feature/refactoring
- * and may be completed in the future.
+ * @deprecated This is part of an incomplete refactor. Prefer using {@link com.easyfarming.core.Teleport}
+ *             as the canonical teleport model. This class may be removed in a future refactor.
  */
+@Deprecated
 public class TeleportData {
     private final String enumOption;
     private final Teleport.Category category;

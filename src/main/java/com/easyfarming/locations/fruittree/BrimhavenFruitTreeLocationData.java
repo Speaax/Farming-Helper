@@ -2,9 +2,8 @@ package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
-import com.easyfarming.locations.LocationData;
-import com.easyfarming.locations.TeleportData;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
@@ -13,26 +12,28 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Brimhaven Fruit Tree patch.
+ * Location definition for Brimhaven Fruit Tree patch.
  */
 public class BrimhavenFruitTreeLocationData {
     
     private static final WorldPoint BRIMHAVEN_FRUIT_TREE_PATCH_POINT = new WorldPoint(2764, 3212, 0);
     
     /**
-     * Creates LocationData for Brimhaven Fruit Tree patch.
+     * Creates Location for Brimhaven Fruit Tree patch.
+     * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * @return A Location instance for Brimhaven Fruit Tree patch
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumFruitTreeBrimhavenTeleport,
+            config,
             "Brimhaven",
-            false, // farmLimps
-            BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
-            EasyFarmingConfig::enumFruitTreeBrimhavenTeleport
+            false // farmLimps
         );
         
         // Portal Nexus
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Ardougne with Portal Nexus and take the boat to Brimhaven.",
@@ -42,11 +43,11 @@ public class BrimhavenFruitTreeLocationData {
             13,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
         
         // Ardougne teleport (spellbook)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Ardougne_teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Ardougne with Spellbook and take the boat to Brimhaven.",
@@ -56,7 +57,7 @@ public class BrimhavenFruitTreeLocationData {
             41,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.COINS, 30),
                 new ItemRequirement(ItemID.LAWRUNE, 2),
                 new ItemRequirement(ItemID.WATERRUNE, 2)
@@ -64,7 +65,7 @@ public class BrimhavenFruitTreeLocationData {
         ));
         
         // Ardougne Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Ardougne_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to Ardougne with Ardougne tele tab and take the boat to Brimhaven.",
@@ -74,14 +75,14 @@ public class BrimhavenFruitTreeLocationData {
             0,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1),
                 new ItemRequirement(ItemID.COINS, 30)
             )
         ));
         
         // POH Tele Tab
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "POH_Tele_Tab",
             Teleport.Category.ITEM,
             "Teleport to house with POH tele tab, use Portal Nexus to Ardougne and take the boat to Brimhaven.",
@@ -91,13 +92,13 @@ public class BrimhavenFruitTreeLocationData {
             0,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
-            () -> Arrays.asList(
+            Arrays.asList(
                 new ItemRequirement(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1),
                 new ItemRequirement(ItemID.COINS, 30)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 

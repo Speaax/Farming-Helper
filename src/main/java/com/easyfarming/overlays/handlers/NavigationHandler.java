@@ -91,7 +91,8 @@ public class NavigationHandler {
                 switch (tabState) {
                     case INVENTORY:
                     case REST:
-                        widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookTabGroupId(), widgetHelper.getSpellbookTabChildId()).render(graphics);
+                        // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
+                        widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookIconGroupId(), widgetHelper.getSpellbookIconChildId()).render(graphics);
                         break;
                     case SPELLBOOK:
                         // Highlight the "Teleport to House" spell using correct child ID from widget inspector
@@ -483,7 +484,8 @@ public class NavigationHandler {
         switch (tabState) {
             case REST:
             case INVENTORY:
-                widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookTabGroupId(), widgetHelper.getSpellbookTabChildId()).render(graphics);
+                // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
+                widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookIconGroupId(), widgetHelper.getSpellbookIconChildId()).render(graphics);
                 if (currentRegionId == teleport.getRegionId()) {
                     this.currentTeleportCase = 1;
                     isAtDestination = true;

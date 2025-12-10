@@ -2,9 +2,8 @@ package com.easyfarming.locations.hops;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
+import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
-import com.easyfarming.locations.LocationData;
-import com.easyfarming.locations.TeleportData;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
@@ -13,26 +12,36 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * LocationData definition for Yanille Hops patch.
+ * Location definition for Yanille Hops patch.
  */
 public class YanilleHopsLocationData {
     
     private static final WorldPoint YANILLE_HOPS_PATCH_POINT = new WorldPoint(2576, 3105, 0);
     
     /**
-     * Creates LocationData for Yanille Hops patch.
-     * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * Gets the patch point for Yanille Hops patch.
+     * @return The WorldPoint for the Yanille Hops patch
      */
-    public static LocationData create(Supplier<List<ItemRequirement>> houseTeleportSupplier) {
-        LocationData locationData = new LocationData(
+    public static WorldPoint getPatchPoint() {
+        return YANILLE_HOPS_PATCH_POINT;
+    }
+    
+    /**
+     * Creates Location for Yanille Hops patch.
+     * @param config The EasyFarmingConfig instance
+     * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * @return A Location instance for Yanille Hops patch
+     */
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+        Location location = new Location(
+            EasyFarmingConfig::enumHopsYanilleTeleport,
+            config,
             "Yanille",
-            false, // farmLimps
-            YANILLE_HOPS_PATCH_POINT,
-            EasyFarmingConfig::enumHopsYanilleTeleport
+            false // farmLimps
         );
         
         // Portal Nexus Yanille
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
             "Teleport to Yanille with Portal Nexus, and run north to hops patch.",
@@ -42,11 +51,11 @@ public class YanilleHopsLocationData {
             13,
             10288,
             YANILLE_HOPS_PATCH_POINT,
-            houseTeleportSupplier
+            houseTeleportSupplier.get()
         ));
 
         // Watchtower Teleport (spellbook) - requires hard Ardougne Diary
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Watchtower_Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Yanille with Watchtower Teleport (requires hard Ardougne Diary), and run north to hops patch.",
@@ -56,13 +65,13 @@ public class YanilleHopsLocationData {
             47,
             10288,
             YANILLE_HOPS_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.LAWRUNE, 2)
             )
         ));
 
         // Yanille Teleport (Watchtower teleport with diary goes to Yanille)
-        locationData.addTeleport(new TeleportData(
+        location.addTeleportOption(new Teleport(
             "Yanille",
             Teleport.Category.SPELLBOOK,
             "Teleport to Yanille with Watchtower Teleport (requires hard Ardougne Diary), and run north to hops patch.",
@@ -72,12 +81,12 @@ public class YanilleHopsLocationData {
             47,
             10288,
             YANILLE_HOPS_PATCH_POINT,
-            () -> Collections.singletonList(
+            Collections.singletonList(
                 new ItemRequirement(ItemID.LAWRUNE, 2)
             )
         ));
         
-        return locationData;
+        return location;
     }
 }
 
