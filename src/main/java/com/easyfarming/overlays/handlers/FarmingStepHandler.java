@@ -1016,7 +1016,7 @@ public class FarmingStepHandler {
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
-        // 4771 falador, gnome stronghold, lumbridge, Taverly, Varrock
+        // 4771 falador, gnome stronghold, lumbridge, taverley, Varrock
         // 7905 farming guild
         if (currentRegionId == Constants.REGION_FARMING_GUILD) {
             plantState = TreePatchChecker.checkTreePatch(client, Constants.VARBIT_TREE_PATCH_FARMING_GUILD);

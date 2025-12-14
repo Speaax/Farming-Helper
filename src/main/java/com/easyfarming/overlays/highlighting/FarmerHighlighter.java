@@ -43,7 +43,7 @@ public class FarmerHighlighter {
      */
     public void highlightTreeFarmers(Graphics2D graphics) {
         highlightFarmers(graphics, Arrays.asList(
-            "Alain",         // Taverly
+            "Alain",         // taverley
             "Fayeth",        // Lumbridge
             "Heskel",        // Falador
             "Prissy Scilla", // Gnome Stronghold

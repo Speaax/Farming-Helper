@@ -37,10 +37,8 @@ public class TaverleyTreeLocationData {
         location.addTeleportOption(new Teleport(
             "Portal_Nexus",
             Teleport.Category.PORTAL_NEXUS,
-            "Teleport to Falador with Portal Nexus and run to Taverly.",
-            0,
-            "",
-            17,
+            "Teleport to Falador with Portal Nexus and run to Taverley.",            0,
+            "Teleport to Falador with Falador Tele Tab and run to Taverley.",            17,
             13,
             11828,
             TAVERLEY_TREE_PATCH_POINT,
@@ -51,8 +49,7 @@ public class TaverleyTreeLocationData {
         location.addTeleportOption(new Teleport(
             "Teleport",
             Teleport.Category.SPELLBOOK,
-            "Teleport to Falador with spellbook and run to Taverly.",
-            0,
+            "Teleport to Falador with spellbook and run to Taverley.",            0,
             "",
             218,
             29,
@@ -69,7 +66,7 @@ public class TaverleyTreeLocationData {
         location.addTeleportOption(new Teleport(
             "Falador_Tele_Tab",
             Teleport.Category.ITEM,
-            "Teleport to Falador with Falador Tele Tab and run to Taverly.",
+            "Teleport to Falador with Falador Tele Tab and run to Taverley.",
             ItemID.POH_TABLET_FALADORTELEPORT,
             "",
             0,
