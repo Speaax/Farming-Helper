@@ -2,7 +2,6 @@ package com.easyfarming.ItemsAndLocations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
-import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.Client;
@@ -133,12 +132,12 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         super.setupLocations();
 
-        setupFaladorLocation();
         setupFarmingGuildLocation();
-        setupGnomeStrongholdLocation();
-        setupLumbridgeLocation();
+        setupFaladorLocation();
         setupTaverleyLocation();
+        setupLumbridgeLocation();
         setupVarrockLocation();
+        setupGnomeStrongholdLocation();
     }
 
     private void setupFaladorLocation()

@@ -142,11 +142,11 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
         locations.clear();
         super.setupLocations();
 
+        setupFarmingGuildLocation();
         setupBrimhavenLocations();
         setupCatherbyLocations();
-        setupFarmingGuildLocation();
-        setupGnomeStrongholdLocation();
         setupLletyaLocation();
+        setupGnomeStrongholdLocation();
         setupTreeGnomeVillage();
 
         locationsInitialized = true;

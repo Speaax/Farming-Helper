@@ -231,10 +231,10 @@ public class HerbRunItemAndLocation extends ItemAndLocation
     {
         super.setupLocations();
 
+        setupFarmingGuildLocation();
         setupArdougneLocation();
         setupCatherbyLocation();
         setupFaladorLocation();
-        setupFarmingGuildLocation();
         setupHarmonyLocation();
         setupKourendLocation();
         setupMorytaniaLocation();

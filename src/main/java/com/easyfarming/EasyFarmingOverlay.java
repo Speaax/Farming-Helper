@@ -781,6 +781,20 @@ public class EasyFarmingOverlay extends Overlay {
                     }
                 }
             }
+            
+            // Sort missing items: tools first, then teleport items (basalts last among teleports), then consumable supplies
+            missingItemsWithCounts.sort((entry1, entry2) -> {
+                int itemId1 = entry1.getKey();
+                int itemId2 = entry2.getKey();
+                
+                // Get priority: 0 = tools, 1 = regular teleport, 2 = basalt, 3 = consumable
+                int priority1 = getItemPriority(itemId1);
+                int priority2 = getItemPriority(itemId2);
+                
+                // Compare priorities
+                return Integer.compare(priority1, priority2);
+            });
+            
             plugin.setTeleportOverlayActive(allItemsCollected);
             
             // Update InfoBoxes - remove ones that are no longer needed, add/update ones that are
@@ -852,5 +866,97 @@ public class EasyFarmingOverlay extends Overlay {
             }
         }
         currentInfoBoxes.clear();
+    }
+    
+    /**
+     * Gets the priority for sorting items in infoboxes.
+     * Lower priority = appears first.
+     * 
+     * @param itemId The item ID to check
+     * @return 0 for tools, 1 for regular teleport items, 2 for basalts, 3 for consumable supplies
+     */
+    private int getItemPriority(int itemId) {
+        // Tools have lowest priority (appear first)
+        if (isTool(itemId)) {
+            return 0;
+        }
+        
+        // Consumable supplies have highest priority (appear last)
+        if (isConsumableSupply(itemId)) {
+            return 3;
+        }
+        
+        // Basalts have medium-high priority (appear last among teleport items)
+        if (isBasalt(itemId)) {
+            return 2;
+        }
+        
+        // Regular teleport items have medium priority
+        return 1;
+    }
+    
+    /**
+     * Determines if an item is a farming tool.
+     * 
+     * @param itemId The item ID to check
+     * @return true if the item is a farming tool
+     */
+    private boolean isTool(int itemId) {
+        return itemId == ItemID.SPADE ||
+               itemId == ItemID.RAKE ||
+               itemId == ItemID.DIBBER ||
+               itemId == ItemID.FAIRY_ENCHANTED_SECATEURS ||
+               isWateringCan(itemId);
+    }
+    
+    /**
+     * Determines if an item is a basalt teleport item.
+     * 
+     * @param itemId The item ID to check
+     * @return true if the item is a basalt teleport item
+     */
+    private boolean isBasalt(int itemId) {
+        return itemId == ItemID.STRONGHOLD_TELEPORT_BASALT || 
+               itemId == ItemID.WEISS_TELEPORT_BASALT;
+    }
+    
+    /**
+     * Determines if an item is a consumable supply (seeds, compost) rather than a teleport item.
+     * Consumable supplies should appear after teleport items in the infobox display.
+     * 
+     * @param itemId The item ID to check
+     * @return true if the item is a consumable supply, false if it's a teleport item or tool
+     */
+    private boolean isConsumableSupply(int itemId) {
+        // Check for seeds
+        if (isHerbSeed(itemId) || 
+            isTreeSapling(itemId) || 
+            isFruitTreeSapling(itemId) || 
+            isHopsSeed(itemId) || 
+            isAllotmentSeed(itemId) ||
+            itemId == ItemID.LIMPWURT_SEED) {
+            return true;
+        }
+        
+        // Check for compost
+        if (itemId == ItemID.BUCKET_COMPOST || 
+            itemId == ItemID.BUCKET_SUPERCOMPOST || 
+            itemId == ItemID.BUCKET_ULTRACOMPOST || 
+            itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET ||
+            BOTTOMLESS_COMPOST_BUCKET_IDS.contains(itemId)) {
+            return true;
+        }
+        
+        // Check for base seed IDs (used as placeholders)
+        if (itemId == BASE_SEED_ID || 
+            itemId == BASE_SAPLING_ID || 
+            itemId == BASE_FRUIT_SAPLING_ID || 
+            itemId == BASE_HOPS_SEED_ID || 
+            itemId == BASE_ALLOTMENT_SEED_ID) {
+            return true;
+        }
+        
+        // Everything else (runes, teleport items, tools, etc.) is considered a teleport item
+        return false;
     }
 }

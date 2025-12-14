@@ -152,63 +152,11 @@ public class FarmingTeleportOverlay extends Overlay {
         );
     }
 
-
-
-
-
     private boolean isInterfaceOpen(int groupId, int childId) {
         Widget widget = client.getWidget(groupId, childId);
         return widget != null && !widget.isHidden();
     }
 
-    /**
-     * Dynamically detects the correct spellbook tab interface ID based on the current client mode
-     * @return The child ID for the magic spellbook tab, or -1 if not found
-     */
-    private int getSpellbookTabChildId() {
-        // Try resizable classic mode first (161.65)
-        if (isInterfaceOpen(161, 65)) {
-            return 65;
-        }
-        // Try pre-EOC mode (164.58)
-        if (isInterfaceOpen(164, 58)) {
-            return 58;
-        }
-        // Try other possible variations
-        if (isInterfaceOpen(161, 58)) {
-            return 58;
-        }
-        if (isInterfaceOpen(164, 65)) {
-            return 65;
-        }
-        // Default fallback to resizable classic mode
-        return 65;
-    }
-
-    /**
-     * Gets the correct group ID for the spellbook tab based on the current client mode
-     * @return The group ID for the spellbook tab
-     */
-    private int getSpellbookTabGroupId() {
-        // Try resizable classic mode first (161.65)
-        if (isInterfaceOpen(161, 65)) {
-            return 161;
-        }
-        // Try pre-EOC mode (164.58)
-        if (isInterfaceOpen(164, 58)) {
-            return 164;
-        }
-        // Try other possible variations
-        if (isInterfaceOpen(161, 58)) {
-            return 161;
-        }
-        if (isInterfaceOpen(164, 65)) {
-            return 164;
-        }
-        // Default fallback to resizable classic mode
-        return 161;
-    }
-    
     /**
      * Gets the widget group ID for the spellbook icon in the tab bar.
      * Detects whether we're in fixed classic mode (548) or resizable mode (161/164).
