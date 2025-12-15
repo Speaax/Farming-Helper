@@ -53,6 +53,13 @@ public class FarmingStepHandler {
     public boolean fruitTreePatchDone = false;
     public boolean hopsPatchDone = false;
     
+    // Persistent compost state tracking (persists until next location)
+    private boolean herbPatchComposted = false;
+    private boolean flowerPatchComposted = false;
+    private boolean treePatchComposted = false;
+    private boolean fruitTreePatchComposted = false;
+    private boolean hopsPatchComposted = false;
+    
     // Allotment patch tracking - which patch we're currently working on (0 = first patch, 1 = second patch)
     private final AllotmentPatchState allotmentPatchState = new AllotmentPatchState();
     private final EasyFarmingOverlay farmingHelperOverlay;
@@ -122,8 +129,9 @@ public class FarmingStepHandler {
             // Navigation handles hint arrows when far away - don't set here
             patchHighlighter.highlightHerbPatches(graphics, leftColor);
         } else {
-            // Don't set hint arrow at patch - it's distracting when you're already there
+            // Clear hint arrow when near patch - it's distracting when you're already there
             // Only use hint arrows for NPC interactions (e.g., Tool Leprechaun for compost)
+            clearHintArrow();
             
             switch (plantState) {
                 case HARVESTABLE:
@@ -159,19 +167,25 @@ public class FarmingStepHandler {
                     }
                     break;
                 case GROWING:
+                    // Check persistent state FIRST - if already composted, mark as done and return
+                    if (herbPatchComposted) {
+                        herbPatchDone = true;  // Set done flag so transition happens
+                        clearHintArrow();
+                        return;
+                    }
+                    // If already done (shouldn't happen, but safety check)
+                    if (herbPatchDone) {
+                        clearHintArrow();
+                        return;
+                    }
                     // Check if compost was just applied (from chat message) - this sets herbPatchDone
                     boolean isComposted = patchStateChecker.patchIsComposted();
                     if (isComposted) {
+                        herbPatchComposted = true;  // Set persistent state
                         herbPatchDone = true;
                         // Clear hint arrow when patch is done
                         clearHintArrow();
                         // Don't show anything - transition will happen on next frame
-                        return;
-                    }
-                    // If herbPatchDone is already true (compost was applied earlier), don't show compost instruction
-                    if (herbPatchDone) {
-                        // Clear hint arrow and return - patch is already composted
-                        clearHintArrow();
                         return;
                     }
                     // Patch is GROWING but not composted yet - show compost instruction
@@ -254,6 +268,8 @@ public class FarmingStepHandler {
             // Highlight all hops patches when far from patch and no state detected
             patchHighlighter.highlightHopsPatches(graphics, leftColor);
         } else {
+            // Clear hint arrow when near patch
+            clearHintArrow();
             // Highlight specific patch for current location
             if (patchObjectId != null) {
                 switch (plantState) {
@@ -288,25 +304,37 @@ public class FarmingStepHandler {
                         }
                         break;
                     case GROWING:
+                        // Check persistent state FIRST - if already composted, mark as done and return
+                        if (hopsPatchComposted) {
+                            hopsPatchDone = true;  // Set done flag so transition happens
+                            clearHintArrow();
+                            return;
+                        }
+                        // If already done (shouldn't happen, but safety check)
+                        if (hopsPatchDone) {
+                            clearHintArrow();
+                            return;
+                        }
+                        // Check if compost was just applied (from chat message)
                         boolean isComposted = patchStateChecker.patchIsComposted();
                         if (isComposted) {
+                            hopsPatchComposted = true;  // Set persistent state
                             hopsPatchDone = true;
                             clearHintArrow();
                             return;
                         }
-                        if (!hopsPatchDone) {
-                            plugin.addTextToInfoBox("Use Compost on patch.");
-                            patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
-                            Integer compostId = itemHighlighter.selectedCompostID();
-                            // If compost is not in inventory, set hint arrow to Tool Leprechaun
-                            if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
-                                setHintArrowToNPC("Tool Leprechaun");
-                            } else {
-                                // Clear hint arrow if compost is in inventory (no NPC interaction needed)
-                                clearHintArrow();
-                            }
-                            compostHighlighter.highlightCompost(graphics, true, false, false, 1);
+                        // Patch is GROWING but not composted yet - show compost instruction
+                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
+                        Integer compostId = itemHighlighter.selectedCompostID();
+                        // If compost is not in inventory, set hint arrow to Tool Leprechaun
+                        if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
+                            setHintArrowToNPC("Tool Leprechaun");
+                        } else {
+                            // Clear hint arrow if compost is in inventory (no NPC interaction needed)
+                            clearHintArrow();
                         }
+                        compostHighlighter.highlightCompost(graphics, true, false, false, 1);
                         break;
                     case UNKNOWN:
                         plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the hops patch to change its state.");
@@ -428,6 +456,10 @@ public class FarmingStepHandler {
             
             // Always highlight specific patch if patchObjectId is available, similar to herb patches
             if (patchObjectId != null) {
+                // Clear hint arrow when near patch
+                if (nearPatch) {
+                    clearHintArrow();
+                }
                 switch (plantState) {
                     case HARVESTABLE:
                         plugin.addTextToInfoBox("Harvest Limwurt root.");
@@ -462,12 +494,29 @@ public class FarmingStepHandler {
                         itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
                         break;
                     case GROWING:
+                        // Check persistent state FIRST - if already composted, mark as done and return
+                        if (flowerPatchComposted) {
+                            flowerPatchDone = true;  // Set done flag so transition happens
+                            clearHintArrow();
+                            return;
+                        }
+                        // If already done (shouldn't happen, but safety check)
+                        if (flowerPatchDone) {
+                            clearHintArrow();
+                            return;
+                        }
+                        // Check if compost was just applied (from chat message)
+                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        if (isComposted) {
+                            flowerPatchComposted = true;  // Set persistent state
+                            flowerPatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
+                        // Patch is GROWING but not composted yet - show compost instruction
                         plugin.addTextToInfoBox("Use Compost on patch.");
                         patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
                         compostHighlighter.highlightCompost(graphics, false, false, false, 2);
-                        if (patchStateChecker.patchIsComposted()) {
-                            flowerPatchDone = true;
-                        }
                         break;
                     case UNKNOWN:
                         // If near patch, highlight it even if state is unknown
@@ -793,6 +842,8 @@ public class FarmingStepHandler {
             plugin.addTextToInfoBox("Navigate to north patch.");
             patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
         } else {
+            // Clear hint arrow when patch is visible (player is near)
+            clearHintArrow();
             switch (plantState) {
                 case HARVESTABLE:
                     plugin.addTextToInfoBox("Harvest Allotment (north patch).");
@@ -941,6 +992,8 @@ public class FarmingStepHandler {
             plugin.addTextToInfoBox("Navigate to south patch.");
             patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, leftColor);
         } else {
+            // Clear hint arrow when patch is visible (player is near)
+            clearHintArrow();
             switch (plantState) {
                 case HARVESTABLE:
                     plugin.addTextToInfoBox("Harvest Allotment (south patch).");
@@ -1028,6 +1081,8 @@ public class FarmingStepHandler {
             // Should be replaced with a pathing system, pointing arrow or something else eventually
             patchHighlighter.highlightTreePatches(graphics, leftColor);
         } else {
+            // Clear hint arrow when near patch
+            clearHintArrow();
             switch (plantState) {
                 case HEALTHY:
                     plugin.addTextToInfoBox("Check tree health.");
@@ -1074,6 +1129,26 @@ public class FarmingStepHandler {
                             clearHintArrow();
                         }
                     } else {
+                        // Check persistent state FIRST - if already composted, mark as done and return
+                        if (treePatchComposted) {
+                            treePatchDone = true;  // Set done flag so transition happens
+                            clearHintArrow();
+                            return;
+                        }
+                        // If already done (shouldn't happen, but safety check)
+                        if (treePatchDone) {
+                            clearHintArrow();
+                            return;
+                        }
+                        // Check if compost was just applied (from chat message)
+                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        if (isComposted) {
+                            treePatchComposted = true;  // Set persistent state
+                            treePatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
+                        // Patch is GROWING but not composted yet - show compost instruction
                         plugin.addTextToInfoBox("Use Compost on patch.");
                         Integer compostId = itemHighlighter.selectedCompostID();
                         // If compost is not in inventory, set hint arrow to Tool Leprechaun
@@ -1084,10 +1159,6 @@ public class FarmingStepHandler {
                             clearHintArrow();
                         }
                         compostHighlighter.highlightCompost(graphics, false, true, false, 1);
-                        if (patchStateChecker.patchIsComposted()) {
-                            treePatchDone = true;
-                            clearHintArrow();
-                        }
                     }
                     break;
             }
@@ -1136,6 +1207,8 @@ public class FarmingStepHandler {
             // Should be replaced with a pathing system, point arrow or something else eventually
             patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
         } else {
+            // Clear hint arrow when near patch
+            clearHintArrow();
             switch (plantState) {
                 case HEALTHY:
                     plugin.addTextToInfoBox("Check Fruit tree health.");
@@ -1192,6 +1265,26 @@ public class FarmingStepHandler {
                             clearHintArrow();
                         }
                     } else {
+                        // Check persistent state FIRST - if already composted, mark as done and return
+                        if (fruitTreePatchComposted) {
+                            fruitTreePatchDone = true;  // Set done flag so transition happens
+                            clearHintArrow();
+                            return;
+                        }
+                        // If already done (shouldn't happen, but safety check)
+                        if (fruitTreePatchDone) {
+                            clearHintArrow();
+                            return;
+                        }
+                        // Check if compost was just applied (from chat message)
+                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        if (isComposted) {
+                            fruitTreePatchComposted = true;  // Set persistent state
+                            fruitTreePatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
+                        // Patch is GROWING but not composted yet - show compost instruction
                         plugin.addTextToInfoBox("Use Compost on patch.");
                         Integer compostId = itemHighlighter.selectedCompostID();
                         // If compost is not in inventory, set hint arrow to Tool Leprechaun
@@ -1202,10 +1295,6 @@ public class FarmingStepHandler {
                             clearHintArrow();
                         }
                         compostHighlighter.highlightCompost(graphics, false, false, true, 1);
-                        if (patchStateChecker.patchIsComposted()) {
-                            fruitTreePatchDone = true;
-                            clearHintArrow();
-                        }
                     }
                     break;
             }
@@ -1372,6 +1461,17 @@ public class FarmingStepHandler {
             composted[0] = false;
             composted[1] = false;
         }
+    }
+
+    /**
+     * Resets all persistent compost states (called when moving to next location).
+     */
+    public void resetCompostStates() {
+        herbPatchComposted = false;
+        flowerPatchComposted = false;
+        treePatchComposted = false;
+        fruitTreePatchComposted = false;
+        hopsPatchComposted = false;
     }
 }
 

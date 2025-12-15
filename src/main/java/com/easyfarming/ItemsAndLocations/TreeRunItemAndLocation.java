@@ -2,7 +2,7 @@ package com.easyfarming.ItemsAndLocations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
-import com.easyfarming.Location;
+import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;

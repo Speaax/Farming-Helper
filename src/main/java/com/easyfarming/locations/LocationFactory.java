@@ -2,7 +2,7 @@ package com.easyfarming.locations;
 
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
-import com.easyfarming.Location;
+import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class LocationFactory {
     
     /**
-     * Creates a com.easyfarming.Location from LocationData.
+     * Creates a com.easyfarming.core.Location from LocationData.
      * This is the adapter method that bridges the new data-driven approach
      * with the current Location class structure.
      */

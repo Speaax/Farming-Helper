@@ -4,6 +4,7 @@ import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
+import com.easyfarming.core.Location;
 
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
@@ -33,10 +34,10 @@ import net.runelite.client.eventbus.EventBus;
 
 public class EasyFarmingPlugin extends Plugin
 {
-	private HerbRunItemAndLocation herbRunItemAndLocation;
-	private TreeRunItemAndLocation treeRunItemAndLocation;
-	private FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
-	private HopsRunItemAndLocation hopsRunItemAndLocation;
+	HerbRunItemAndLocation herbRunItemAndLocation;
+	TreeRunItemAndLocation treeRunItemAndLocation;
+	FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
+	HopsRunItemAndLocation hopsRunItemAndLocation;
 
 
 	@Inject
