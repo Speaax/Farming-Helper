@@ -649,7 +649,16 @@ public class EasyFarmingOverlay extends Overlay {
                         }
                     } else {
                         // Handle regular items
-                        inventoryItemCounts.put(itemId, itemQuantity);
+
+                        // For some reason ultracompost is retrieved as multiple items of
+                        // quantity 1, so if it exists and is quantity 1 we just accumulate it
+                        if (inventoryItemCounts.containsKey(itemId) && itemQuantity == 1) {
+                            inventoryItemCounts.put(itemId, inventoryItemCounts.get(itemId) + 1);
+                        }
+                        else {
+                            inventoryItemCounts.put(itemId, itemQuantity);
+                        }
+
                     }
                 }
             }
