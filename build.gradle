@@ -37,7 +37,8 @@ dependencies {
 					withDependencies { deps ->
 						deps.removeAll { dep ->
 							def notLwjgl = dep.group != 'org.lwjgl'
-							def notLwjglDep = dep.name != 'lwjgl' && dep.name != 'lwjgl-opengl'
+							def notLwjglDep = dep.name != 'lwjgl' &&
+								dep.name != 'lwjgl-opengl'
 							if (notLwjgl || notLwjglDep) return false
 							if (dep instanceof org.gradle.api.artifacts.DirectDependencyMetadata) {
 								def selectors = dep.artifactSelectors
