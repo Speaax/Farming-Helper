@@ -30,14 +30,17 @@ dependencies {
 	// Exclude only the missing LWJGL natives (natives-linux-arm64) from resolution; keep all other natives
 	components {
 		all { ComponentMetadataDetails details ->
-			if (details.id.group == 'net.runelite' && (details.id.name == 'client' || details.id.name == 'jshell')) {
+			if (details.id.group == 'net.runelite' &&
+					(details.id.name == 'client' || details.id.name == 'jshell')) {
 				details.allVariants {
 					withDependencies { deps ->
 						deps.removeAll { dep ->
-							if (dep.group != 'org.lwjgl' || (dep.name != 'lwjgl' && dep.name != 'lwjgl-opengl')) return false
+							if (dep.group != 'org.lwjgl' ||
+									(dep.name != 'lwjgl' && dep.name != 'lwjgl-opengl')) return false
 							if (dep instanceof org.gradle.api.artifacts.DirectDependencyMetadata) {
 								def selectors = dep.artifactSelectors
-								return selectors != null && selectors.any { it.classifier == 'natives-linux-arm64' }
+								return selectors != null &&
+										selectors.any { it.classifier == 'natives-linux-arm64' }
 							}
 							return false
 						}
