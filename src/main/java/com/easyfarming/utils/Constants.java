@@ -84,7 +84,8 @@ public class Constants {
         ItemID.MOURNING_TELEPORT_CRYSTAL_2,
         ItemID.MOURNING_TELEPORT_CRYSTAL_3,
         ItemID.MOURNING_TELEPORT_CRYSTAL_4,
-        ItemID.MOURNING_TELEPORT_CRYSTAL_5
+        ItemID.MOURNING_TELEPORT_CRYSTAL_5,
+        ItemID.PRIF_TELEPORT_CRYSTAL
     ));
     
     public static final List<Integer> SKILLS_NECKLACE_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -231,8 +232,10 @@ public class Constants {
         ItemID.BARLEY_SEED, ItemID.JUTE_SEED, ItemID.HAMMERSTONE_HOP_SEED, ItemID.ASGARNIAN_HOP_SEED, ItemID.YANILLIAN_HOP_SEED, ItemID.FLAX_SEED, ItemID.KRANDORIAN_HOP_SEED, ItemID.WILDBLOOD_HOP_SEED, ItemID.HEMP_SEED, ItemID.COTTON_SEED
     ));
     
+    // Watering can IDs: 5331-5340 = standard cans (1-10 charges); 13353 = Gricoller's can
     public static final List<Integer> WATERING_CAN_IDS = Collections.unmodifiableList(Arrays.asList(
-        5331, 5333, 5334, 5335, 5336, 5337, 5338, 5339, 5340
+        5331, 5333, 5334, 5335, 5336, 5337, 5338, 5339, 5340,
+        13353
     ));
     
     public static final List<Integer> RUNE_POUCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -260,6 +263,9 @@ public class Constants {
     public static final List<Integer> XERICS_TALISMAN_IDS = Collections.unmodifiableList(Arrays.asList(
         33411, 33412, 33413, 33414, 33415
     ));
+    
+    /** Xeric's Lookout teletab (Kourend / Hosidius area). */
+    public static final int NZONE_TELETAB_KOUREND = 19651;
     
     // Base item IDs (for variant handling)
     public static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;

@@ -103,10 +103,18 @@ public interface EasyFarmingConfig extends Config
 	)
 	default boolean generalSeedDibber() { return true; }
 	@ConfigItem(
+			keyName = "booleanConfigSecateurs",
+			name = "Magic secateurs",
+			description = "Include magic secateurs?",
+			position = 8,
+			section = generalList
+	)
+	default boolean generalSecateurs() { return true; }
+	@ConfigItem(
 			keyName = "booleanConfigLimpwurt",
 			name = "Limpwurt",
 			description = "Want to include limpwurts in your herb run?",
-			position = 8,
+			position = 9,
 			section = generalList
 	)
 	default boolean generalLimpwurt() { return false; }
@@ -114,7 +122,7 @@ public interface EasyFarmingConfig extends Config
 			keyName = "booleanConfigAllotment",
 			name = "Allotments",
 			description = "Want to include Allotments in your herb run?",
-			position = 9,
+			position = 10,
 			section = generalList
 	)
 	default boolean generalAllotment() { return false; }
@@ -123,7 +131,7 @@ public interface EasyFarmingConfig extends Config
 		keyName = "booleanConfigPayForProtection",
 		name = "Pay for protection",
 		description = "Want a reminder to pay for protection? (This currently doesn't check for the required items, only prompts you to pay the farmer.)",
-		position = 10,
+		position = 11,
 		section = generalList
 	)
 	default boolean generalPayForProtection() { return false; }
@@ -466,7 +474,8 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
 		Jewellery_box,
-		Skills_Necklace
+		Skills_Necklace,
+		Spirit_Tree
 	}
 	@ConfigItem(
 			position = 5,
@@ -494,7 +503,8 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumKourendTeleport implements OptionEnumTeleport
 	{
 		Xerics_Talisman,
-		Mounted_Xerics
+		Mounted_Xerics,
+		Hosidius_POH_Tab
 	}
 	@ConfigItem(
 			position = 7,
@@ -588,7 +598,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
 		Jewellery_box,
-		Skills_Necklace
+		Skills_Necklace,
+		Spirit_Tree
 	}
 	@ConfigItem(
 			position = 1,
@@ -702,7 +713,8 @@ public interface EasyFarmingConfig extends Config
 	enum FruitTreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
 		Jewellery_box,
-		Skills_Necklace
+		Skills_Necklace,
+		Spirit_Tree
 	}
 	@ConfigItem(
 			position = 1,

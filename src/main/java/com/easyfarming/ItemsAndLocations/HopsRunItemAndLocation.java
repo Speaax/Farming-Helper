@@ -121,11 +121,13 @@ public class HopsRunItemAndLocation extends ItemAndLocation
             );
         }
 
-        allRequirements.merge(
-            ItemID.FAIRY_ENCHANTED_SECATEURS,
-            1,
-            Integer::sum
-        );
+        if (config.generalSecateurs()) {
+            allRequirements.merge(
+                ItemID.FAIRY_ENCHANTED_SECATEURS,
+                1,
+                Integer::sum
+            );
+        }
 
         if (config.generalRake()) {
             allRequirements.merge(

@@ -40,8 +40,8 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         Map<Integer, Integer> allRequirements = new HashMap<>();
 
+        this.locations.clear();
         setupLocations();
-
         // Add other items and merge them with allRequirements
         for (Location location : locations) {
             if (plugin.getTreeLocationEnabled(location.getName())) {
@@ -111,11 +111,13 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             );
         }
 
-        allRequirements.merge(
-            ItemID.FAIRY_ENCHANTED_SECATEURS,
-            1,
-            Integer::sum
-        );
+        if (config.generalSecateurs()) {
+            allRequirements.merge(
+                ItemID.FAIRY_ENCHANTED_SECATEURS,
+                1,
+                Integer::sum
+            );
+        }
 
         if (config.generalRake()) {
             allRequirements.merge(

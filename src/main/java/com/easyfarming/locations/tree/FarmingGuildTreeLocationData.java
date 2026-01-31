@@ -62,6 +62,20 @@ public class FarmingGuildTreeLocationData {
             )
         ));
         
+        // Spirit Tree
+        location.addTeleportOption(new Teleport(
+            "Spirit_Tree",
+            Teleport.Category.SPIRIT_TREE,
+            "Use a Spirit Tree and teleport to the Farming Guild.",
+            0,
+            "",
+            187,
+            3,
+            4922,
+            FARMING_GUILD_TREE_PATCH_POINT,
+            Collections.emptyList()
+        ));
+        
         return location;
     }
 }

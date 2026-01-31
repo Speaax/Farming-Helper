@@ -9,6 +9,7 @@ import com.easyfarming.overlays.utils.GameObjectHelper;
 import com.easyfarming.overlays.utils.WidgetHelper;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
+import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
@@ -124,9 +125,13 @@ public class NavigationHandler {
      * Determines if player should proceed to farming phase based on location and teleport.
      */
     public boolean shouldProceedToFarming(Location location, Teleport teleport) {
-        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        Player localPlayer = client.getLocalPlayer();
+        if (localPlayer == null) {
+            return false;
+        }
+        int currentRegionId = localPlayer.getWorldLocation().getRegionID();
         WorldPoint targetLocation = teleport.getPoint();
-        
+
         // Check if player is in the correct region
         boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
         
@@ -235,6 +240,9 @@ public class NavigationHandler {
     public void gettingToLocation(Graphics2D graphics, Location location, boolean herbRun,
                                   boolean treeRun, boolean fruitTreeRun) {
         Teleport teleport = location.getSelectedTeleport();
+        if (teleport == null) {
+            return;
+        }
         boolean locationEnabledBool = false;
         
         if (herbRun) {
@@ -410,6 +418,9 @@ public class NavigationHandler {
                     break;
                 case "Kourend":
                     widgetHighlighter.highlightDynamicComponent(graphics, widget, widgetHelper.getChildIndexSpiritTree("Hosidius"));
+                    break;
+                case "Farming Guild":
+                    widgetHighlighter.highlightDynamicComponent(graphics, widget, widgetHelper.getChildIndexSpiritTree("Farming Guild"));
                     break;
             }
         }

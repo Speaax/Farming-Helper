@@ -71,6 +71,22 @@ public class KourendLocationData {
             houseTeleportSupplier.get()
         ));
         
+        // Hosidius POH Tab
+        location.addTeleportOption(new Teleport(
+            "Hosidius_POH_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to Hosidius with Hosidius POH Tab.",
+            ItemID.NZONE_TELETAB_KOUREND,
+            "Break",
+            0,
+            0,
+            6967,
+            KOUREND_HERB_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.NZONE_TELETAB_KOUREND, 1)
+            )
+        ));
+        
         return location;
     }
 }
