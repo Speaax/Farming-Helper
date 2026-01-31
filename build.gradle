@@ -26,34 +26,6 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
 	testImplementation group: 'net.runelite', name: 'jshell', version: runeLiteVersion
-
-	// Exclude only the missing LWJGL natives (natives-linux-arm64) from resolution; keep all other natives
-	components {
-		all { ComponentMetadataDetails details ->
-			def isRunelite = details.id.group == 'net.runelite'
-			def isClientOrJshell = details.id.name == 'client' || details.id.name == 'jshell'
-			if (isRunelite && isClientOrJshell) {
-				details.allVariants {
-					withDependencies { deps ->
-						deps.removeAll { dep ->
-							def notLwjgl = dep.group != 'org.lwjgl'
-							def notLwjglDep = dep.name != 'lwjgl' &&
-								dep.name != 'lwjgl-opengl'
-							if (notLwjgl || notLwjglDep) return false
-							def isDirect = dep instanceof
-								org.gradle.api.artifacts.DirectDependencyMetadata
-							if (isDirect) {
-								def selectors = dep.artifactSelectors
-								def hasArm64 = selectors?.any { it.classifier == 'natives-linux-arm64' }
-								return hasArm64 == true
-							}
-							return false
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 group = 'com.easyfarming'
