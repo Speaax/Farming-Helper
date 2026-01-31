@@ -10,3 +10,4 @@ nbproject/
 .vscode/
 *.bat
 /bin
+init-natives.gradle
