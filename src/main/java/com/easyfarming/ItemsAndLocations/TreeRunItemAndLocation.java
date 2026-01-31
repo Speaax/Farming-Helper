@@ -40,7 +40,6 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         Map<Integer, Integer> allRequirements = new HashMap<>();
 
-        this.locations.clear();
         setupLocations();
         // Add other items and merge them with allRequirements
         for (Location location : locations) {

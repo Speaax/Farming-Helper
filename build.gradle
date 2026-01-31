@@ -26,10 +26,8 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
 	testImplementation group: 'net.runelite', name: 'jshell', version: runeLiteVersion
-}
 
-// Exclude only the missing LWJGL natives (natives-linux-arm64) from resolution; keep all other natives
-dependencies {
+	// Exclude only the missing LWJGL natives (natives-linux-arm64) from resolution; keep all other natives
 	components {
 		all { ComponentMetadataDetails details ->
 			if (details.id.group == 'net.runelite' && (details.id.name == 'client' || details.id.name == 'jshell')) {
