@@ -648,8 +648,8 @@ public class EasyFarmingOverlay extends Overlay {
                             inventoryItemCounts.put(rune, Math.max(inventoryItemCounts.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
                         }
                     } else {
-                        // Handle regular items
-                        inventoryItemCounts.put(itemId, itemQuantity);
+                        // Handle regular items - sum quantities across slots (e.g. multiple compost)
+                        inventoryItemCounts.put(itemId, inventoryItemCounts.getOrDefault(itemId, 0) + itemQuantity);
                     }
                 }
             }
