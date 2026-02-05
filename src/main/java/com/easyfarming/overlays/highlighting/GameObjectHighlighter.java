@@ -11,34 +11,62 @@ import com.easyfarming.utils.Constants;
 import javax.inject.Inject;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles highlighting of game objects in the world.
+ * Caches scene lookups per (objectId, region, plane) to avoid full scene scans every frame,
+ * which caused severe FPS drops when e.g. showing "Rake weeds" overlay (issue #63).
  */
 public class GameObjectHighlighter {
     private final Client client;
     private final EasyFarmingPlugin plugin;
-    
+
+    /** Cache of objectId -> list of game objects in current scene. */
+    private final Map<Integer, List<GameObject>> objectCache = new HashMap<>();
+    /** Scene key when cache was built: regionId * 10 + plane. */
+    private int lastSceneKey = -1;
+
     @Inject
     public GameObjectHighlighter(Client client, EasyFarmingPlugin plugin) {
         this.client = client;
         this.plugin = plugin;
     }
-    
+
     /**
      * Finds all game objects with the specified ID in the current scene.
+     * Results are cached per scene (region + plane); cache is cleared when the player
+     * changes region or plane so we do not scan the full 104x104 scene every frame.
      */
     public List<GameObject> findGameObjectsByID(int objectID) {
+        if (client.getLocalPlayer() == null) {
+            return new ArrayList<>();
+        }
+        WorldView wv = client.getTopLevelWorldView();
+        int plane = wv.getPlane();
+        int regionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        int sceneKey = regionId * 10 + plane;
+
+        if (sceneKey != lastSceneKey) {
+            objectCache.clear();
+            lastSceneKey = sceneKey;
+        }
+
+        List<GameObject> cached = objectCache.get(objectID);
+        if (cached != null) {
+            return cached;
+        }
+
         List<GameObject> gameObjects = new ArrayList<>();
+        Tile[][][] tiles = wv.getScene().getTiles();
         for (int x = 0; x < Constants.SCENE_SIZE; x++) {
             for (int y = 0; y < Constants.SCENE_SIZE; y++) {
-                WorldView top_wv = client.getTopLevelWorldView();
-                Tile tile = top_wv.getScene().getTiles()[top_wv.getPlane()][x][y];
+                Tile tile = tiles[plane][x][y];
                 if (tile == null) {
                     continue;
                 }
-                
                 for (GameObject gameObject : tile.getGameObjects()) {
                     if (gameObject != null && gameObject.getId() == objectID) {
                         gameObjects.add(gameObject);
@@ -46,6 +74,7 @@ public class GameObjectHighlighter {
                 }
             }
         }
+        objectCache.put(objectID, gameObjects);
         return gameObjects;
     }
     
