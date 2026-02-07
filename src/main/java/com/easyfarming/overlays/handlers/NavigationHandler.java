@@ -196,6 +196,15 @@ public class NavigationHandler {
                 return areaCheck.isPlayerWithinArea(new WorldPoint(2936, 3438, 0), 10);
             case "Varrock":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(3229, 3459, 0), 10);
+            // Hops locations
+            case "Seers Village":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2667, 3526, 0), 10);
+            case "Yanille":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2576, 3104, 0), 10);
+            case "Entrana":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2811, 3337, 0), 10);
+            case "Aldarin":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(1365, 2937, 0), 10);
             default:
                 return false;
         }
@@ -205,7 +214,10 @@ public class NavigationHandler {
      * Gets the appropriate highlighting based on current situation.
      */
     public void adaptiveHighlighting(Location location, Teleport teleport, Graphics2D graphics,
-                                     boolean herbRun, boolean treeRun, boolean fruitTreeRun) {
+                                     boolean herbRun, boolean treeRun, boolean fruitTreeRun, boolean hopsRun) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         WorldPoint targetLocation = teleport.getPoint();
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -217,7 +229,7 @@ public class NavigationHandler {
         // If player is very close to patch, highlight the patch directly
         if (nearPatch) {
             patchHighlighter.highlightFarmingPatchesForLocation(location.getName(), graphics,
-                    herbRun, treeRun, fruitTreeRun, leftColor, leftColor);
+                    herbRun, treeRun, fruitTreeRun, hopsRun, leftColor, leftColor);
             return;
         }
         
@@ -225,7 +237,7 @@ public class NavigationHandler {
         if (inCorrectRegion && !nearTarget) {
             if (isNearAnyFarmingPatch(location.getName())) {
                 patchHighlighter.highlightFarmingPatchesForLocation(location.getName(), graphics,
-                        herbRun, treeRun, fruitTreeRun, leftColor, leftColor);
+                        herbRun, treeRun, fruitTreeRun, hopsRun, leftColor, leftColor);
                 return;
             }
         }
@@ -238,7 +250,7 @@ public class NavigationHandler {
      * Handles navigation to a specific location.
      */
     public void gettingToLocation(Graphics2D graphics, Location location, boolean herbRun,
-                                  boolean treeRun, boolean fruitTreeRun) {
+                                  boolean treeRun, boolean fruitTreeRun, boolean hopsRun) {
         Teleport teleport = location.getSelectedTeleport();
         if (teleport == null) {
             return;
@@ -251,10 +263,15 @@ public class NavigationHandler {
             locationEnabledBool = plugin.getTreeLocationEnabled(location.getName());
         } else if (fruitTreeRun) {
             locationEnabledBool = plugin.getFruitTreeLocationEnabled(location.getName());
+        } else if (hopsRun) {
+            locationEnabledBool = plugin.getHopsLocationEnabled(location.getName());
         }
         
         if (locationEnabledBool) {
             if (!isAtDestination) {
+                if (client.getLocalPlayer() == null) {
+                    return;
+                }
                 int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
                 
                 // Use adaptive detection to determine if we should proceed to farming
@@ -267,7 +284,7 @@ public class NavigationHandler {
                     plugin.addTextToInfoBox(teleport.getDescription());
                 } else {
                     // Use adaptive highlighting based on current situation
-                    adaptiveHighlighting(location, teleport, graphics, herbRun, treeRun, fruitTreeRun);
+                    adaptiveHighlighting(location, teleport, graphics, herbRun, treeRun, fruitTreeRun, hopsRun);
                     plugin.addTextToInfoBox(teleport.getDescription());
                     return;
                 }
@@ -282,6 +299,9 @@ public class NavigationHandler {
                         break;
                     case SPIRIT_TREE:
                         handleSpiritTreeTeleport(graphics, teleport, location, currentRegionId);
+                        break;
+                    case FAIRY_RING:
+                        handleFairyRingTeleport(graphics, teleport, location, currentRegionId);
                         break;
                     case JEWELLERY_BOX:
                         handleJewelleryBoxTeleport(graphics, teleport, location, currentRegionId);
@@ -486,6 +506,17 @@ public class NavigationHandler {
                     }
                 }
                 break;
+        }
+    }
+    
+    private void handleFairyRingTeleport(Graphics2D graphics, Teleport teleport, Location location, int currentRegionId) {
+        Color leftColor = colorProvider.getLeftClickColorWithAlpha();
+        
+        gameObjectHighlighter.highlightGameObject(Constants.FAIRY_RING_OBJECT_ID, leftColor).render(graphics);
+        
+        if (currentRegionId == teleport.getRegionId()) {
+            this.currentTeleportCase = 1;
+            isAtDestination = true;
         }
     }
     

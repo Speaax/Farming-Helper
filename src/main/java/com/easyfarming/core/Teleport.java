@@ -11,6 +11,7 @@ public class Teleport {
         ITEM,
         PORTAL_NEXUS,
         SPIRIT_TREE,
+        FAIRY_RING,
         JEWELLERY_BOX,
         MOUNTED_XERICS,
         SPELLBOOK

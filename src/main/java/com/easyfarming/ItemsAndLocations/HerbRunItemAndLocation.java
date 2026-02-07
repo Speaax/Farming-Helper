@@ -132,6 +132,16 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                                 oldValue + newValue
                             )
                         );
+                    } else if (itemId == ItemID.DRAMEN_STAFF) {
+                        // Handle Dramen staff for fairy ring teleports - only need one regardless of how many fairy ring locations
+                        allRequirements.merge(
+                            ItemID.DRAMEN_STAFF,
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
                     } else {
                         allRequirements.merge(
                             itemId,
@@ -249,6 +259,10 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         return () -> getHouseTeleportItemRequirements();
     }
 
+    private Supplier<List<ItemRequirement>> createFairyRingTeleportSupplier() {
+        return () -> getFairyRingItemRequirements();
+    }
+
     private void setupCivitasLocation()
     {
         civitasLocation = com.easyfarming.locations.CivitasLocationData.create(config, createHouseTeleportSupplier());
@@ -275,7 +289,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
     private void setupFarmingGuildLocation()
     {
-        farmingGuildLocation = com.easyfarming.locations.FarmingGuildLocationData.create(config, createHouseTeleportSupplier());
+        farmingGuildLocation = com.easyfarming.locations.FarmingGuildLocationData.create(config, createHouseTeleportSupplier(), createFairyRingTeleportSupplier());
         locations.add(farmingGuildLocation);
     }
 
@@ -293,7 +307,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
     private void setupMorytaniaLocation()
     {
-        morytaniaLocation = com.easyfarming.locations.MorytaniaLocationData.create(config);
+        morytaniaLocation = com.easyfarming.locations.MorytaniaLocationData.create(config, createFairyRingTeleportSupplier());
         locations.add(morytaniaLocation);
     }
 

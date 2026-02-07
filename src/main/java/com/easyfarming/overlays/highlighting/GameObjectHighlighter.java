@@ -45,6 +45,9 @@ public class GameObjectHighlighter {
             return new ArrayList<>();
         }
         WorldView wv = client.getTopLevelWorldView();
+        if (wv == null || wv.getScene() == null) {
+            return new ArrayList<>();
+        }
         int plane = wv.getPlane();
         int regionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         int sceneKey = regionId * 10 + plane;

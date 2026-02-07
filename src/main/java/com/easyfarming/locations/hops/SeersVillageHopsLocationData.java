@@ -31,9 +31,11 @@ public class SeersVillageHopsLocationData {
      * Creates Location for Seers Village Hops patch.
      * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     * @param fairyRingSupplier Supplier that provides fairy ring item requirements
      * @return A Location instance for Seers Village Hops patch
      */
-    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                  Supplier<List<ItemRequirement>> fairyRingSupplier) {
         Location location = new Location(
             EasyFarmingConfig::enumHopsSeersVillageTeleport,
             config,
@@ -103,6 +105,20 @@ public class SeersVillageHopsLocationData {
                 new ItemRequirement(ItemID.AIRRUNE, 5),
                 new ItemRequirement(ItemID.LAWRUNE, 1)
             )
+        ));
+        
+        // Fairy Ring ALS (closest fairy ring to the hops patch near McGrubor's Wood)
+        location.addTeleportOption(new Teleport(
+            "Fairy_Ring",
+            Teleport.Category.FAIRY_RING,
+            "Use a Fairy Ring (ALS) to teleport near McGrubor's Wood, and run to the hops patch.",
+            0,
+            "",
+            0,
+            0,
+            10551,
+            SEERS_VILLAGE_HOPS_PATCH_POINT,
+            fairyRingSupplier.get()
         ));
         
         return location;

@@ -4,10 +4,13 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Location;
+import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
+import net.runelite.api.GameState;
 import net.runelite.api.gameval.ItemID;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -110,6 +113,30 @@ public class ItemAndLocation
         }
 
         return itemRequirements;
+    }
+
+    /**
+     * Returns the item requirements for using a fairy ring teleport.
+     * Checks the Lumbridge & Draynor Elite diary completion varbit to determine
+     * whether a Dramen staff is needed. If the diary is complete, no staff is required.
+     *
+     * @return List of item requirements (Dramen staff if diary incomplete, empty if complete)
+     */
+    public List<ItemRequirement> getFairyRingItemRequirements()
+    {
+        try {
+            if (client != null && client.getGameState() == GameState.LOGGED_IN) {
+                int diaryValue = client.getVarbitValue(Constants.VARBIT_LUMBRIDGE_DIARY_ELITE);
+                if (diaryValue >= 1) {
+                    return Collections.emptyList();
+                }
+            }
+        } catch (Throwable t) {
+            // Varbit may not be available before login or API may differ — default to requiring Dramen staff
+        }
+        return Collections.singletonList(
+            new ItemRequirement(ItemID.DRAMEN_STAFF, 1)
+        );
     }
 
     public Integer selectedCompostID()

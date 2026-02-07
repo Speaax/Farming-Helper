@@ -89,6 +89,9 @@ public class FarmingStepHandler {
      * Handles herb patch farming steps.
      */
     public void herbSteps(Graphics2D graphics, Teleport teleport) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HerbPatchChecker.PlantState plantState = HerbPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -211,6 +214,9 @@ public class FarmingStepHandler {
      * Handles hops patch farming steps.
      */
     public void hopsSteps(Graphics2D graphics, Teleport teleport) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         HopsPatchChecker.PlantState plantState = HopsPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -416,6 +422,9 @@ public class FarmingStepHandler {
      * Handles flower patch farming steps.
      */
     public void flowerSteps(Graphics2D graphics, boolean farmLimps) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         if (farmLimps) {
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
             FlowerPatchChecker.PlantState plantState = FlowerPatchChecker.PlantState.UNKNOWN;
@@ -727,6 +736,9 @@ public class FarmingStepHandler {
      * Calls north patch handler first, then south patch handler when north is done.
      */
     public void allotmentSteps(Graphics2D graphics, Teleport teleport) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         // Check if this location has allotment patches
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         String locationName = getLocationNameFromRegionId(currentRegionId);
@@ -1064,6 +1076,9 @@ public class FarmingStepHandler {
      * Handles tree patch farming steps.
      */
     public void treeSteps(Graphics2D graphics, Teleport teleport) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         TreePatchChecker.PlantState plantState;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
@@ -1169,6 +1184,9 @@ public class FarmingStepHandler {
      * Handles fruit tree patch farming steps.
      */
     public void fruitTreeSteps(Graphics2D graphics, Teleport teleport) {
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         FruitTreePatchChecker.PlantState plantState = FruitTreePatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();

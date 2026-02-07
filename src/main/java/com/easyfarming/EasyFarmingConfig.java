@@ -475,7 +475,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Jewellery_box,
 		Skills_Necklace,
-		Spirit_Tree
+		Spirit_Tree,
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 5,
@@ -517,7 +518,8 @@ public interface EasyFarmingConfig extends Config
 
 	enum OptionEnumMorytaniaTeleport implements OptionEnumTeleport
 	{
-		Ectophial
+		Ectophial,
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 8,
@@ -599,7 +601,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Jewellery_box,
 		Skills_Necklace,
-		Spirit_Tree
+		Spirit_Tree,
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 1,
@@ -714,7 +717,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Jewellery_box,
 		Skills_Necklace,
-		Spirit_Tree
+		Spirit_Tree,
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 1,
@@ -795,7 +799,8 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus_Camelot,
 		Camelot_Teleport,
 		Camelot_Tele_Tab,
-		Seers_Village
+		Seers_Village,
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 2,
@@ -837,7 +842,8 @@ public interface EasyFarmingConfig extends Config
 	enum HopsOptionEnumAldarinTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Quetzal_Transport
+		Quetzal_Transport,
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 5,

@@ -242,7 +242,7 @@ public class FarmingTeleportOverlay extends Overlay {
         updateHintArrow(location);
         
         // Use NavigationHandler for all navigation logic
-        navigationHandler.gettingToLocation(graphics, location, herbRun, treeRun, fruitTreeRun);
+        navigationHandler.gettingToLocation(graphics, location, herbRun, treeRun, fruitTreeRun, hopsRun);
         
         // Check if we've reached the destination
         if (navigationHandler.isAtDestination) {
@@ -425,6 +425,11 @@ public class FarmingTeleportOverlay extends Overlay {
     @Override
     public Dimension render(Graphics2D graphics) {
         if (!plugin.isTeleportOverlayActive()) {
+            return null;
+        }
+        
+        // Guard against rendering before player is fully loaded
+        if (client.getLocalPlayer() == null) {
             return null;
         }
         

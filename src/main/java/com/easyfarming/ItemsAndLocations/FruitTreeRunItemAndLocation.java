@@ -89,6 +89,15 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                             quantity,
                             (oldValue, newValue) -> Math.max(oldValue, newValue)
                         );
+                    } else if (itemId == ItemID.DRAMEN_STAFF) {
+                        allRequirements.merge(
+                            ItemID.DRAMEN_STAFF,
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
                     } else {
                         allRequirements.merge(
                             itemId,
@@ -176,7 +185,8 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
     {
         farmingGuildFruitTreeLocation = FarmingGuildFruitTreeLocationData.create(
             config,
-            () -> getHouseTeleportItemRequirements()
+            () -> getHouseTeleportItemRequirements(),
+            () -> getFairyRingItemRequirements()
         );
         locations.add(farmingGuildFruitTreeLocation);
     }

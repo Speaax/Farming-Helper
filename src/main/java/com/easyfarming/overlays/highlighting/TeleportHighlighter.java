@@ -100,6 +100,9 @@ public class TeleportHighlighter {
                     widgetHighlighter.highlightDynamicComponent(graphics, widget, index);
                 }
                 break;
+            case FAIRY_RING:
+                gameObjectHighlighter.highlightGameObject(Constants.FAIRY_RING_OBJECT_ID, leftColor).render(graphics);
+                break;
             case JEWELLERY_BOX:
                 if (!widgetHelper.isInterfaceOpen(Constants.INTERFACE_JEWELLERY_BOX, 0)) {
                     List<Integer> jewelleryBoxIds = gameObjectHelper.getGameObjectIdsByName("Jewellery Box");

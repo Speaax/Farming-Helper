@@ -31,9 +31,12 @@ public class FarmingGuildLocationData {
      * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     * @param fairyRingSupplier Supplier that provides fairy ring item requirements
+     *                          (Dramen staff if Lumbridge Elite diary not complete)
      * @return A Location instance for Farming Guild
      */
-    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                  Supplier<List<ItemRequirement>> fairyRingSupplier) {
         Location location = new Location(
             EasyFarmingConfig::enumOptionEnumFarmingGuildTeleport,
             config,
@@ -83,6 +86,20 @@ public class FarmingGuildLocationData {
             4922,
             FARMING_GUILD_HERB_PATCH_POINT,
             Collections.emptyList()
+        ));
+        
+        // Fairy Ring CIR
+        location.addTeleportOption(new Teleport(
+            "Fairy_Ring",
+            Teleport.Category.FAIRY_RING,
+            "Use a Fairy Ring (CIR) to teleport near the Farming Guild.",
+            0,
+            "",
+            0,
+            0,
+            4922,
+            FARMING_GUILD_HERB_PATCH_POINT,
+            fairyRingSupplier.get()
         ));
         
         return location;

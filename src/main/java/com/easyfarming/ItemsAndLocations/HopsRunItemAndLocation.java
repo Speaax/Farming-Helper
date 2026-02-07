@@ -50,7 +50,7 @@ public class HopsRunItemAndLocation extends ItemAndLocation
                 // Use BARLEY_SEED as default for hops seeds, code later will allow for any seed to be used
                 allRequirements.merge(
                     ItemID.BARLEY_SEED,
-                    3, // Hops patches require 3 seeds per patch
+                    4, // Hops patches require 4 seeds per patch
                     Integer::sum
                 );
 
@@ -82,6 +82,15 @@ public class HopsRunItemAndLocation extends ItemAndLocation
                     } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC || itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED || itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED) {
                         allRequirements.merge(
                             ItemID.HG_QUETZALWHISTLE_BASIC,
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
+                    } else if (itemId == ItemID.DRAMEN_STAFF) {
+                        allRequirements.merge(
+                            ItemID.DRAMEN_STAFF,
                             quantity,
                             (oldValue, newValue) -> Math.min(
                                 1,
@@ -162,6 +171,10 @@ public class HopsRunItemAndLocation extends ItemAndLocation
         return () -> getHouseTeleportItemRequirements();
     }
 
+    private Supplier<List<ItemRequirement>> createFairyRingTeleportSupplier() {
+        return () -> getFairyRingItemRequirements();
+    }
+
     private void setupLumbridgeLocation()
     {
         lumbridgeHopsLocation = com.easyfarming.locations.hops.LumbridgeHopsLocationData.create(config, createHouseTeleportSupplier());
@@ -170,7 +183,7 @@ public class HopsRunItemAndLocation extends ItemAndLocation
 
     private void setupSeersVillageLocation()
     {
-        seersVillageHopsLocation = com.easyfarming.locations.hops.SeersVillageHopsLocationData.create(config, createHouseTeleportSupplier());
+        seersVillageHopsLocation = com.easyfarming.locations.hops.SeersVillageHopsLocationData.create(config, createHouseTeleportSupplier(), createFairyRingTeleportSupplier());
         locations.add(seersVillageHopsLocation);
     }
 
@@ -188,7 +201,7 @@ public class HopsRunItemAndLocation extends ItemAndLocation
 
     private void setupAldarinLocation()
     {
-        aldarinHopsLocation = com.easyfarming.locations.hops.AldarinHopsLocationData.create(config, createHouseTeleportSupplier());
+        aldarinHopsLocation = com.easyfarming.locations.hops.AldarinHopsLocationData.create(config, createHouseTeleportSupplier(), createFairyRingTeleportSupplier());
         locations.add(aldarinHopsLocation);
     }
 }

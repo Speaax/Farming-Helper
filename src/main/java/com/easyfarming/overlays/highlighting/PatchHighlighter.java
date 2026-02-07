@@ -103,6 +103,7 @@ public class PatchHighlighter {
      */
     public void highlightFarmingPatchesForLocation(String locationName, Graphics2D graphics, 
                                                    boolean herbRun, boolean treeRun, boolean fruitTreeRun,
+                                                   boolean hopsRun,
                                                    Color leftClickColor, Color useItemColor) {
         // Herb locations
         if (herbRun && (locationName.equals("Ardougne") || locationName.equals("Catherby") || 
@@ -125,6 +126,13 @@ public class PatchHighlighter {
                             locationName.equals("Farming Guild") || locationName.equals("Gnome Stronghold") ||
                             locationName.equals("Lletya") || locationName.equals("Tree Gnome Village"))) {
             highlightFruitTreePatches(graphics, leftClickColor);
+        }
+        
+        // Hops locations
+        if (hopsRun && (locationName.equals("Lumbridge") || locationName.equals("Seers Village") ||
+                       locationName.equals("Yanille") || locationName.equals("Entrana") ||
+                       locationName.equals("Aldarin"))) {
+            highlightHopsPatches(graphics, leftClickColor);
         }
     }
 }

@@ -9,6 +9,7 @@ import net.runelite.api.gameval.ItemID;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Location definition for Morytania.
@@ -28,9 +29,11 @@ public class MorytaniaLocationData {
     /**
      * Creates Location for Morytania.
      * @param config The EasyFarmingConfig instance
+     * @param fairyRingSupplier Supplier that provides fairy ring item requirements
+     *                          (Dramen staff if Lumbridge Elite diary not complete)
      * @return A Location instance for Morytania
      */
-    public static Location create(EasyFarmingConfig config) {
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> fairyRingSupplier) {
         Location location = new Location(
             EasyFarmingConfig::enumOptionEnumMorytaniaTeleport,
             config,
@@ -52,6 +55,20 @@ public class MorytaniaLocationData {
             Collections.singletonList(
                 new ItemRequirement(ItemID.ECTOPHIAL, 1)
             )
+        ));
+        
+        // Fairy Ring ALQ
+        location.addTeleportOption(new Teleport(
+            "Fairy_Ring",
+            Teleport.Category.FAIRY_RING,
+            "Use a Fairy Ring (ALQ) to teleport to the Haunted Woods, and run to the patch.",
+            0,
+            "",
+            0,
+            0,
+            14391,
+            MORYTANIA_HERB_PATCH_POINT,
+            fairyRingSupplier.get()
         ));
         
         return location;

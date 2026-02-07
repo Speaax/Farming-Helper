@@ -256,6 +256,12 @@ public class Constants {
         1293, 1294, 1295, 8355, 29227, 29229, 37329, 40778
     ));
     
+    public static final int FAIRY_RING_OBJECT_ID = 29495;
+    
+    // Lumbridge & Draynor Elite diary completion varbit
+    // When value >= 1, the player does not need a Dramen/Lunar staff for fairy rings
+    public static final int VARBIT_LUMBRIDGE_DIARY_ELITE = VarbitID.LUMBRIDGE_DIARY_ELITE_COMPLETE;
+    
     public static final List<Integer> JEWELLERY_BOX_IDS = Collections.unmodifiableList(Arrays.asList(
         29154, 29155, 29156
     ));

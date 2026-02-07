@@ -83,6 +83,15 @@ public class TreeRunItemAndLocation extends ItemAndLocation
                                 oldValue + newValue
                             )
                         );
+                    } else if (itemId == ItemID.DRAMEN_STAFF) {
+                        allRequirements.merge(
+                            ItemID.DRAMEN_STAFF,
+                            quantity,
+                            (oldValue, newValue) -> Math.min(
+                                1,
+                                oldValue + newValue
+                            )
+                        );
                     } else {
                         allRequirements.merge(
                             itemId,
@@ -154,7 +163,8 @@ public class TreeRunItemAndLocation extends ItemAndLocation
     {
         farmingGuildTreeLocation = com.easyfarming.locations.tree.FarmingGuildTreeLocationData.create(
             config,
-            () -> getHouseTeleportItemRequirements()
+            () -> getHouseTeleportItemRequirements(),
+            () -> getFairyRingItemRequirements()
         );
         locations.add(farmingGuildTreeLocation);
     }
