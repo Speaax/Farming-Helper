@@ -121,6 +121,22 @@ public class ArdougneLocationData {
             )
         ));
         
+        // Fishing Skillcape
+        location.addTeleportOption(new Teleport(
+            "Fishing_Skillcape",
+            Teleport.Category.ITEM,
+            "Teleport to Fishing Guild with Fishing skillcape, and run east to the Ardougne herb patch.",
+            ItemID.SKILLCAPE_FISHING,
+            "",
+            0,
+            0,
+            10292,
+            ARDOUGNE_HERB_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.SKILLCAPE_FISHING, 1)
+            )
+        ));
+        
         return location;
     }
 }

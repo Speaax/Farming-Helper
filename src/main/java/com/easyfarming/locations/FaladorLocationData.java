@@ -122,6 +122,36 @@ public class FaladorLocationData {
             )
         ));
         
+        // Amulet of Glory (Draynor Village)
+        location.addTeleportOption(new Teleport(
+            "Amulet_of_Glory",
+            Teleport.Category.ITEM,
+            "Teleport to Draynor Village with Amulet of Glory, and run west to the patch.",
+            ItemID.AMULET_OF_GLORY_1,
+            "",
+            0,
+            0,
+            12340,
+            FALADOR_HERB_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.AMULET_OF_GLORY_1, 1)
+            )
+        ));
+        
+        // Spirit Tree (Port Sarim)
+        location.addTeleportOption(new Teleport(
+            "Spirit_Tree_Port_Sarim",
+            Teleport.Category.SPIRIT_TREE,
+            "Use a Spirit Tree and teleport to Port Sarim, then run to the Falador herb patch.",
+            0,
+            "",
+            187,
+            9,
+            11828,
+            FALADOR_HERB_PATCH_POINT,
+            Collections.emptyList()
+        ));
+        
         return location;
     }
 }

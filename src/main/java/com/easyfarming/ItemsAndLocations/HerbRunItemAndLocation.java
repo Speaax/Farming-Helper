@@ -307,7 +307,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
 
     private void setupMorytaniaLocation()
     {
-        morytaniaLocation = com.easyfarming.locations.MorytaniaLocationData.create(config, createFairyRingTeleportSupplier());
+        morytaniaLocation = com.easyfarming.locations.MorytaniaLocationData.create(config, createHouseTeleportSupplier(), createFairyRingTeleportSupplier());
         locations.add(morytaniaLocation);
     }
 

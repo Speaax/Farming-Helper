@@ -427,7 +427,8 @@ public interface EasyFarmingConfig extends Config
 		Ardougne_teleport,
 		Ardougne_tele_tab,
 		Ardy_cloak,
-		Skills_Necklace
+		Skills_Necklace,
+		Fishing_Skillcape
 	}
 	@ConfigItem(
 			position = 2,
@@ -460,7 +461,9 @@ public interface EasyFarmingConfig extends Config
 		Explorers_ring,
 		Falador_Teleport,
 		Falador_Tele_Tab,
-		Draynor_Tele_Tab
+		Draynor_Tele_Tab,
+		Amulet_of_Glory,
+		Spirit_Tree_Port_Sarim
 	}
 	@ConfigItem(
 			position = 4,
@@ -476,7 +479,8 @@ public interface EasyFarmingConfig extends Config
 		Jewellery_box,
 		Skills_Necklace,
 		Spirit_Tree,
-		Fairy_Ring
+		Fairy_Ring,
+		Farming_Skillcape
 	}
 	@ConfigItem(
 			position = 5,
@@ -505,7 +509,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Xerics_Talisman,
 		Mounted_Xerics,
-		Hosidius_POH_Tab
+		Hosidius_POH_Tab,
+		Normal_POH_Tab
 	}
 	@ConfigItem(
 			position = 7,
@@ -519,7 +524,9 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumMorytaniaTeleport implements OptionEnumTeleport
 	{
 		Ectophial,
-		Fairy_Ring
+		Fairy_Ring,
+		Portal_Nexus_Fenkenstrain,
+		Portal_Nexus_Canifis
 	}
 	@ConfigItem(
 			position = 8,

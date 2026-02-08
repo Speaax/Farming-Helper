@@ -87,6 +87,20 @@ public class KourendLocationData {
             )
         ));
         
+        // Normal POH Tab (redirected to Hosidius)
+        location.addTeleportOption(new Teleport(
+            "Normal_POH_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to Hosidius with a regular POH Tab (requires POH set to Hosidius).",
+            ItemID.POH_TABLET_TELEPORTTOHOUSE,
+            "",
+            0,
+            0,
+            6967,
+            KOUREND_HERB_PATCH_POINT,
+            houseTeleportSupplier.get()
+        ));
+        
         return location;
     }
 }

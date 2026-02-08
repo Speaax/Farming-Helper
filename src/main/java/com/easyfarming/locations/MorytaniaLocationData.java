@@ -17,6 +17,8 @@ import java.util.function.Supplier;
 public class MorytaniaLocationData {
     
     private static final WorldPoint MORYTANIA_HERB_PATCH_POINT = new WorldPoint(3601, 3525, 0);
+    private static final WorldPoint FENKENSTRAINS_CASTLE = new WorldPoint(3557, 3565, 0);
+    private static final WorldPoint CANIFIS = new WorldPoint(3496, 3509, 0);
     
     /**
      * Gets the patch point for Morytania herb patch.
@@ -29,11 +31,14 @@ public class MorytaniaLocationData {
     /**
      * Creates Location for Morytania.
      * @param config The EasyFarmingConfig instance
+     * @param houseTeleportSupplier Supplier that provides house teleport item requirements
+     *                              (from ItemAndLocation.getHouseTeleportItemRequirements())
      * @param fairyRingSupplier Supplier that provides fairy ring item requirements
      *                          (Dramen staff if Lumbridge Elite diary not complete)
      * @return A Location instance for Morytania
      */
-    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> fairyRingSupplier) {
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                  Supplier<List<ItemRequirement>> fairyRingSupplier) {
         Location location = new Location(
             EasyFarmingConfig::enumOptionEnumMorytaniaTeleport,
             config,
@@ -71,7 +76,34 @@ public class MorytaniaLocationData {
             fairyRingSupplier.get()
         ));
         
+        // Portal Nexus (Fenkenstrain's Castle)
+        location.addTeleportOption(new Teleport(
+            "Portal_Nexus_Fenkenstrain",
+            Teleport.Category.PORTAL_NEXUS,
+            "Teleport to Fenkenstrain's Castle with Portal Nexus, and run west to the Morytania herb patch.",
+            0,
+            "",
+            17,
+            13,
+            13106,
+            MORYTANIA_HERB_PATCH_POINT,
+            houseTeleportSupplier.get()
+        ));
+        
+        // Portal Nexus (Canifis)
+        location.addTeleportOption(new Teleport(
+            "Portal_Nexus_Canifis",
+            Teleport.Category.PORTAL_NEXUS,
+            "Teleport to Canifis with Portal Nexus, and run east to the Morytania herb patch.",
+            0,
+            "",
+            17,
+            13,
+            14647,
+            MORYTANIA_HERB_PATCH_POINT,
+            houseTeleportSupplier.get()
+        ));
+        
         return location;
     }
 }
-

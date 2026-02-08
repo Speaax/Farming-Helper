@@ -131,10 +131,21 @@ public class HerbPatchChecker {
             return PlantState.WEEDS;
         }
         
-        // Values 110-127 are not used in herb patches (gap in RuneLite implementation)
-        // If we encounter these values, return UNKNOWN rather than incorrectly matching diseased
-        if (value >= 110 && value <= 127) {
-            return PlantState.UNKNOWN;
+        // Values 110-127 are used for newer herb types (like Huaska)
+        if (value >= 110 && value <= 114) {
+            return PlantState.GROWING;
+        }
+        if (value >= 115 && value <= 117) {
+            return PlantState.DISEASED;
+        }
+        if (value == 118) {
+            return PlantState.DEAD;
+        }
+        if (value >= 119 && value <= 122) {
+            return PlantState.HARVESTABLE;
+        }
+        if (value >= 123 && value <= 127) {
+            return PlantState.GROWING;
         }
         
         // Check diseased state (only after ensuring value is not weeds or in gap range)
