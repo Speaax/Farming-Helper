@@ -609,7 +609,8 @@ public interface EasyFarmingConfig extends Config
 		Jewellery_box,
 		Skills_Necklace,
 		Spirit_Tree,
-		Fairy_Ring
+		Fairy_Ring,
+		Farming_Skillcape
 	}
 	@ConfigItem(
 			position = 1,
@@ -623,7 +624,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumGnomeStrongholdTeleport implements OptionEnumTeleport
 	{
 		Royal_seed_pod,
-		Spirit_Tree
+		Spirit_Tree,
+		Slayer_Ring
 	}
 	@ConfigItem(
 			position = 2,
@@ -653,7 +655,9 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Teleport,
-		Falador_Tele_Tab
+		Falador_Tele_Tab,
+		Normal_POH_Tab,
+		Games_Necklace_Burthorpe
 	}
 	@ConfigItem(
 			position = 4,

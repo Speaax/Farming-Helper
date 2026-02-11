@@ -91,7 +91,23 @@ public class FarmingGuildTreeLocationData {
             FARMING_GUILD_TREE_PATCH_POINT,
             fairyRingSupplier.get()
         ));
-        
+
+        // Farming Skillcape
+        location.addTeleportOption(new Teleport(
+            "Farming_Skillcape",
+            Teleport.Category.ITEM,
+            "Teleport to Farming Guild using Farming skillcape.",
+            ItemID.SKILLCAPE_FARMING,
+            "",
+            0,
+            0,
+            4922,
+            FARMING_GUILD_TREE_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.SKILLCAPE_FARMING, 1)
+            )
+        ));
+
         return location;
     }
 }

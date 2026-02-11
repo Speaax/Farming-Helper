@@ -14,9 +14,9 @@ import java.util.List;
  * Location definition for Gnome Stronghold Tree patch.
  */
 public class GnomeStrongholdTreeLocationData {
-    
+
     private static final WorldPoint GNOME_STRONGHOLD_TREE_PATCH_POINT = new WorldPoint(2436, 3415, 0);
-    
+
     /**
      * Creates Location for Gnome Stronghold Tree patch.
      * @param config The EasyFarmingConfig instance
@@ -29,7 +29,7 @@ public class GnomeStrongholdTreeLocationData {
             "Gnome Stronghold",
             false // farmLimps
         );
-        
+
         // Royal seed pod
         location.addTeleportOption(new Teleport(
             "Royal_seed_pod",
@@ -45,7 +45,7 @@ public class GnomeStrongholdTreeLocationData {
                 new ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
             )
         ));
-        
+
         // Spirit Tree
         location.addTeleportOption(new Teleport(
             "Spirit_Tree",
@@ -59,7 +59,23 @@ public class GnomeStrongholdTreeLocationData {
             GNOME_STRONGHOLD_TREE_PATCH_POINT,
             Collections.emptyList()
         ));
-        
+
+        // Slayer Ring (to Stronghold Slayer Cave, run to tree patch)
+        location.addTeleportOption(new Teleport(
+            "Slayer_Ring",
+            Teleport.Category.ITEM,
+            "Teleport to Stronghold Slayer Cave with Slayer Ring and run to Gnome Stronghold tree patch.",
+            ItemID.RING_OF_SLAYING,
+            "",
+            0,
+            0,
+            9781,
+            GNOME_STRONGHOLD_TREE_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.RING_OF_SLAYING, 1)
+            )
+        ));
+
         return location;
     }
 }
