@@ -4,8 +4,8 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
+import com.easyfarming.utils.Constants;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.gameval.ItemID;
 
 import java.util.Collections;
 
@@ -29,22 +29,22 @@ public class LletyaFruitTreeLocationData {
             false // farmLimps
         );
         
-        // Teleport crystal
+        // Teleport crystal - any variant (Mourning's 1-5 or Eternal) satisfies
         location.addTeleportOption(new Teleport(
             "Teleport_crystal",
             Teleport.Category.ITEM,
-            "Teleport to Lletya with Teleport crystal.",
-            ItemID.MOURNING_TELEPORT_CRYSTAL_1,
+            "Teleport to Lletya with teleport crystal.",
+            Constants.BASE_TELEPORT_CRYSTAL_ID,
             "",
             0,
             0,
             9265,
             LLETYA_FRUIT_TREE_PATCH_POINT,
             Collections.singletonList(
-                new ItemRequirement(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1)
+                new ItemRequirement(Constants.BASE_TELEPORT_CRYSTAL_ID, 1)
             )
         ));
-        
+
         return location;
     }
 }

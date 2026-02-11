@@ -8,6 +8,7 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -97,7 +98,37 @@ public class BrimhavenFruitTreeLocationData {
                 new ItemRequirement(ItemID.COINS, 30)
             )
         ));
-        
+
+        // Brimhaven POH Tabet (redirected house tab to Brimhaven)
+        location.addTeleportOption(new Teleport(
+            "Brimhaven_POH_Tabet",
+            Teleport.Category.ITEM,
+            "Teleport to Brimhaven with redirected house tab.",
+            ItemID.NZONE_TELETAB_BRIMHAVEN,
+            "",
+            0,
+            0,
+            10547,
+            BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.NZONE_TELETAB_BRIMHAVEN, 1)
+            )
+        ));
+
+        // Spirit Tree (Brimhaven)
+        location.addTeleportOption(new Teleport(
+            "Spirit_Tree_Brimhaven",
+            Teleport.Category.SPIRIT_TREE,
+            "Teleport to Brimhaven via a Spirit Tree.",
+            0,
+            "",
+            187,
+            3,
+            10547,
+            BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
+            Collections.emptyList()
+        ));
+
         return location;
     }
 }

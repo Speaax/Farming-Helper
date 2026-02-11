@@ -58,7 +58,23 @@ public class GnomeStrongholdFruitTreeLocationData {
             GNOME_STRONGHOLD_FRUIT_TREE_PATCH_POINT,
             Collections.emptyList()
         ));
-        
+
+        // Slayer Ring (teleport to Stronghold Slayer Cave, run to fruit tree)
+        location.addTeleportOption(new Teleport(
+            "Slayer_Ring",
+            Teleport.Category.ITEM,
+            "Teleport to Stronghold Slayer Cave with Slayer Ring and run to the fruit tree patch.",
+            ItemID.SLAYER_RING_8,
+            "",
+            0,
+            0,
+            9782,
+            GNOME_STRONGHOLD_FRUIT_TREE_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.SLAYER_RING_8, 1)
+            )
+        ));
+
         return location;
     }
 }

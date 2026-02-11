@@ -13,6 +13,7 @@ import com.easyfarming.locations.fruittree.FarmingGuildFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.GnomeStrongholdFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.LletyaFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.TreeGnomeVillageFruitTreeLocationData;
+import com.easyfarming.utils.Constants;
 
 import java.util.*;
 
@@ -83,7 +84,13 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                     int itemId = entry.getKey();
                     int quantity = entry.getValue();
 
-                    if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX || itemId == ItemID.MM2_ROYAL_SEED_POD) {
+                    if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX || itemId == ItemID.MM2_ROYAL_SEED_POD || itemId == ItemID.SLAYER_RING_8) {
+                        allRequirements.merge(
+                            itemId,
+                            quantity,
+                            (oldValue, newValue) -> Math.max(oldValue, newValue)
+                        );
+                    } else if (itemId == Constants.BASE_TELEPORT_CRYSTAL_ID) {
                         allRequirements.merge(
                             itemId,
                             quantity,

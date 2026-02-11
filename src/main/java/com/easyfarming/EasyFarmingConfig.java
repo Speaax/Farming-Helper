@@ -609,8 +609,7 @@ public interface EasyFarmingConfig extends Config
 		Jewellery_box,
 		Skills_Necklace,
 		Spirit_Tree,
-		Fairy_Ring,
-		Farming_Skillcape
+		Fairy_Ring
 	}
 	@ConfigItem(
 			position = 1,
@@ -624,8 +623,7 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumGnomeStrongholdTeleport implements OptionEnumTeleport
 	{
 		Royal_seed_pod,
-		Spirit_Tree,
-		Slayer_Ring
+		Spirit_Tree
 	}
 	@ConfigItem(
 			position = 2,
@@ -655,9 +653,7 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Teleport,
-		Falador_Tele_Tab,
-		Normal_POH_Tab,
-		Games_Necklace_Burthorpe
+		Falador_Tele_Tab
 	}
 	@ConfigItem(
 			position = 4,
@@ -696,7 +692,9 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus,
 		Ardougne_teleport,
 		Ardougne_Tele_Tab,
-		POH_Tele_Tab
+		POH_Tele_Tab,
+		Brimhaven_POH_Tabet,
+		Spirit_Tree_Brimhaven
 	}
 	@ConfigItem(
 			position = 1,
@@ -729,7 +727,8 @@ public interface EasyFarmingConfig extends Config
 		Jewellery_box,
 		Skills_Necklace,
 		Spirit_Tree,
-		Fairy_Ring
+		Fairy_Ring,
+		Farming_Skillcape
 	}
 	@ConfigItem(
 			position = 1,
@@ -743,7 +742,8 @@ public interface EasyFarmingConfig extends Config
 	enum FruitTreeOptionEnumGnomeStrongholdTeleport implements OptionEnumTeleport
 	{
 		Royal_seed_pod,
-		Spirit_Tree
+		Spirit_Tree,
+		Slayer_Ring
 	}
 	@ConfigItem(
 			position = 1,
@@ -769,7 +769,6 @@ public interface EasyFarmingConfig extends Config
 
 	enum FruitTreeOptionEnumTreeGnomeVillageTeleport implements OptionEnumTeleport
 	{
-		Royal_seed_pod,
 		Spirit_Tree
 	}
 	@ConfigItem(
@@ -779,7 +778,7 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Tree Gnome Village",
 			section = fruitTreeTeleportOptionList
 	)
-	default FruitTreeOptionEnumTreeGnomeVillageTeleport enumFruitTreeTreeGnomeVillageTeleport() { return FruitTreeOptionEnumTreeGnomeVillageTeleport.Royal_seed_pod; }
+	default FruitTreeOptionEnumTreeGnomeVillageTeleport enumFruitTreeTreeGnomeVillageTeleport() { return FruitTreeOptionEnumTreeGnomeVillageTeleport.Spirit_Tree; }
 
 	@ConfigSection(
 			name = "Hops teleport options",

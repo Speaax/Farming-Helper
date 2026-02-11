@@ -42,6 +42,13 @@ tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs += ['-Xlint:deprecation']
 }
 
+tasks.register('run', JavaExec) {
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.easyfarming.EasyFarmingPluginTest'
+	jvmArgs "-ea"
+	args "--developer-mode", "--debug"
+}
+
 tasks.register('shadowJar', Jar) {
 	dependsOn configurations.testRuntimeClasspath
 	manifest {

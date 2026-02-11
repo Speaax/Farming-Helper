@@ -1,11 +1,9 @@
 package com.easyfarming.locations.fruittree;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.gameval.ItemID;
 
 import java.util.Collections;
 
@@ -29,23 +27,7 @@ public class TreeGnomeVillageFruitTreeLocationData {
             false // farmLimps
         );
         
-        // Royal seed pod
-        location.addTeleportOption(new Teleport(
-            "Royal_seed_pod",
-            Teleport.Category.ITEM,
-            "Teleport to Tree Gnome Village with Royal seed pod and use Spirit tree to Tree Gnome Village.",
-            ItemID.MM2_ROYAL_SEED_POD,
-            "",
-            0,
-            0,
-            9782,
-            TREE_GNOME_VILLAGE_FRUIT_TREE_PATCH_POINT,
-            Collections.singletonList(
-                new ItemRequirement(ItemID.MM2_ROYAL_SEED_POD, 1)
-            )
-        ));
-        
-        // Spirit Tree
+        // Spirit Tree (Royal seed pod teleports to Gnome Stronghold, not Tree Gnome Village)
         location.addTeleportOption(new Teleport(
             "Spirit_Tree",
             Teleport.Category.SPIRIT_TREE,

@@ -43,7 +43,7 @@ public class EasyFarmingOverlay extends Overlay {
 
     public static final List<Integer> TELEPORT_CRYSTAL_IDS = Arrays.asList(ItemID.MOURNING_TELEPORT_CRYSTAL_1,
             ItemID.MOURNING_TELEPORT_CRYSTAL_2, ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4,
-            ItemID.MOURNING_TELEPORT_CRYSTAL_5);
+            ItemID.MOURNING_TELEPORT_CRYSTAL_5, ItemID.PRIF_TELEPORT_CRYSTAL);
     private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
 
     public List<Integer> getTeleportCrystalIds() {
@@ -622,7 +622,6 @@ public class EasyFarmingOverlay extends Overlay {
             for (Item item : items) {
                 if (isTeleportCrystal(item.getId())) {
                     teleportCrystalCount += item.getQuantity();
-                    break;
                 }
             }
             int skillsNecklaceCharges = 0;
