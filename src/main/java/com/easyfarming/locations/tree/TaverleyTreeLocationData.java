@@ -83,14 +83,14 @@ public class TaverleyTreeLocationData {
             "Normal_POH_Tab",
             Teleport.Category.ITEM,
             "Teleport to Taverley with POH Teletab (POH set to Taverley).",
-            ItemID.POH_TABLET_TAVERLEYTELEPORT,
+            ItemID.NZONE_TELETAB_TAVERLEY,
             "",
             0,
             0,
             11828,
             TAVERLEY_TREE_PATCH_POINT,
             Collections.singletonList(
-                new ItemRequirement(ItemID.POH_TABLET_TAVERLEYTELEPORT, 1)
+                new ItemRequirement(ItemID.NZONE_TELETAB_TAVERLEY, 1)
             )
         ));
 
@@ -99,14 +99,14 @@ public class TaverleyTreeLocationData {
             "Games_Necklace_Burthorpe",
             Teleport.Category.ITEM,
             "Teleport to Burthorpe with Games Necklace and run to Taverley tree patch.",
-            ItemID.GAMES_NECKLACE8,
+            ItemID.NECKLACE_OF_MINIGAMES_8,
             "",
             0,
             0,
             11828,
             TAVERLEY_TREE_PATCH_POINT,
             Collections.singletonList(
-                new ItemRequirement(ItemID.GAMES_NECKLACE8, 1)
+                new ItemRequirement(ItemID.NECKLACE_OF_MINIGAMES_8, 1)
             )
         ));
 

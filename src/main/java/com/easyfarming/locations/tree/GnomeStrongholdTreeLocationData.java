@@ -65,14 +65,14 @@ public class GnomeStrongholdTreeLocationData {
             "Slayer_Ring",
             Teleport.Category.ITEM,
             "Teleport to Stronghold Slayer Cave with Slayer Ring and run to Gnome Stronghold tree patch.",
-            ItemID.RING_OF_SLAYING,
+            ItemID.SLAYER_RING_8,
             "",
             0,
             0,
             9781,
             GNOME_STRONGHOLD_TREE_PATCH_POINT,
             Collections.singletonList(
-                new ItemRequirement(ItemID.RING_OF_SLAYING, 1)
+                new ItemRequirement(ItemID.SLAYER_RING_8, 1)
             )
         ));
 
