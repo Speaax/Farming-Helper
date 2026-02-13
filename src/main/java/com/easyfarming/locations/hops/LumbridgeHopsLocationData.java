@@ -104,6 +104,56 @@ public class LumbridgeHopsLocationData {
                 new ItemRequirement(ItemID.CHRONICLE, 1)
             )
         ));
+
+        // Varrock Teleport (spellbook)
+        location.addTeleportOption(new Teleport(
+            "Varrock_Teleport",
+            Teleport.Category.SPELLBOOK,
+            "Teleport to Varrock with spellbook, and run south to hops patch.",
+            0,
+            "",
+            218,
+            23,
+            12853,
+            LUMBRIDGE_HOPS_PATCH_POINT,
+            Arrays.asList(
+                new ItemRequirement(ItemID.AIRRUNE, 3),
+                new ItemRequirement(ItemID.LAWRUNE, 1),
+                new ItemRequirement(ItemID.FIRERUNE, 1)
+            )
+        ));
+
+        // Varrock Tele Tab
+        location.addTeleportOption(new Teleport(
+            "Varrock_Tele_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to Varrock with Varrock Tele Tab, and run south to hops patch.",
+            ItemID.POH_TABLET_VARROCKTELEPORT,
+            "",
+            0,
+            0,
+            12853,
+            LUMBRIDGE_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.POH_TABLET_VARROCKTELEPORT, 1)
+            )
+        ));
+
+        // Combat Bracelet (Champions' Guild)
+        location.addTeleportOption(new Teleport(
+            "Combat_Bracelet",
+            Teleport.Category.ITEM,
+            "Teleport to Champions' Guild with Combat Bracelet, and run south to hops patch.",
+            ItemID.COMBAT_BRACELET_1,
+            "",
+            0,
+            0,
+            10044,
+            LUMBRIDGE_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.COMBAT_BRACELET_1, 1)
+            )
+        ));
         
         return location;
     }

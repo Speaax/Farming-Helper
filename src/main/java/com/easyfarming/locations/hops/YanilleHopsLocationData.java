@@ -85,6 +85,38 @@ public class YanilleHopsLocationData {
                 new ItemRequirement(ItemID.LAWRUNE, 2)
             )
         ));
+
+        // Yanille Tele Tab
+        location.addTeleportOption(new Teleport(
+            "Yanille_Tele_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to Yanille with Yanille Tele Tab, and run north to hops patch.",
+            ItemID.NZONE_TELETAB_YANILLE,
+            "",
+            0,
+            0,
+            10288,
+            YANILLE_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.NZONE_TELETAB_YANILLE, 1)
+            )
+        ));
+
+        // Normal POH Tele Tab
+        location.addTeleportOption(new Teleport(
+            "Normal_POH_Tele_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to your POH with regular Teleport to House tab, then run to Yanille hops patch.",
+            ItemID.POH_TABLET_TELEPORTTOHOUSE,
+            "",
+            0,
+            0,
+            -1,
+            YANILLE_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1)
+            )
+        ));
         
         return location;
     }

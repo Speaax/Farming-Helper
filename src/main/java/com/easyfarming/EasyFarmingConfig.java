@@ -793,7 +793,10 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus,
 		Teleport,
 		Lumbridge_Tele_Tab,
-		Chronicle
+		Chronicle,
+		Varrock_Teleport,
+		Varrock_Tele_Tab,
+		Combat_Bracelet
 	}
 	@ConfigItem(
 			position = 1,
@@ -810,7 +813,8 @@ public interface EasyFarmingConfig extends Config
 		Camelot_Teleport,
 		Camelot_Tele_Tab,
 		Seers_Village,
-		Fairy_Ring
+		Fairy_Ring,
+		Combat_Bracelet
 	}
 	@ConfigItem(
 			position = 2,
@@ -825,7 +829,9 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Watchtower_Teleport,
-		Yanille
+		Yanille,
+		Yanille_Tele_Tab,
+		Normal_POH_Tele_Tab
 	}
 	@ConfigItem(
 			position = 3,
@@ -838,7 +844,8 @@ public interface EasyFarmingConfig extends Config
 
 	enum HopsOptionEnumEntranaTeleport implements OptionEnumTeleport
 	{
-		Explorers_Ring
+		Explorers_Ring,
+		Spirit_Tree_Port_Sarim
 	}
 	@ConfigItem(
 			position = 4,
@@ -853,7 +860,10 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Quetzal_Transport,
-		Fairy_Ring
+		Fairy_Ring,
+		Aldarin_Tele_Tab,
+		Normal_POH_Tele_Tab,
+		Pendant_of_Ates
 	}
 	@ConfigItem(
 			position = 5,

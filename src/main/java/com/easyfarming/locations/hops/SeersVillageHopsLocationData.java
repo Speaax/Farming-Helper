@@ -120,6 +120,22 @@ public class SeersVillageHopsLocationData {
             SEERS_VILLAGE_HOPS_PATCH_POINT,
             fairyRingSupplier.get()
         ));
+
+        // Combat Bracelet (Ranging Guild)
+        location.addTeleportOption(new Teleport(
+            "Combat_Bracelet",
+            Teleport.Category.ITEM,
+            "Teleport to Ranging Guild with Combat Bracelet, and run north to hops patch.",
+            ItemID.COMBAT_BRACELET_1,
+            "",
+            0,
+            0,
+            10044,
+            SEERS_VILLAGE_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.COMBAT_BRACELET_1, 1)
+            )
+        ));
         
         return location;
     }

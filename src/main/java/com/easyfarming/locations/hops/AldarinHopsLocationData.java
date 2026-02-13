@@ -88,6 +88,54 @@ public class AldarinHopsLocationData {
             ALDARIN_HOPS_PATCH_POINT,
             fairyRingSupplier.get()
         ));
+
+        // Aldarin Tele Tab
+        location.addTeleportOption(new Teleport(
+            "Aldarin_Tele_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to Aldarin with Aldarin Tele Tab, and run to hops patch.",
+            ItemID.NZONE_TELETAB_ALDARIN,
+            "",
+            0,
+            0,
+            5421,
+            ALDARIN_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.NZONE_TELETAB_ALDARIN, 1)
+            )
+        ));
+
+        // Normal POH Tele Tab
+        location.addTeleportOption(new Teleport(
+            "Normal_POH_Tele_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to your POH with regular Teleport to House tab, then run to Aldarin.",
+            ItemID.POH_TABLET_TELEPORTTOHOUSE,
+            "",
+            0,
+            0,
+            -1,
+            ALDARIN_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1)
+            )
+        ));
+
+        // Pendant of Ates
+        location.addTeleportOption(new Teleport(
+            "Pendant_of_Ates",
+            Teleport.Category.ITEM,
+            "Teleport to Aldarin with Pendant of Ates, and run to hops patch.",
+            ItemID.PENDANT_OF_ATES,
+            "",
+            0,
+            0,
+            5421,
+            ALDARIN_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.PENDANT_OF_ATES, 1)
+            )
+        ));
         
         return location;
     }

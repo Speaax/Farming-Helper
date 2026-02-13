@@ -54,6 +54,20 @@ public class EntranaHopsLocationData {
                 new ItemRequirement(ItemID.LUMBRIDGE_RING_MEDIUM, 1)
             )
         ));
+
+        // Spirit Tree (Port Sarim)
+        location.addTeleportOption(new Teleport(
+            "Spirit_Tree_Port_Sarim",
+            Teleport.Category.SPIRIT_TREE,
+            "Use a Spirit Tree and teleport to Port Sarim, then take boat to Entrana and run to hops patch.",
+            0,
+            "",
+            187,
+            9,
+            11828,
+            ENTRANA_HOPS_PATCH_POINT,
+            Collections.emptyList()
+        ));
         
         return location;
     }
