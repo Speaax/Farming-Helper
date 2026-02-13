@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
+import com.easyfarming.utils.Constants;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
 
@@ -121,19 +122,19 @@ public class SeersVillageHopsLocationData {
             fairyRingSupplier.get()
         ));
 
-        // Combat Bracelet (Ranging Guild)
+        // Combat Bracelet (Ranging Guild) - requires 2+ charges
         location.addTeleportOption(new Teleport(
             "Combat_Bracelet",
             Teleport.Category.ITEM,
             "Teleport to Ranging Guild with Combat Bracelet, and run north to hops patch.",
-            ItemID.COMBAT_BRACELET_1,
+            Constants.BASE_COMBAT_BRACELET_ID,
             "",
             0,
             0,
             10044,
             SEERS_VILLAGE_HOPS_PATCH_POINT,
             Collections.singletonList(
-                new ItemRequirement(ItemID.COMBAT_BRACELET_1, 1)
+                new ItemRequirement(Constants.BASE_COMBAT_BRACELET_ID, 1)
             )
         ));
         

@@ -114,6 +114,13 @@ public class EasyFarmingOverlay extends Overlay {
         return WATERING_CAN_IDS.contains(itemId);
     }
 
+    public static final List<Integer> COMBAT_BRACELET_IDS = Constants.COMBAT_BRACELET_IDS;
+    private static final int BASE_COMBAT_BRACELET_ID = Constants.BASE_COMBAT_BRACELET_ID;
+
+    public boolean isCombatBracelet(int itemId) {
+        return Constants.isCombatBracelet(itemId);
+    }
+
     public List<Integer> getHerbPatchIds() {
         return Constants.HERB_PATCH_IDS;
     }
@@ -647,6 +654,18 @@ public class EasyFarmingOverlay extends Overlay {
                     quetzalWhistleCount += item.getQuantity();
                 }
             }
+            int combatBraceletCharges = 0;
+            for (Item item : items) {
+                if (isCombatBracelet(item.getId())) {
+                    int charges = Constants.getCombatBraceletCharges(item.getId());
+                    combatBraceletCharges += charges * item.getQuantity();
+                }
+            }
+            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
+                if (isCombatBracelet(equippedEntry.getKey())) {
+                    combatBraceletCharges += Constants.getCombatBraceletCharges(equippedEntry.getKey());
+                }
+            }
 
             int totalSeeds = 0;
             int totalAllotmentSeeds = 0;
@@ -841,6 +860,9 @@ public class EasyFarmingOverlay extends Overlay {
                         }
                     }
                     inventoryCount = hasWateringCan ? 1 : 0;
+                } else if (itemId == BASE_COMBAT_BRACELET_ID) {
+                    // Requirement is CHARGES, not number of bracelets. Sum charges from all bracelets.
+                    inventoryCount = combatBraceletCharges;
                 }
 
                 // Rune pouch contents are already included in inventoryItemCounts

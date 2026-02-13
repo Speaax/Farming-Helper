@@ -61,7 +61,8 @@ public class ItemHighlighter {
                             isExplorersRingHighlight(item.getId(), itemID) ||
                             isArdyCloakHighlight(item.getId(), itemID) ||
                             isSkillsNecklaceHighlight(item.getId(), itemID) ||
-                            isBottomlessBucketHighlight(item.getId(), itemID))) {
+                            isBottomlessBucketHighlight(item.getId(), itemID) ||
+                            isCombatBraceletHighlight(item.getId(), itemID))) {
                             Widget itemWidget = childrenToUse[i];
                             if (itemWidget != null) {
                                 Rectangle bounds = itemWidget.getBounds();
@@ -118,6 +119,14 @@ public class ItemHighlighter {
                    (itemId >= 22994 && itemId <= 22998);
         }
         return false;
+    }
+
+    /**
+     * Checks if an item ID matches a Combat bracelet highlight pattern.
+     * Handles all charged variants (2-6 charges).
+     */
+    private boolean isCombatBraceletHighlight(int itemId, int targetId) {
+        return farmingHelperOverlay.isCombatBracelet(itemId) && farmingHelperOverlay.isCombatBracelet(targetId);
     }
     
     /**

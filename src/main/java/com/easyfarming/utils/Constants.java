@@ -96,6 +96,18 @@ public class Constants {
         ItemID.JEWL_NECKLACE_OF_SKILLS_5,
         ItemID.JEWL_NECKLACE_OF_SKILLS_6
     ));
+
+    /** Combat bracelet (1) - base/canonical ID. */
+    public static final int BASE_COMBAT_BRACELET_ID = 11124;
+    /** All charged Combat bracelet variants (1)=11124, (2)=11122, (3)=11120, (4)=11118, (5)=11974, (6)=11972 */
+    public static final List<Integer> COMBAT_BRACELET_IDS = Collections.unmodifiableList(Arrays.asList(
+        11124,  // Combat bracelet (1)
+        11122,  // Combat bracelet (2)
+        11120,  // Combat bracelet (3)
+        11118,  // Combat bracelet (4)
+        11974,  // Combat bracelet (5)
+        11972   // Combat bracelet (6)
+    ));
     
     public static final List<Integer> HERB_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
         33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372, 33979, 50697
@@ -302,6 +314,23 @@ public class Constants {
     
     public static boolean isSkillsNecklace(int itemId) {
         return SKILLS_NECKLACE_IDS.contains(itemId);
+    }
+
+    public static boolean isCombatBracelet(int itemId) {
+        return itemId == BASE_COMBAT_BRACELET_ID || COMBAT_BRACELET_IDS.contains(itemId);
+    }
+
+    /** Returns the number of charges for a Combat bracelet item ID, or 0 if not a charged bracelet. */
+    public static int getCombatBraceletCharges(int itemId) {
+        switch (itemId) {
+            case 11124: return 1;  // Combat bracelet (1)
+            case 11122: return 2;  // Combat bracelet (2)
+            case 11120: return 3;  // Combat bracelet (3)
+            case 11118: return 4;  // Combat bracelet (4)
+            case 11974: return 5;  // Combat bracelet (5)
+            case 11972: return 6;  // Combat bracelet (6)
+            default: return 0;
+        }
     }
     
     public static boolean isHerbSeed(int itemId) {
