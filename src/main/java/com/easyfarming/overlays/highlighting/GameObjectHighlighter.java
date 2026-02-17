@@ -83,14 +83,22 @@ public class GameObjectHighlighter {
     
     /**
      * Draws the clickbox for a game object.
+     * Handles null/invalid objects gracefully (e.g. when patch is transitioning).
      */
     public void drawGameObjectClickbox(Graphics2D graphics, GameObject gameObject, Color color) {
-        Shape objectClickbox = gameObject.getClickbox();
-        if (objectClickbox != null) {
-            graphics.setColor(color);
-            graphics.draw(objectClickbox);
-            graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() / 5));
-            graphics.fill(objectClickbox);
+        if (gameObject == null) {
+            return;
+        }
+        try {
+            Shape objectClickbox = gameObject.getClickbox();
+            if (objectClickbox != null) {
+                graphics.setColor(color);
+                graphics.draw(objectClickbox);
+                graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() / 5));
+                graphics.fill(objectClickbox);
+            }
+        } catch (Exception e) {
+            // Ignore errors when object is transitioning (e.g. patch just cleared)
         }
     }
     

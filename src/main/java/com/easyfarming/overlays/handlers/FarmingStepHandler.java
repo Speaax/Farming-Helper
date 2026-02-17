@@ -128,9 +128,11 @@ public class FarmingStepHandler {
             plantState = HerbPatchChecker.checkHerbPatch(client, varbitId);
         }
         
-        if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
-            // Navigation handles hint arrows when far away - don't set here
-            patchHighlighter.highlightHerbPatches(graphics, leftColor);
+        if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
+            // Navigation handles hint arrows when far away - don't set here; skip if teleport is null (transitioning)
+            if (teleport != null) {
+                patchHighlighter.highlightHerbPatches(graphics, leftColor);
+            }
         } else {
             // Clear hint arrow when near patch - it's distracting when you're already there
             // Only use hint arrows for NPC interactions (e.g., Tool Leprechaun for compost)
@@ -1092,9 +1094,11 @@ public class FarmingStepHandler {
             plantState = TreePatchChecker.checkTreePatch(client, Constants.VARBIT_TREE_PATCH_STANDARD);
         }
         
-        if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
+        if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
             // Should be replaced with a pathing system, pointing arrow or something else eventually
-            patchHighlighter.highlightTreePatches(graphics, leftColor);
+            if (teleport != null) {
+                patchHighlighter.highlightTreePatches(graphics, leftColor);
+            }
         } else {
             // Clear hint arrow when near patch
             clearHintArrow();
@@ -1221,9 +1225,11 @@ public class FarmingStepHandler {
             plantState = FruitTreePatchChecker.checkFruitTreePatch(client, varbitId);
         }
         
-        if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
+        if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
             // Should be replaced with a pathing system, point arrow or something else eventually
-            patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
+            if (teleport != null) {
+                patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
+            }
         } else {
             // Clear hint arrow when near patch
             clearHintArrow();

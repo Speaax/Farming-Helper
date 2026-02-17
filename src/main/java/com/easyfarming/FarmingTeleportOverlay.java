@@ -57,7 +57,7 @@ public class FarmingTeleportOverlay extends Overlay {
                                    EasyFarmingConfig config) {
         this.areaCheck = areaCheck;
         setPosition(OverlayPosition.DYNAMIC);
-        setLayer(OverlayLayer.ABOVE_WIDGETS);
+        setLayer(OverlayLayer.ABOVE_SCENE);
         this.plugin = plugin;
         this.client = client;
         this.config = config;
@@ -191,7 +191,11 @@ public class FarmingTeleportOverlay extends Overlay {
         if (patchPoint == null) {
             return;
         }
-        
+
+        if (client.getLocalPlayer() == null) {
+            return;
+        }
+
         Teleport teleport = location.getSelectedTeleport();
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         int clearDistance = "Morytania".equals(location.getName()) ? 10 : 5;
@@ -265,6 +269,11 @@ public class FarmingTeleportOverlay extends Overlay {
         Location location = enabledLocations.get(currentLocationIndex);
         Teleport teleport = location.getSelectedTeleport();
         
+        // Guard against null teleport when location has no valid selection (e.g. transitioning patches)
+        if (teleport == null) {
+            return;
+        }
+
         if (herbRun) {
             handleHerbRunSteps(graphics, teleport);
         } else if (treeRun) {
