@@ -1,9 +1,5 @@
 package com.easyfarming;
 
-import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
 import com.easyfarming.core.Location;
 
 import com.google.inject.Provides;
@@ -14,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.runelite.api.*;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
@@ -27,17 +24,18 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.EventBus;
 
+import net.runelite.client.plugins.PluginDependency;
+import net.runelite.client.plugins.timetracking.TimeTrackingPlugin;
+import net.runelite.client.plugins.timetracking.TimeTrackingConfig;
+
 @PluginDescriptor(
 		name = "Easy Farming",
 		description = "Show item requirements and highlights for farming runs."
 )
-
+@PluginDependency(TimeTrackingPlugin.class)
 public class EasyFarmingPlugin extends Plugin
 {
-	HerbRunItemAndLocation herbRunItemAndLocation;
-	TreeRunItemAndLocation treeRunItemAndLocation;
-	FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
-	HopsRunItemAndLocation hopsRunItemAndLocation;
+
 
 
 	@Inject
@@ -46,69 +44,32 @@ public class EasyFarmingPlugin extends Plugin
     @Inject
 	private Client client;
 
+	@Inject
+	private com.google.gson.Gson gson;
+
+	@Inject
+	private ConfigManager configManager;
+
+	@Getter
+	private com.easyfarming.managers.CustomRunManager customRunManager;
+
+	@Inject
+	@Getter
+	private com.easyfarming.runelite.farming.FarmingTracker farmingTracker;
+
+	@Inject
+	@Getter
+	private com.easyfarming.runelite.farming.FarmingWorld farmingWorld;
+
+	@Inject
+	@Getter
+	private com.easyfarming.runelite.farming.CompostTracker compostTracker;
+
 	public void runOnClientThread(Runnable task) {
 		clientThread.invokeLater(task);
 	}
 
-	public Location getArdougneLocation() {
-		return herbRunItemAndLocation.ardougneLocation;
-	}
-	public Location getCatherbyLocation() {
-		return herbRunItemAndLocation.catherbyLocation;
-	}
-	public Location getFaladorLocation() {
-		return herbRunItemAndLocation.faladorLocation;
-	}
-	public Location getFarmingGuildLocation() {return herbRunItemAndLocation.farmingGuildLocation;}
-	public Location getHarmonyLocation() {
-		return herbRunItemAndLocation.harmonyLocation;
-	}
-	public Location getKourendLocation() {
-		return herbRunItemAndLocation.kourendLocation;
-	}
-	public Location getMorytaniaLocation() {
-		return herbRunItemAndLocation.morytaniaLocation;
-	}
-	public Location getTrollStrongholdLocation() {
-		return herbRunItemAndLocation.trollStrongholdLocation;
-	}
 
-	public Location getWeissLocation() {
-		return herbRunItemAndLocation.weissLocation;
-	}
-
-	public Location getCivitasLocation() {
-		return herbRunItemAndLocation.civitasLocation;
-	}
-
-	//get Tree locations
-	public Location getFaladorTreeLocation() {return treeRunItemAndLocation.faladorTreeLocation;}
-	public Location getFarmingGuildTreeLocation() {
-		return treeRunItemAndLocation.farmingGuildTreeLocation;
-	}
-	public Location getGnomeStrongholdTreeLocation() {return treeRunItemAndLocation.gnomeStrongholdTreeLocation;}
-	public Location getLumbridgeTreeLocation() {return treeRunItemAndLocation.lumbridgeTreeLocation;}
-	public Location getTaverleyTreeLocation() {
-		return treeRunItemAndLocation.taverleyTreeLocation;
-	}
-	public Location getVarrockTreeLocation() {
-		return treeRunItemAndLocation.varrockTreeLocation;
-	}
-
-	//get fruit tree locations
-	public Location getBrimhavenFruitTreeLocation() {return fruitTreeRunItemAndLocation.brimhavenFruitTreeLocation;}
-	public Location getCatherbyFruitTreeLocation() {return fruitTreeRunItemAndLocation.catherbyFruitTreeLocation;}
-	public Location getFarmingGuildFruitTreeLocation() {return fruitTreeRunItemAndLocation.farmingGuildFruitTreeLocation;}
-	public Location getGnomeStrongholdFruitTreeLocation() {return fruitTreeRunItemAndLocation.gnomeStrongholdFruitTreeLocation;}
-	public Location getLletyaFruitTreeLocation() {return fruitTreeRunItemAndLocation.lletyaFruitTreeLocation;}
-	public Location getTreeGnomeVillageTreeLocation() {return fruitTreeRunItemAndLocation.treeGnomeVillageFruitTreeLocation;}
-
-	//get Hops locations
-	public Location getLumbridgeHopsLocation() {return hopsRunItemAndLocation.lumbridgeHopsLocation;}
-	public Location getSeersVillageHopsLocation() {return hopsRunItemAndLocation.seersVillageHopsLocation;}
-	public Location getYanilleHopsLocation() {return hopsRunItemAndLocation.yanilleHopsLocation;}
-	public Location getEntranaHopsLocation() {return hopsRunItemAndLocation.entranaHopsLocation;}
-	public Location getAldarinHopsLocation() {return hopsRunItemAndLocation.aldarinHopsLocation;}
 
 	@Getter
     @Setter
@@ -177,10 +138,41 @@ public class EasyFarmingPlugin extends Plugin
 		return farmingHelperOverlay;
 	}
 
+	public void startCustomRun(String runName) {
+		com.easyfarming.models.CustomRun run = getCustomRunManager().getCustomRun(runName);
+		if (run != null) {
+			farmingTeleportOverlay.startCustomRun(run);
+			isOverlayActive = true;
+		}
+	}
+
 	@Setter
     private boolean itemsCollected = false;
 	public boolean areItemsCollected() {
 		return itemsCollected;
+	}
+
+	// ── Tool toggle state (driven by OverviewPanel buttons) ─────────────────
+	@Getter private boolean toolSpade     = true;  // always required
+	@Getter private boolean toolSecateurs = true;
+	@Getter private boolean toolDibber    = true;
+	@Getter private boolean toolRake      = false;
+
+	public void setToolSpade(boolean v)     { toolSpade = v; }
+	public void setToolSecateurs(boolean v) { toolSecateurs = v; }
+	public void setToolDibber(boolean v)    { toolDibber = v; }
+	public void setToolRake(boolean v)      { toolRake = v; }
+
+	/** Returns the compost item ID based on current config, or -1 for none. */
+	public int getCompostId() {
+		if (config == null) return -1;
+		switch (config.enumConfigCompost()) {
+			case Compost:       return ItemID.BUCKET_COMPOST;
+			case Supercompost:  return ItemID.BUCKET_SUPERCOMPOST;
+			case Ultracompost:  return ItemID.BUCKET_ULTRACOMPOST;
+			case Bottomless:    return ItemID.BOTTOMLESS_COMPOST_BUCKET;
+			default:            return -1;
+		}
 	}
 
 	@Provides
@@ -188,46 +180,14 @@ public class EasyFarmingPlugin extends Plugin
 	{
 		return configManager.getConfig(EasyFarmingConfig.class);
 	}
-	
+
+
 	@Provides
 	com.easyfarming.overlays.utils.ColorProvider provideColorProvider(EasyFarmingConfig config)
 	{
 		return new com.easyfarming.overlays.utils.ColorProvider(config);
 	}
 	
-	@Provides
-	HerbRunItemAndLocation provideHerbRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
-	{
-		return new HerbRunItemAndLocation(config, client, plugin);
-	}
-	
-	@Provides
-	TreeRunItemAndLocation provideTreeRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
-	{
-		return new TreeRunItemAndLocation(config, client, plugin);
-	}
-	
-	@Provides
-	FruitTreeRunItemAndLocation provideFruitTreeRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
-	{
-		return new FruitTreeRunItemAndLocation(config, client, plugin);
-	}
-
-	@Provides
-	HopsRunItemAndLocation provideHopsRunItemAndLocation(EasyFarmingConfig config, Client client, EasyFarmingPlugin plugin)
-	{
-		return new HopsRunItemAndLocation(config, client, plugin);
-	}
-	
-	@Provides
-	EasyFarmingOverlay provideEasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, InfoBoxManager infoBoxManager,
-	                                             HerbRunItemAndLocation herbRunItemAndLocation,
-	                                             TreeRunItemAndLocation treeRunItemAndLocation,
-	                                             FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation,
-	                                             HopsRunItemAndLocation hopsRunItemAndLocation)
-	{
-		return new EasyFarmingOverlay(client, plugin, itemManager, infoBoxManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
-	}
 
     public void addTextToInfoBox(String text) {
 		farmingHelperOverlayInfoBox.setText(text);
@@ -324,13 +284,11 @@ public class EasyFarmingPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
-		herbRunItemAndLocation = new HerbRunItemAndLocation(config, client, this);
-		treeRunItemAndLocation = new TreeRunItemAndLocation(config, client, this);
-		fruitTreeRunItemAndLocation = new FruitTreeRunItemAndLocation(config, client, this);
-		hopsRunItemAndLocation = new HopsRunItemAndLocation(config, client, this);
-		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, infoBoxManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
+		customRunManager = new com.easyfarming.managers.CustomRunManager(configManager, gson);
 
-		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
+		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, infoBoxManager);
+
+		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, itemManager);
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
 
 		navButton = NavigationButton.builder()
@@ -348,8 +306,8 @@ public class EasyFarmingPlugin extends Plugin
 		// set overlay to inactive
 		isOverlayActive = false;
 		eventBus.register(this);
-
-		herbRunItemAndLocation.setupLocations();
+		eventBus.register(farmingTracker);
+		eventBus.register(compostTracker);
 	}
 
 	@Override
@@ -364,5 +322,7 @@ public class EasyFarmingPlugin extends Plugin
 		overlayManager.remove(farmingHelperOverlayInfoBox);
 
 		eventBus.unregister(this);
+		eventBus.unregister(farmingTracker);
+		eventBus.unregister(compostTracker);
 	}
 }

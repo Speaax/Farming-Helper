@@ -20,9 +20,9 @@ public class StartStopJButton extends JButton {
 
     public void setStartStopState(boolean started)
     {
-        String startOrStop = started ? "Stop " : "Start ";
+        String startOrStop = started ? "Stop" : "Start";
 
-        this.setText(startOrStop.concat(this.originalText));
+        this.setText(startOrStop);
         this.setBackground(started ? Color.RED : Color.BLACK);
     }
 }

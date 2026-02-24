@@ -2,258 +2,67 @@ package com.easyfarming;
 
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.overlay.OverlayManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
+import com.easyfarming.ui.OverviewPanel;
+import com.easyfarming.ui.RunDetailPanel;
 
 public class EasyFarmingPanel extends PluginPanel
 {
-    private static final Logger logger = LoggerFactory.getLogger(EasyFarmingPanel.class);
-    private final HerbRunItemAndLocation herbRunItemAndLocation;
-    private final TreeRunItemAndLocation treeRunItemAndLocation;
-    private  final FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
-    private final HopsRunItemAndLocation hopsRunItemAndLocation;
-	private final EasyFarmingPlugin plugin;
+    private final EasyFarmingPlugin plugin;
     private final OverlayManager overlayManager;
     private final FarmingTeleportOverlay farmingTeleportOverlay;
+    private final net.runelite.client.game.ItemManager itemManager;
 
-    public StartStopJButton herbButton;
-    public StartStopJButton treeButton;
-    public StartStopJButton fruitTreeButton;
-    public StartStopJButton hopsButton;
+    private final JPanel cardContainer;
+    private final CardLayout cardLayout;
+    private static final String OVERVIEW_PANEL = "OVERVIEW";
+    private static final String DETAIL_PANEL   = "DETAIL";
 
-    public EasyFarmingPanel(EasyFarmingPlugin plugin, OverlayManager overlayManager, FarmingTeleportOverlay farmingTeleportOverlay, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation, HopsRunItemAndLocation hopsRunItemAndLocation)
+    private OverviewPanel overviewPanel;
+    private RunDetailPanel currentDetailPanel;
+
+    public EasyFarmingPanel(EasyFarmingPlugin plugin,
+                            OverlayManager overlayManager,
+                            FarmingTeleportOverlay farmingTeleportOverlay,
+                            net.runelite.client.game.ItemManager itemManager)
     {
-        this.herbRunItemAndLocation = herbRunItemAndLocation;
-        this.treeRunItemAndLocation = treeRunItemAndLocation;
+        super(false);
+        this.plugin                 = plugin;
+        this.overlayManager         = overlayManager;
         this.farmingTeleportOverlay = farmingTeleportOverlay;
-        this.fruitTreeRunItemAndLocation = fruitTreeRunItemAndLocation;
-        this.hopsRunItemAndLocation = hopsRunItemAndLocation;
-
-        this.plugin = plugin;
-        this.overlayManager = overlayManager;
+        this.itemManager            = itemManager;
 
         setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JPanel layoutPanel = new JPanel();
-        layoutPanel.setLayout(new BoxLayout(layoutPanel, BoxLayout.Y_AXIS));
+        cardLayout    = new CardLayout();
+        cardContainer = new JPanel(cardLayout);
 
-        JPanel titlePanel = createTitlePanel();
-        JPanel farmRunButtons = createFarmRunButtons();
-        JPanel infoPanel = createInfoPanel();
+        overviewPanel = new OverviewPanel(plugin, this);
+        cardContainer.add(overviewPanel, OVERVIEW_PANEL);
 
-        layoutPanel.add(titlePanel);
-        layoutPanel.add(farmRunButtons);
-        layoutPanel.add(infoPanel);
-
-        add(layoutPanel, BorderLayout.NORTH);
+        add(cardContainer, BorderLayout.CENTER);
     }
 
-    private JPanel createTitlePanel()
-    {
-        JPanel titlePanel = new JPanel();
-        titlePanel.setBorder(new EmptyBorder(0, 0, 15, 0));
-        titlePanel.setLayout(new BorderLayout());
-
-        JLabel title = new JLabel("Pick a new farm run:");
-        titlePanel.add(title, BorderLayout.WEST);
-
-        return titlePanel;
+    public void showOverview() {
+        if (overviewPanel != null) {
+            overviewPanel.rebuildList();
+        }
+        cardLayout.show(cardContainer, OVERVIEW_PANEL);
+        if (currentDetailPanel != null) {
+            cardContainer.remove(currentDetailPanel);
+            currentDetailPanel = null;
+        }
     }
 
-    private JPanel createFarmRunButtons()
-    {
-        JPanel farmRunButtonsContainingPanel = new JPanel();
-        farmRunButtonsContainingPanel.setLayout(new BoxLayout(farmRunButtonsContainingPanel, BoxLayout.Y_AXIS));
-
-        // With GridLayout, you can't set the button height.
-        // With GridBagLayout, you can't make the buttons the full width of the container.
-        // The height seemed like the better thing to let go of.
-        JPanel farmRunButtonsPanel = new JPanel(new GridLayout(0, 1, 0, 15));
-        farmRunButtonsPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-        herbButton = new StartStopJButton("Herb Run");
-		herbButton.setFocusable(false);
-        herbButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                plugin.runOnClientThread(() -> {
-                    plugin.setOverlayActive(!plugin.isOverlayActive());
-
-                    herbButton.setStartStopState(plugin.isOverlayActive());
-
-                    onHerbButtonClicked();
-                });
-            }
-        });
-        farmRunButtonsPanel.add(herbButton);
-
-        treeButton = new StartStopJButton("Tree Run");
-        treeButton.setFocusable(false);
-        treeButton.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                plugin.runOnClientThread(() -> {
-                    plugin.setOverlayActive(!plugin.isOverlayActive());
-
-                    treeButton.setStartStopState(plugin.isOverlayActive());
-
-                    onTreeButtonClicked();
-                });
-            }
-        });
-        farmRunButtonsPanel.add(treeButton);
-
-        fruitTreeButton = new StartStopJButton("Fruit Tree Run");
-        fruitTreeButton.setFocusable(false);
-        fruitTreeButton.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                plugin.runOnClientThread(() -> {
-                    plugin.setOverlayActive(!plugin.isOverlayActive());
-
-                    fruitTreeButton.setStartStopState(plugin.isOverlayActive());
-
-                    onFruitTreeButtonClicked();
-                });
-            }
-        });
-        farmRunButtonsPanel.add(fruitTreeButton);
-
-        hopsButton = new StartStopJButton("Hops Run");
-        hopsButton.setFocusable(false);
-        hopsButton.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                plugin.runOnClientThread(() -> {
-                    plugin.setOverlayActive(!plugin.isOverlayActive());
-
-                    hopsButton.setStartStopState(plugin.isOverlayActive());
-
-                    onHopsButtonClicked();
-                });
-            }
-        });
-        farmRunButtonsPanel.add(hopsButton);
-
-        farmRunButtonsContainingPanel.add(farmRunButtonsPanel);
-
-        return farmRunButtonsContainingPanel;
-    }
-
-    private JPanel createInfoPanel()
-    {
-        JPanel infoContainingPanel = new JPanel();
-        infoContainingPanel.setLayout(new BoxLayout(infoContainingPanel, BoxLayout.Y_AXIS));
-        
-        JPanel infoPanel = new JPanel(new GridLayout(0, 1, 0, 0));
-        infoPanel.setBorder(new EmptyBorder(25, 0, 0, 0));
-
-        JTextArea textAreaTip = new JTextArea("Tips: \n - Rune pouch, combination runes, and elemental staffs work. \n - If you don't have Bottomless compost bucket you should store compost @ Tool Leprechaun, the plugin checks if you have compost stored there.");
-        textAreaTip.setWrapStyleWord(true);
-        textAreaTip.setLineWrap(true);
-        textAreaTip.setEditable(false);
-        infoPanel.add(textAreaTip);
-
-        infoContainingPanel.add(infoPanel);
-
-        return infoContainingPanel;
-    }
-
-    private void onHerbButtonClicked() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-
-                if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.removeOverlay();
-                    logger.debug("Remove overlay from button");
-                } else {
-                    logger.debug("Add overlay from button");
-                    plugin.getFarmingTeleportOverlay().herbRun = true;
-                    overlayManager.add(overlay);
-                    overlayManager.add(farmingTeleportOverlay);
-                }
-            }
-        });
-    }
-
-    private void onTreeButtonClicked()
-    {
-        // Handle button click event here
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run() {
-                EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-
-                if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.removeOverlay();
-                    logger.debug("Remove overlay from button");
-                } else {
-                    logger.debug("Add overlay from button");
-                    plugin.getFarmingTeleportOverlay().treeRun = true;
-                    overlayManager.add(overlay);
-                    overlayManager.add(farmingTeleportOverlay);
-                }
-            }
-        });
-    }
-	private void onFruitTreeButtonClicked()
-    {
-        // Handle button click event here
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run() {
-                EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-
-                if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.removeOverlay();
-                    logger.debug("Remove overlay from button");
-                } else {
-                    logger.debug("Add overlay from button");
-                    plugin.getFarmingTeleportOverlay().fruitTreeRun = true;
-                    overlayManager.add(overlay);
-                    overlayManager.add(farmingTeleportOverlay);
-                }
-            }
-        });
-    }
-
-    private void onHopsButtonClicked()
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run() {
-                EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-
-                if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.removeOverlay();
-                    logger.debug("Remove overlay from button");
-                } else {
-                    logger.debug("Add overlay from button");
-                    plugin.getFarmingTeleportOverlay().hopsRun = true;
-                    overlayManager.add(overlay);
-                    overlayManager.add(farmingTeleportOverlay);
-                }
-            }
-        });
+    public void showRunDetail(String runName) {
+        if (currentDetailPanel != null) {
+            cardContainer.remove(currentDetailPanel);
+        }
+        currentDetailPanel = new RunDetailPanel(plugin, this, runName, itemManager);
+        cardContainer.add(currentDetailPanel, DETAIL_PANEL);
+        cardLayout.show(cardContainer, DETAIL_PANEL);
     }
 }

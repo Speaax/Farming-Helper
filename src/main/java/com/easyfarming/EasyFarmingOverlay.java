@@ -20,18 +20,10 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import java.util.Iterator;
 
-import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
 import com.easyfarming.utils.Constants;
 
 public class EasyFarmingOverlay extends Overlay {
 
-    private HerbRunItemAndLocation herbRunItemAndLocation;
-    private TreeRunItemAndLocation treeRunItemAndLocation;
-    private FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
-    private HopsRunItemAndLocation hopsRunItemAndLocation;
     private final Client client;
     private final EasyFarmingPlugin plugin;
     private final PanelComponent panelComponent = new PanelComponent();
@@ -103,6 +95,8 @@ public class EasyFarmingOverlay extends Overlay {
         return ARDY_CLOAK_IDS.contains(itemId);
     }
 
+    /** Delegates to {@link com.easyfarming.items.ItemRelations#WATERING_CANS}. */
+    public static final Set<Integer> WATERING_CAN_IDS_SET = com.easyfarming.items.ItemRelations.WATERING_CANS;
     public static final List<Integer> WATERING_CAN_IDS = Constants.WATERING_CAN_IDS;
     private static final int BASE_WATERING_CAN_ID = Constants.WATERING_CAN_IDS.get(0);
 
@@ -111,7 +105,7 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
     public boolean isWateringCan(int itemId) {
-        return WATERING_CAN_IDS.contains(itemId);
+        return com.easyfarming.items.ItemRelations.matches(itemId, com.easyfarming.items.ItemRelations.ANY_WATERING_CAN);
     }
 
     public static final List<Integer> COMBAT_BRACELET_IDS = Constants.COMBAT_BRACELET_IDS;
@@ -129,29 +123,16 @@ public class EasyFarmingOverlay extends Overlay {
         return Constants.HOPS_PATCH_IDS;
     }
 
-    private static final List<Integer> HERB_SEED_IDS = Arrays.asList(
-            ItemID.GUAM_SEED, ItemID.MARRENTILL_SEED, ItemID.TARROMIN_SEED, ItemID.HARRALANDER_SEED,
-            ItemID.RANARR_SEED, ItemID.TOADFLAX_SEED, ItemID.IRIT_SEED, ItemID.AVANTOE_SEED,
-            ItemID.KWUARM_SEED, ItemID.SNAPDRAGON_SEED, ItemID.CADANTINE_SEED, ItemID.LANTADYME_SEED,
-            ItemID.DWARF_WEED_SEED, ItemID.TORSTOL_SEED, ItemID.HUASCA_SEED);
-    private static final int BASE_SEED_ID = ItemID.GUAM_SEED;
-    private static final int BASE_HOPS_SEED_ID = ItemID.BARLEY_SEED;
+    // ── Seed groups now delegate to ItemRelations ──────────────────────────
+    private static final int BASE_SEED_ID        = com.easyfarming.items.ItemRelations.ANY_HERB_SEED;
+    private static final int BASE_HOPS_SEED_ID   = com.easyfarming.items.ItemRelations.ANY_HOPS_SEED;
 
-    public List<Integer> getHerbSeedIds() {
-        return HERB_SEED_IDS;
-    }
+    public List<Integer> getHerbSeedIds()  { return new ArrayList<>(com.easyfarming.items.ItemRelations.HERB_SEEDS); }
+    public List<Integer> getHopsSeedIds()  { return Constants.HOPS_SEED_IDS; }
 
-    public List<Integer> getHopsSeedIds() {
-        return Constants.HOPS_SEED_IDS;
-    }
+    private boolean isHerbSeed(int itemId)  { return com.easyfarming.items.ItemRelations.matches(itemId, com.easyfarming.items.ItemRelations.ANY_HERB_SEED); }
+    private boolean isHopsSeed(int itemId)  { return com.easyfarming.items.ItemRelations.matches(itemId, com.easyfarming.items.ItemRelations.ANY_HOPS_SEED); }
 
-    private boolean isHerbSeed(int itemId) {
-        return HERB_SEED_IDS.contains(itemId);
-    }
-
-    private boolean isHopsSeed(int itemId) {
-        return Constants.HOPS_SEED_IDS.contains(itemId);
-    }
 
     public List<Integer> getFlowerPatchIds() {
         return Constants.FLOWER_PATCH_IDS;
@@ -215,53 +196,26 @@ public class EasyFarmingOverlay extends Overlay {
         return Constants.FRUIT_TREE_PATCH_IDS_BY_LOCATION.get(locationName);
     }
 
-    private static final List<Integer> ALLOTMENT_SEED_IDS = Arrays.asList(
-            ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
-            ItemID.SWEETCORN_SEED, ItemID.STRAWBERRY_SEED, ItemID.WATERMELON_SEED, ItemID.SNAPE_GRASS_SEED);
-    private static final int BASE_ALLOTMENT_SEED_ID = ItemID.SNAPE_GRASS_SEED;
+    // ── Allotment seeds ────────────────────────────────────────────────────
+    private static final int BASE_ALLOTMENT_SEED_ID = com.easyfarming.items.ItemRelations.ANY_ALLOTMENT_SEED;
 
-    public List<Integer> getAllotmentSeedIds() {
-        return Constants.ALLOTMENT_SEED_IDS;
-    }
+    public List<Integer> getAllotmentSeedIds() { return Constants.ALLOTMENT_SEED_IDS; }
+    private boolean isAllotmentSeed(int itemId) { return com.easyfarming.items.ItemRelations.matches(itemId, com.easyfarming.items.ItemRelations.ANY_ALLOTMENT_SEED); }
 
-    private boolean isAllotmentSeed(int itemId) {
-        return Constants.isAllotmentSeed(itemId);
-    }
+    public List<Integer> getTreePatchIds() { return Constants.TREE_PATCH_IDS; }
 
-    public List<Integer> getTreePatchIds() {
-        return Constants.TREE_PATCH_IDS;
-    }
+    // ── Sapling groups now delegate to ItemRelations ───────────────────────
+    private static final int BASE_SAPLING_ID      = com.easyfarming.items.ItemRelations.ANY_TREE_SAPLING;
+    private static final int BASE_FRUIT_SAPLING_ID = com.easyfarming.items.ItemRelations.ANY_FRUIT_SAPLING;
 
-    private static final List<Integer> TREE_SAPLING_IDS = Arrays.asList(ItemID.PLANTPOT_OAK_SAPLING,
-            ItemID.PLANTPOT_WILLOW_SAPLING, ItemID.PLANTPOT_MAPLE_SAPLING, ItemID.PLANTPOT_YEW_SAPLING,
-            ItemID.PLANTPOT_MAGIC_TREE_SAPLING);
-    private static final int BASE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
+    public List<Integer> getTreeSaplingIds()      { return new ArrayList<>(com.easyfarming.items.ItemRelations.TREE_SAPLINGS); }
+    public List<Integer> getFruitTreeSaplingIds() { return new ArrayList<>(com.easyfarming.items.ItemRelations.FRUIT_SAPLINGS); }
 
-    public List<Integer> getTreeSaplingIds() {
-        return TREE_SAPLING_IDS;
-    }
+    private boolean isTreeSapling(int itemId)      { return com.easyfarming.items.ItemRelations.matches(itemId, com.easyfarming.items.ItemRelations.ANY_TREE_SAPLING); }
+    private boolean isFruitTreeSapling(int itemId) { return com.easyfarming.items.ItemRelations.matches(itemId, com.easyfarming.items.ItemRelations.ANY_FRUIT_SAPLING); }
 
-    private boolean isTreeSapling(int itemId) {
-        return TREE_SAPLING_IDS.contains(itemId);
-    }
+    public List<Integer> getFruitTreePatchIds() { return Constants.FRUIT_TREE_PATCH_IDS; }
 
-    public List<Integer> getFruitTreePatchIds() {
-        return Constants.FRUIT_TREE_PATCH_IDS;
-    }
-
-    private static final List<Integer> FRUIT_TREE_SAPLING_IDS = Arrays.asList(ItemID.PLANTPOT_APPLE_SAPLING,
-            ItemID.PLANTPOT_BANANA_SAPLING, ItemID.PLANTPOT_ORANGE_SAPLING, ItemID.PLANTPOT_CURRY_SAPLING,
-            ItemID.PLANTPOT_PINEAPPLE_SAPLING, ItemID.PLANTPOT_PAPAYA_SAPLING, ItemID.PLANTPOT_PALM_SAPLING,
-            ItemID.PLANTPOT_DRAGONFRUIT_SAPLING);
-    private static final int BASE_FRUIT_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
-
-    public List<Integer> getFruitTreeSaplingIds() {
-        return FRUIT_TREE_SAPLING_IDS;
-    }
-
-    private boolean isFruitTreeSapling(int itemId) {
-        return FRUIT_TREE_SAPLING_IDS.contains(itemId);
-    }
 
     public static final List<Integer> RUNE_POUCH_ID = Arrays.asList(ItemID.BH_RUNE_POUCH, ItemID.DIVINE_RUNE_POUCH);
 
@@ -459,17 +413,11 @@ public class EasyFarmingOverlay extends Overlay {
 
     @Inject
     public EasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager,
-            InfoBoxManager infoBoxManager, HerbRunItemAndLocation herbRunItemAndLocation,
-            TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation,
-            HopsRunItemAndLocation hopsRunItemAndLocation) {
+            InfoBoxManager infoBoxManager) {
         this.client = client;
         this.plugin = plugin;
         this.itemManager = itemManager;
         this.infoBoxManager = infoBoxManager;
-        this.herbRunItemAndLocation = herbRunItemAndLocation;
-        this.treeRunItemAndLocation = treeRunItemAndLocation;
-        this.fruitTreeRunItemAndLocation = fruitTreeRunItemAndLocation;
-        this.hopsRunItemAndLocation = hopsRunItemAndLocation;
         setPosition(OverlayPosition.BOTTOM_RIGHT);
         setLayer(OverlayLayer.ABOVE_SCENE);
     }
@@ -594,367 +542,115 @@ public class EasyFarmingOverlay extends Overlay {
 
         if (!plugin.areItemsCollected()) {
             plugin.addTextToInfoBox("Grab all the items needed");
-            // List of items to check
-            Map<Integer, Integer> itemsToCheck = null;
-            if (plugin.getFarmingTeleportOverlay().herbRun) {
-                itemsToCheck = herbRunItemAndLocation.getHerbItems();
-            }
-            if (plugin.getFarmingTeleportOverlay().treeRun) {
-                itemsToCheck = treeRunItemAndLocation.getTreeItems();
-            }
-            if (plugin.getFarmingTeleportOverlay().fruitTreeRun) {
-                itemsToCheck = fruitTreeRunItemAndLocation.getFruitTreeItems();
-            }
-            if (plugin.getFarmingTeleportOverlay().hopsRun) {
-                itemsToCheck = hopsRunItemAndLocation.getHopsItems();
-            }
 
-            if (itemsToCheck == null || itemsToCheck.isEmpty()) {
+            // Build requirements via the unified ItemRequirements system
+            FarmingTeleportOverlay teleportOverlay = plugin.getFarmingTeleportOverlay();
+            java.util.List<com.easyfarming.core.Location> enabledLocs =
+                    teleportOverlay != null ? teleportOverlay.getEnabledLocations() : null;
+
+            Map<Integer, Integer> requirements = com.easyfarming.items.ItemRequirements.buildRequirements(
+                    enabledLocs,
+                    plugin.isToolSpade(),
+                    plugin.isToolDibber(),
+                    plugin.isToolSecateurs(),
+                    plugin.isToolRake(),
+                    plugin.getCompostId()
+            );
+
+            if (requirements.isEmpty()) {
                 return null;
             }
 
+            // Merge rune-pouch and equipped items so ItemRequirements can count everything
             ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+            Item[] items = (inventory != null && inventory.getItems() != null)
+                    ? inventory.getItems() : new Item[0];
 
-            Item[] items;
-            if (inventory == null || inventory.getItems() == null) {
-                items = new Item[0];
-            } else {
-                items = inventory.getItems();
-            }
-
-            // Build expanded rune map once before any requirement checks
-            Map<Integer, Integer> expandedRuneMap = buildExpandedRuneMap(items);
-
-            int teleportCrystalCount = 0;
-            for (Item item : items) {
-                if (isTeleportCrystal(item.getId())) {
-                    teleportCrystalCount += item.getQuantity();
-                }
-            }
-            int skillsNecklaceCharges = 0;
-            // Count charges from inventory
-            for (Item item : items) {
-                if (isSkillsNecklace(item.getId())) {
-                    int charges = getSkillsNecklaceCharges(item.getId());
-                    skillsNecklaceCharges += charges * item.getQuantity();
-                }
-            }
-            // Count charges from equipped items
             Map<Integer, Integer> equippedItems = getEquippedItems();
-            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
-                int equippedItemId = equippedEntry.getKey();
-                if (isSkillsNecklace(equippedItemId)) {
-                    int charges = getSkillsNecklaceCharges(equippedItemId);
-                    skillsNecklaceCharges += charges;
+
+            // Expand rune pouch into equipped-like map so rune requirements still work
+            boolean hasRunePouch = false;
+            for (Item it : items) {
+                if (it != null && RUNE_POUCH_ID.contains(it.getId())) { hasRunePouch = true; break; }
+            }
+            if (hasRunePouch) {
+                Map<Integer, Integer> expandedRunes = buildExpandedRuneMap(items);
+                for (Map.Entry<Integer, Integer> e : expandedRunes.entrySet()) {
+                    equippedItems.merge(e.getKey(), e.getValue(), Integer::sum);
                 }
             }
-            int quetzalWhistleCount = 0;
-            for (Item item : items) {
-                if (isQuetzalWhistle(item.getId())) {
-                    quetzalWhistleCount += item.getQuantity();
+            // Expand combination runes
+            Map<Integer, Integer> extraRunes = new HashMap<>();
+            for (Item it : items) {
+                if (it == null) continue;
+                List<Integer> subs = COMBINATION_RUNE_SUBRUNES_MAP.get(it.getId());
+                if (subs != null) {
+                    for (int sub : subs) extraRunes.merge(sub, it.getQuantity(), Integer::sum);
                 }
             }
-            int combatBraceletCharges = 0;
-            for (Item item : items) {
-                if (isCombatBracelet(item.getId())) {
-                    int charges = Constants.getCombatBraceletCharges(item.getId());
-                    combatBraceletCharges += charges * item.getQuantity();
-                }
-            }
-            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
-                if (isCombatBracelet(equippedEntry.getKey())) {
-                    combatBraceletCharges += Constants.getCombatBraceletCharges(equippedEntry.getKey());
-                }
+            for (Map.Entry<Integer, Integer> e : extraRunes.entrySet()) {
+                equippedItems.merge(e.getKey(), e.getValue(), Integer::sum);
             }
 
-            int totalSeeds = 0;
-            int totalAllotmentSeeds = 0;
-            if (plugin.getFarmingTeleportOverlay().herbRun) {
-                for (Item item : items) {
-                    if (isHerbSeed(item.getId())) {
-                        totalSeeds += item.getQuantity();
-                    }
-                    if (isAllotmentSeed(item.getId())) {
-                        totalAllotmentSeeds += item.getQuantity();
-                    }
-                }
+            Map<Integer, Integer> missing = com.easyfarming.items.ItemRequirements.getMissingItems(
+                    requirements, items, equippedItems);
+
+            // Build display list sorted by item priority
+            List<AbstractMap.SimpleEntry<Integer, Integer>> missingList = new ArrayList<>();
+            for (Map.Entry<Integer, Integer> e : missing.entrySet()) {
+                missingList.add(new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue()));
             }
-            if (plugin.getFarmingTeleportOverlay().treeRun) {
-                for (Item item : items) {
-                    if (isTreeSapling(item.getId())) {
-                        totalSeeds += item.getQuantity();
-                    }
-                }
-            }
-            if (plugin.getFarmingTeleportOverlay().fruitTreeRun) {
-                for (Item item : items) {
-                    if (isFruitTreeSapling(item.getId())) {
-                        totalSeeds += item.getQuantity();
-                    }
-                }
-            }
-            if (plugin.getFarmingTeleportOverlay().hopsRun) {
-                for (Item item : items) {
-                    if (isHopsSeed(item.getId())) {
-                        totalSeeds += item.getQuantity();
-                    }
-                }
-            }
+            missingList.sort((a, b) -> Integer.compare(getItemPriority(a.getKey()), getItemPriority(b.getKey())));
 
             panelComponent.getChildren().clear();
 
-            // Single inventory scan to build comprehensive item count map (including rune
-            // pouch expansions)
-            Map<Integer, Integer> inventoryItemCounts = new HashMap<>();
-            boolean hasRunePouch = false;
+            // Sync InfoBoxes
+            Set<Integer> currentMissingIds = new HashSet<>();
+            for (AbstractMap.SimpleEntry<Integer, Integer> pair : missingList) currentMissingIds.add(pair.getKey());
 
-            // First pass: scan inventory for regular items and check for rune pouch
-            for (Item item : items) {
-                if (item != null) {
-                    int itemId = item.getId();
-                    int itemQuantity = item.getQuantity();
-
-                    // Check if this is a rune pouch
-                    if (RUNE_POUCH_ID.contains(itemId)) {
-                        hasRunePouch = true;
+            if (infoBoxManager != null) {
+                Iterator<Map.Entry<Integer, RequiredItemInfoBox>> it = currentInfoBoxes.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<Integer, RequiredItemInfoBox> e = it.next();
+                    if (!currentMissingIds.contains(e.getKey())) {
+                        infoBoxManager.removeInfoBox(e.getValue());
+                        it.remove();
                     }
-
-                    if (COMBINATION_RUNE_SUBRUNES_MAP.containsKey(itemId)) {
-                        // Handle combination runes
-                        List<Integer> subRunes = COMBINATION_RUNE_SUBRUNES_MAP.get(itemId);
-                        for (int subRune : subRunes) {
-                            inventoryItemCounts.put(subRune,
-                                    inventoryItemCounts.getOrDefault(subRune, 0) + itemQuantity);
-                        }
-                    } else if (STAFF_RUNES_MAP.containsKey(itemId)) {
-                        // Handle staffs - add their runes with large amount
-                        List<Integer> staffRunes = STAFF_RUNES_MAP.get(itemId);
-                        for (int rune : staffRunes) {
-                            // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to
-                            // avoid overflow
-                            inventoryItemCounts.put(rune,
-                                    Math.max(inventoryItemCounts.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
+                }
+                for (AbstractMap.SimpleEntry<Integer, Integer> pair : missingList) {
+                    int itemId = pair.getKey();
+                    int count  = pair.getValue();
+                    java.awt.image.BufferedImage img = itemManager.getImage(itemId);
+                    if (img == null) continue;
+                    RequiredItemInfoBox existing = currentInfoBoxes.get(itemId);
+                    if (existing != null) {
+                        if (existing.getMissingCount() != count) {
+                            infoBoxManager.removeInfoBox(existing);
+                            RequiredItemInfoBox updated = new RequiredItemInfoBox(img, plugin, itemId, count);
+                            infoBoxManager.addInfoBox(updated);
+                            currentInfoBoxes.put(itemId, updated);
                         }
                     } else {
-                        // Handle regular items - sum quantities across slots (e.g. multiple compost)
-                        inventoryItemCounts.put(itemId, inventoryItemCounts.getOrDefault(itemId, 0) + itemQuantity);
+                        RequiredItemInfoBox box = new RequiredItemInfoBox(img, plugin, itemId, count);
+                        infoBoxManager.addInfoBox(box);
+                        currentInfoBoxes.put(itemId, box);
                     }
                 }
             }
 
-            // Second pass: if rune pouch exists, add expanded rune map contents to
-            // inventory counts
-            if (hasRunePouch) {
-                for (Map.Entry<Integer, Integer> runeEntry : expandedRuneMap.entrySet()) {
-                    int runeId = runeEntry.getKey();
-                    int runeCount = runeEntry.getValue();
-                    inventoryItemCounts.put(runeId, inventoryItemCounts.getOrDefault(runeId, 0) + runeCount);
-                }
-            }
+            plugin.setTeleportOverlayActive(missingList.isEmpty());
 
-            // Third pass: add equipped items to inventory counts
-            // Note: equippedItems was already retrieved above for skills necklace charges
-            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
-                int equippedItemId = equippedEntry.getKey();
-                int equippedCount = equippedEntry.getValue();
-
-                // Check if equipped item is a staff
-                if (STAFF_RUNES_MAP.containsKey(equippedItemId)) {
-                    // Handle staffs - add their runes with large amount
-                    List<Integer> staffRunes = STAFF_RUNES_MAP.get(equippedItemId);
-                    for (int rune : staffRunes) {
-                        // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to
-                        // avoid overflow
-                        inventoryItemCounts.put(rune,
-                                Math.max(inventoryItemCounts.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
-                    }
-                } else {
-                    // Handle regular equipped items
-                    inventoryItemCounts.put(equippedItemId,
-                            inventoryItemCounts.getOrDefault(equippedItemId, 0) + equippedCount);
-                }
-            }
-
-            List<AbstractMap.SimpleEntry<Integer, Integer>> missingItemsWithCounts = new ArrayList<>();
-            boolean allItemsCollected = true;
-            for (Map.Entry<Integer, Integer> entry : itemsToCheck.entrySet()) {
-                int itemId = entry.getKey();
-                int count = entry.getValue();
-
-                // Start with inventory count from single scan
-                int inventoryCount = inventoryItemCounts.getOrDefault(itemId, 0);
-
-                // Special handling for bottomless compost bucket - check for filled variants in
-                // inventory
-                if (itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
-                    // Check inventory for any bottomless bucket variant (empty or filled)
-                    for (Item item : items) {
-                        if (item != null && BOTTOMLESS_COMPOST_BUCKET_IDS.contains(item.getId())) {
-                            inventoryCount = 1;
-                            break;
-                        }
-                    }
-                }
-
-                // Add tool lep count
-                int toolLepCount = checkToolLep(itemId);
-                if (toolLepCount > 0) {
-                    inventoryCount += toolLepCount;
-                }
-
-                // Apply run-specific and item-specific overrides in order
-                if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_SEED_ID) {
-                    inventoryCount = totalSeeds;
-                } else if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_ALLOTMENT_SEED_ID) {
-                    inventoryCount = totalAllotmentSeeds;
-                } else if (plugin.getFarmingTeleportOverlay().treeRun && itemId == BASE_SAPLING_ID) {
-                    inventoryCount = totalSeeds;
-                } else if (plugin.getFarmingTeleportOverlay().fruitTreeRun && itemId == BASE_FRUIT_SAPLING_ID) {
-                    inventoryCount = totalSeeds;
-                } else if (plugin.getFarmingTeleportOverlay().hopsRun && itemId == BASE_HOPS_SEED_ID) {
-                    inventoryCount = totalSeeds;
-                } else if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
-                    inventoryCount = teleportCrystalCount;
-                } else if (itemId == BASE_SKILLS_NECKLACE_ID) {
-                    // Skills necklace requirement is in charges, not number of items
-                    inventoryCount = skillsNecklaceCharges;
-                } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC) {
-                    inventoryCount = quetzalWhistleCount;
-                } else if (itemId == BASE_EXPLORERS_RING_ID) {
-                    // Check if any Explorer's Ring variant is equipped or in inventory
-                    // First check inventoryItemCounts (includes equipped items from third pass)
-                    // Then also directly check equippedItems as a fallback to ensure detection
-                    boolean hasExplorersRing = false;
-                    for (int ringId : EXPLORERS_RING_IDS) {
-                        // Check in inventoryItemCounts first
-                        if (inventoryItemCounts.containsKey(ringId) && inventoryItemCounts.get(ringId) > 0) {
-                            hasExplorersRing = true;
-                            break;
-                        }
-                        // Also directly check equipped items as fallback
-                        if (equippedItems.containsKey(ringId) && equippedItems.get(ringId) > 0) {
-                            hasExplorersRing = true;
-                            break;
-                        }
-                    }
-                    inventoryCount = hasExplorersRing ? 1 : 0;
-                } else if (itemId == BASE_ARDY_CLOAK_ID) {
-                    // Check if any Ardougne Cloak variant is equipped or in inventory
-                    // inventoryItemCounts already includes equipped items from the third pass
-                    boolean hasArdyCloak = false;
-                    for (int cloakId : ARDY_CLOAK_IDS) {
-                        if (inventoryItemCounts.containsKey(cloakId) && inventoryItemCounts.get(cloakId) > 0) {
-                            hasArdyCloak = true;
-                            break;
-                        }
-                    }
-                    inventoryCount = hasArdyCloak ? 1 : 0;
-                } else if (itemId == BASE_WATERING_CAN_ID) {
-                    // Check if any watering can variant is equipped or in inventory
-                    // inventoryItemCounts already includes equipped items from the third pass
-                    boolean hasWateringCan = false;
-                    for (int canId : WATERING_CAN_IDS) {
-                        if (inventoryItemCounts.containsKey(canId) && inventoryItemCounts.get(canId) > 0) {
-                            hasWateringCan = true;
-                            break;
-                        }
-                    }
-                    inventoryCount = hasWateringCan ? 1 : 0;
-                } else if (itemId == BASE_COMBAT_BRACELET_ID) {
-                    // Requirement is CHARGES, not number of bracelets. Sum charges from all bracelets.
-                    inventoryCount = combatBraceletCharges;
-                }
-
-                // Rune pouch contents are already included in inventoryItemCounts
-
-                if (inventoryCount < count) {
-                    allItemsCollected = false;
-                    int missingCount = count - inventoryCount;
-                    BufferedImage itemImage = itemManager.getImage(itemId);
-                    if (itemImage != null) {
-                        // Add the missing item and count to the list
-                        missingItemsWithCounts.add(new AbstractMap.SimpleEntry<>(itemId, missingCount));
-                    }
-                }
-            }
-
-            // Sort missing items: tools first, then teleport items (basalts last among
-            // teleports), then consumable supplies
-            missingItemsWithCounts.sort((entry1, entry2) -> {
-                int itemId1 = entry1.getKey();
-                int itemId2 = entry2.getKey();
-
-                // Get priority: 0 = tools, 1 = regular teleport, 2 = basalt, 3 = consumable
-                int priority1 = getItemPriority(itemId1);
-                int priority2 = getItemPriority(itemId2);
-
-                // Compare priorities
-                return Integer.compare(priority1, priority2);
-            });
-
-            plugin.setTeleportOverlayActive(allItemsCollected);
-
-            // Update InfoBoxes - remove ones that are no longer needed, add/update ones
-            // that are
-            Set<Integer> currentMissingItemIds = new HashSet<>();
-            for (AbstractMap.SimpleEntry<Integer, Integer> pair : missingItemsWithCounts) {
-                currentMissingItemIds.add(pair.getKey());
-            }
-
-            // Remove InfoBoxes for items that are no longer missing
-            if (infoBoxManager != null) {
-                Iterator<Map.Entry<Integer, RequiredItemInfoBox>> iterator = currentInfoBoxes.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<Integer, RequiredItemInfoBox> entry = iterator.next();
-                    int itemId = entry.getKey();
-                    if (!currentMissingItemIds.contains(itemId)) {
-                        infoBoxManager.removeInfoBox(entry.getValue());
-                        iterator.remove();
-                    }
-                }
-            }
-
-            // Add or update InfoBoxes for missing items
-            if (infoBoxManager != null) {
-                for (AbstractMap.SimpleEntry<Integer, Integer> pair : missingItemsWithCounts) {
-                    int itemId = pair.getKey();
-                    int missingCount = pair.getValue();
-
-                    BufferedImage itemImage = itemManager.getImage(itemId);
-                    if (itemImage != null) {
-                        RequiredItemInfoBox existingInfoBox = currentInfoBoxes.get(itemId);
-                        if (existingInfoBox != null) {
-                            // Update existing InfoBox if count changed
-                            if (existingInfoBox.getMissingCount() != missingCount) {
-                                infoBoxManager.removeInfoBox(existingInfoBox);
-                                RequiredItemInfoBox newInfoBox = new RequiredItemInfoBox(itemImage, plugin, itemId,
-                                        missingCount);
-                                infoBoxManager.addInfoBox(newInfoBox);
-                                currentInfoBoxes.put(itemId, newInfoBox);
-                            }
-                        } else {
-                            // Create new InfoBox
-                            RequiredItemInfoBox infoBox = new RequiredItemInfoBox(itemImage, plugin, itemId,
-                                    missingCount);
-                            infoBoxManager.addInfoBox(infoBox);
-                            currentInfoBoxes.put(itemId, infoBox);
-                        }
-                    }
-                }
-            }
-
-            // Check if all items have been collected
-            if (missingItemsWithCounts.isEmpty()) {
+            if (missingList.isEmpty()) {
                 plugin.setItemsCollected(true);
+                System.out.println("[EasyFarming] All items in inventory");
             } else {
                 plugin.setItemsCollected(false);
             }
 
-            // Render panel (for any other content if needed)
             return panelComponent.render(graphics);
         }
 
-        // If items are collected, clear all InfoBoxes
+        // Items are collected — clear InfoBoxes
         clearAllInfoBoxes();
         return null;
     }

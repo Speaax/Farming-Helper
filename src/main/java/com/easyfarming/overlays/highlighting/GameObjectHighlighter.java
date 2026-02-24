@@ -26,6 +26,7 @@ public class GameObjectHighlighter {
 
     /** Cache of objectId -> list of game objects in current scene. */
     private final Map<Integer, List<GameObject>> objectCache = new HashMap<>();
+    private final Map<Integer, List<GameObject>> varbitCache = new HashMap<>();
     /** Scene key when cache was built: regionId * 10 + plane. */
     private int lastSceneKey = -1;
 
@@ -38,7 +39,7 @@ public class GameObjectHighlighter {
     /**
      * Finds all game objects with the specified ID in the current scene.
      * Results are cached per scene (region + plane); cache is cleared when the player
-     * changes region or plane so we do not scan the full 104x104 scene every frame.
+     * changes region or plane.
      */
     public List<GameObject> findGameObjectsByID(int objectID) {
         if (client.getLocalPlayer() == null) {
@@ -54,6 +55,7 @@ public class GameObjectHighlighter {
 
         if (sceneKey != lastSceneKey) {
             objectCache.clear();
+            varbitCache.clear();
             lastSceneKey = sceneKey;
         }
 
@@ -80,6 +82,54 @@ public class GameObjectHighlighter {
         objectCache.put(objectID, gameObjects);
         return gameObjects;
     }
+
+    /**
+     * Finds all game objects with the specified Varbit ID in the current scene.
+     */
+    public List<GameObject> findGameObjectsByVarbit(int varbitId) {
+        if (client.getLocalPlayer() == null) {
+            return new ArrayList<>();
+        }
+        WorldView wv = client.getTopLevelWorldView();
+        if (wv == null || wv.getScene() == null) {
+            return new ArrayList<>();
+        }
+        int plane = wv.getPlane();
+        int regionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        int sceneKey = regionId * 10 + plane;
+
+        if (sceneKey != lastSceneKey) {
+            objectCache.clear();
+            varbitCache.clear();
+            lastSceneKey = sceneKey;
+        }
+
+        List<GameObject> cached = varbitCache.get(varbitId);
+        if (cached != null) {
+            return cached;
+        }
+
+        List<GameObject> gameObjects = new ArrayList<>();
+        Tile[][][] tiles = wv.getScene().getTiles();
+        for (int x = 0; x < Constants.SCENE_SIZE; x++) {
+            for (int y = 0; y < Constants.SCENE_SIZE; y++) {
+                Tile tile = tiles[plane][x][y];
+                if (tile == null) {
+                    continue;
+                }
+                for (GameObject gameObject : tile.getGameObjects()) {
+                    if (gameObject != null) {
+                        net.runelite.api.ObjectComposition def = client.getObjectDefinition(gameObject.getId());
+                        if (def != null && def.getVarbitId() == varbitId) {
+                            gameObjects.add(gameObject);
+                        }
+                    }
+                }
+            }
+        }
+        varbitCache.put(varbitId, gameObjects);
+        return gameObjects;
+    }
     
     /**
      * Draws the clickbox for a game object.
@@ -102,6 +152,16 @@ public class GameObjectHighlighter {
         }
     }
     
+    /**
+     * Renders a highlight directly by finding objects matching the Varbit ID.
+     */
+    public void renderGameObjectByVarbit(Graphics2D graphics, int varbitId, Color color) {
+        List<GameObject> gameObjects = findGameObjectsByVarbit(varbitId);
+        for (GameObject gameObject : gameObjects) {
+            drawGameObjectClickbox(graphics, gameObject, color);
+        }
+    }
+
     /**
      * Creates an overlay that highlights a game object by ID.
      */

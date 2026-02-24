@@ -5,6 +5,7 @@ import com.easyfarming.core.Teleport;
 import com.easyfarming.overlays.highlighting.*;
 import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.PatchStateChecker;
+import com.easyfarming.overlays.utils.GenericPatchChecker;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
@@ -93,7 +94,7 @@ public class FarmingStepHandler {
             return;
         }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        HerbPatchChecker.PlantState plantState = HerbPatchChecker.PlantState.UNKNOWN;
+        GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
@@ -125,7 +126,7 @@ public class FarmingStepHandler {
         
         // Check state for herb patch
         if (varbitId != -1) {
-            plantState = HerbPatchChecker.checkHerbPatch(client, varbitId);
+            plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
         }
         
         if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
@@ -220,7 +221,7 @@ public class FarmingStepHandler {
             return;
         }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        HopsPatchChecker.PlantState plantState = HopsPatchChecker.PlantState.UNKNOWN;
+        GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
@@ -255,7 +256,7 @@ public class FarmingStepHandler {
         
         // Check state for hops patch
         if (varbitId != -1) {
-            plantState = HopsPatchChecker.checkHopsPatch(client, varbitId);
+            plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
         }
         
         // Get patch location for this hops location
@@ -270,7 +271,7 @@ public class FarmingStepHandler {
         // The varbit detection is the most reliable indicator that we're at the correct patch
         // Show instructions if: near patch OR (valid state detected AND we're in a hops region)
         boolean isHopsRegion = locationName != null && !locationName.equals("Unknown");
-        boolean shouldShowInstructions = nearPatch || (plantState != HopsPatchChecker.PlantState.UNKNOWN && isHopsRegion);
+        boolean shouldShowInstructions = nearPatch || (plantState != GenericPatchChecker.PlantState.UNKNOWN && isHopsRegion);
         
         if (!shouldShowInstructions) {
             // Highlight all hops patches when far from patch and no state detected
@@ -303,14 +304,7 @@ public class FarmingStepHandler {
                         plugin.addTextToInfoBox("Rake the hops patch.");
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
                         break;
-                    case NEEDS_WATER:
-                        plugin.addTextToInfoBox("Water the hops patch.");
-                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
-                        // Highlight all watering can variants
-                        for (int canId : Constants.WATERING_CAN_IDS) {
-                            itemHighlighter.itemHighlight(graphics, canId, useItemColor);
-                        }
-                        break;
+
                     case GROWING:
                         // Check persistent state FIRST - if already composted, mark as done and return
                         if (hopsPatchComposted) {
@@ -429,7 +423,7 @@ public class FarmingStepHandler {
         }
         if (farmLimps) {
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-            FlowerPatchChecker.PlantState plantState = FlowerPatchChecker.PlantState.UNKNOWN;
+            GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
             Color leftColor = colorProvider.getLeftClickColorWithAlpha();
             Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
             
@@ -457,7 +451,7 @@ public class FarmingStepHandler {
             
             // Check state for flower patch
             if (varbitId != -1) {
-                plantState = FlowerPatchChecker.checkFlowerPatch(client, varbitId);
+                plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
             }
             // Get patch location for this flower location
             WorldPoint patchPoint = getFlowerPatchPoint(locationName);
@@ -720,7 +714,7 @@ public class FarmingStepHandler {
      * Gets the priority of a plant state for determining which patch to handle first.
      * Higher priority = handle first.
      */
-    private int getStatePriority(AllotmentPatchChecker.PlantState state) {
+    private int getStatePriority(GenericPatchChecker.PlantState state) {
         switch (state) {
             case HARVESTABLE: return 7;
             case DEAD: return 6;
@@ -823,27 +817,27 @@ public class FarmingStepHandler {
         }
         
         // Check state for north patch
-        AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
+        GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
         
         if (varbitId != -1) {
-            plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
+            plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
         }
 
         // Check completion status for north patch
         // HARVESTABLE is NOT completed - user still needs to harvest
         // Only GROWING + composted is considered completed (nothing more to do)
-        boolean completed = plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(0);
+        boolean completed = plantState == GenericPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(0);
         allotmentPatchState.setPatchCompleted(0, completed);
         
         // Handle early returns in a single place
-        if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
+        if (plantState == GenericPatchChecker.PlantState.UNKNOWN) {
             plugin.addTextToInfoBox("Allotment patch state unknown - north patch");
             return;
         }
         
         // If completed and not HARVESTABLE, return early (no need to show further instructions)
         // This prevents re-highlighting after other game actions
-        if (completed && plantState != AllotmentPatchChecker.PlantState.HARVESTABLE) {
+        if (completed && plantState != GenericPatchChecker.PlantState.HARVESTABLE) {
             return;
         }
         
@@ -956,10 +950,10 @@ public class FarmingStepHandler {
         }
         
         // Check state for south patch
-        AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
+        GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
         
         if (varbitId != -1) {
-            plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
+            plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
         }
 
         // Check completion status for south patch
@@ -967,14 +961,14 @@ public class FarmingStepHandler {
         // Only GROWING + composted is considered completed (nothing more to do)
         // Don't mark as completed if it's GROWING but not composted yet
         if (!allotmentPatchState.isPatchCompleted(1)) {
-            if (plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
+            if (plantState == GenericPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
                 allotmentPatchState.setPatchCompleted(1, true);
             }
         }
         
         // If patch is GROWING and already composted, return early (no need to show compost instruction)
         // This prevents re-highlighting after other game actions
-        if (plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
+        if (plantState == GenericPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
             if (!allotmentPatchState.isPatchCompleted(1)) {
                 allotmentPatchState.setPatchCompleted(1, true);
             }
@@ -986,13 +980,13 @@ public class FarmingStepHandler {
         // Don't return early for GROWING if not composted - user still needs to compost
         if (allotmentPatchState.isPatchCompleted(1) && 
             allotmentPatchState.isPatchComposted(1) && 
-            plantState != AllotmentPatchChecker.PlantState.HARVESTABLE &&
-            plantState != AllotmentPatchChecker.PlantState.GROWING) {
+            plantState != GenericPatchChecker.PlantState.HARVESTABLE &&
+            plantState != GenericPatchChecker.PlantState.GROWING) {
             return;
         }
         
         // If state is unknown, show message and return
-        if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
+        if (plantState == GenericPatchChecker.PlantState.UNKNOWN) {
             plugin.addTextToInfoBox("Allotment patch state unknown - south patch");
             return;
         }
@@ -1082,17 +1076,19 @@ public class FarmingStepHandler {
             return;
         }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        TreePatchChecker.PlantState plantState;
+        GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
+        int varbitId;
         // 4771 falador, gnome stronghold, lumbridge, taverley, Varrock
         // 7905 farming guild
         if (currentRegionId == Constants.REGION_FARMING_GUILD) {
-            plantState = TreePatchChecker.checkTreePatch(client, Constants.VARBIT_TREE_PATCH_FARMING_GUILD);
+            varbitId = Constants.VARBIT_TREE_PATCH_FARMING_GUILD;
         } else {
-            plantState = TreePatchChecker.checkTreePatch(client, Constants.VARBIT_TREE_PATCH_STANDARD);
+            varbitId = Constants.VARBIT_TREE_PATCH_STANDARD;
         }
+        plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
         
         if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
             // Should be replaced with a pathing system, pointing arrow or something else eventually
@@ -1103,9 +1099,14 @@ public class FarmingStepHandler {
             // Clear hint arrow when near patch
             clearHintArrow();
             switch (plantState) {
-                case HEALTHY:
-                    plugin.addTextToInfoBox("Check tree health.");
+                case HARVESTABLE:
+                    plugin.addTextToInfoBox("Check health or pay to remove.");
                     patchHighlighter.highlightTreePatches(graphics, leftColor);
+                    farmerHighlighter.highlightTreeFarmers(graphics);
+                    // Set hint arrow to first available tree farmer
+                    setHintArrowToFirstAvailableNPC(Arrays.asList(
+                        "Alain", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
+                    ));
                     break;
                 case WEEDS:
                     plugin.addTextToInfoBox("Rake the tree patch.");
@@ -1123,14 +1124,6 @@ public class FarmingStepHandler {
                 case DISEASED:
                     plugin.addTextToInfoBox("Prune the tree patch.");                    
                     patchHighlighter.highlightTreePatches(graphics, useItemColor);
-                    break;
-                case REMOVE:
-                    plugin.addTextToInfoBox("Pay to remove tree, or cut it down and clear the patch.");
-                    farmerHighlighter.highlightTreeFarmers(graphics);
-                    // Set hint arrow to first available tree farmer
-                    setHintArrowToFirstAvailableNPC(Arrays.asList(
-                        "Alain", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
-                    ));
                     break;
                 case UNKNOWN:
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the tree patch to change its state.");
@@ -1192,7 +1185,7 @@ public class FarmingStepHandler {
             return;
         }
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        FruitTreePatchChecker.PlantState plantState = FruitTreePatchChecker.PlantState.UNKNOWN;
+        GenericPatchChecker.PlantState plantState = GenericPatchChecker.PlantState.UNKNOWN;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
         
@@ -1222,7 +1215,7 @@ public class FarmingStepHandler {
         
         // Check state for fruit tree patch
         if (varbitId != -1) {
-            plantState = FruitTreePatchChecker.checkFruitTreePatch(client, varbitId);
+            plantState = GenericPatchChecker.checkPatch(plugin, varbitId);
         }
         
         if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
@@ -1234,9 +1227,13 @@ public class FarmingStepHandler {
             // Clear hint arrow when near patch
             clearHintArrow();
             switch (plantState) {
-                case HEALTHY:
-                    plugin.addTextToInfoBox("Check Fruit tree health.");
+                case HARVESTABLE:
+                    plugin.addTextToInfoBox("Check health, harvest fruit, or clear patch.");
                     patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
+                    farmerHighlighter.highlightFruitTreeFarmers(graphics);
+                    setHintArrowToFirstAvailableNPC(Arrays.asList(
+                        "Bolongo", "Ellena", "Garth", "Gileth", "Liliwen", "Nikkie"
+                    ));
                     break;
                 case WEEDS:
                     // Check if value is 3 (fully raked, ready to plant)
@@ -1264,14 +1261,6 @@ public class FarmingStepHandler {
                 case DISEASED:
                     plugin.addTextToInfoBox("Prune the fruit tree patch.");
                     patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
-                    break;
-                case REMOVE:
-                    plugin.addTextToInfoBox("Pay to remove fruit tree, or cut it down and clear the patch.");
-                    farmerHighlighter.highlightFruitTreeFarmers(graphics);
-                    // Set hint arrow to first available fruit tree farmer
-                    setHintArrowToFirstAvailableNPC(Arrays.asList(
-                        "Bolongo", "Ellena", "Garth", "Gileth", "Liliwen", "Nikkie"
-                    ));
                     break;
                 case UNKNOWN:
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the tree patch to change its state.");
