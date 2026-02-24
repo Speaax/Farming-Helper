@@ -543,19 +543,58 @@ public class EasyFarmingOverlay extends Overlay {
         if (!plugin.areItemsCollected()) {
             plugin.addTextToInfoBox("Grab all the items needed");
 
-            // Build requirements via the unified ItemRequirements system
+            // Build a set of "locationName::patchName" keys for patches that are
+            // actually ready (harvestable / dead / diseased / weeds).
+            // Seeds and compost are only required for patches in this set.
             FarmingTeleportOverlay teleportOverlay = plugin.getFarmingTeleportOverlay();
             java.util.List<com.easyfarming.core.Location> enabledLocs =
                     teleportOverlay != null ? teleportOverlay.getEnabledLocations() : null;
 
+            java.util.Set<String> readyPatchKeys = null; // null = all ready (fallback if no tracker)
+            com.easyfarming.runelite.farming.FarmingWorld fw = plugin.getFarmingWorld();
+            com.easyfarming.runelite.farming.FarmingTracker tracker = plugin.getFarmingTracker();
+
+            if (fw != null && tracker != null && enabledLocs != null) {
+                readyPatchKeys = new java.util.HashSet<>();
+                for (com.easyfarming.core.Location loc : enabledLocs) {
+                    java.util.List<String> order = loc.getCustomPatchOrder();
+                    java.util.Map<String, Boolean> states = loc.getCustomPatchStates();
+                    if (order == null || states == null) continue;
+                    for (String patchName : order) {
+                        if (!states.getOrDefault(patchName, false)) continue;
+                        // Look up FarmingPatch by region+name
+                        for (java.util.Set<com.easyfarming.runelite.farming.FarmingPatch> patchSet : fw.getTabs().values()) {
+                            for (com.easyfarming.runelite.farming.FarmingPatch fp : patchSet) {
+                                String regionName = fp.getRegion().getName();
+                                String implName   = fp.getImplementation().name().toLowerCase();
+                                implName = implName.substring(0, 1).toUpperCase() + implName.substring(1).replace("_", " ");
+                                String builtName  = (fp.getName() + " " + implName).trim();
+                                if (regionName.equals(loc.getName()) && builtName.equals(patchName)) {
+                                    com.easyfarming.runelite.farming.PatchPrediction pred = tracker.predictPatch(fp);
+                                    if (pred != null && (
+                                            pred.getCropState() == com.easyfarming.runelite.farming.CropState.HARVESTABLE ||
+                                            pred.getCropState() == com.easyfarming.runelite.farming.CropState.DEAD        ||
+                                            pred.getCropState() == com.easyfarming.runelite.farming.CropState.DISEASED    ||
+                                            pred.getProduce()   == com.easyfarming.runelite.farming.Produce.WEEDS)) {
+                                        readyPatchKeys.add(loc.getName() + "::" + patchName);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             Map<Integer, Integer> requirements = com.easyfarming.items.ItemRequirements.buildRequirements(
                     enabledLocs,
+                    readyPatchKeys,
                     plugin.isToolSpade(),
                     plugin.isToolDibber(),
                     plugin.isToolSecateurs(),
                     plugin.isToolRake(),
                     plugin.getCompostId()
             );
+
 
             if (requirements.isEmpty()) {
                 return null;

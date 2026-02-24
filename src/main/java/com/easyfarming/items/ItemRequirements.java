@@ -63,6 +63,10 @@ public final class ItemRequirements {
      * Builds the full set of items required for the given enabled locations.
      *
      * @param enabledLocations ordered list of locations in the run
+     * @param readyPatchKeys   set of "locationName::patchName" keys for patches that
+     *                         are actually ready (harvestable/dead/weeds). Seed and
+     *                         compost requirements are skipped for patches NOT in this
+     *                         set. Pass {@code null} to treat all patches as ready.
      * @param useSpade         always true (kept as param for symmetry)
      * @param useDibber        include seed dibber?
      * @param useSecateurs     include magic secateurs?
@@ -72,6 +76,7 @@ public final class ItemRequirements {
      */
     public static Map<Integer, Integer> buildRequirements(
             List<Location> enabledLocations,
+            Set<String> readyPatchKeys,
             boolean useSpade,
             boolean useDibber,
             boolean useSecateurs,
@@ -101,39 +106,55 @@ public final class ItemRequirements {
             for (String patch : order) {
                 if (!states.getOrDefault(patch, false)) continue;
 
+                // Skip seed/compost for patches not yet ready (still growing)
+                String patchKey = location.getName() + "::" + patch;
+                boolean patchReady = (readyPatchKeys == null) || readyPatchKeys.contains(patchKey);
+
                 String lower = patch.toLowerCase();
 
                 // spade always needed
                 if (lower.contains("herb")) {
-                    req.merge(ItemRelations.ANY_HERB_SEED, 1, Integer::sum);
+                    if (patchReady) {
+                        req.merge(ItemRelations.ANY_HERB_SEED, 1, Integer::sum);
+                        addCompost(req, compostId, 1);
+                    }
                     needsDibber = true;
-                    addCompost(req, compostId, 1);
 
                 } else if (lower.contains("flower")) {
-                    req.merge(ItemID.LIMPWURT_SEED, 1, Integer::sum);
+                    if (patchReady) {
+                        req.merge(ItemID.LIMPWURT_SEED, 1, Integer::sum);
+                        addCompost(req, compostId, 1);
+                    }
                     needsDibber = true;
-                    addCompost(req, compostId, 1);
 
                 } else if (lower.contains("allotment")) {
-                    req.merge(ItemRelations.ANY_ALLOTMENT_SEED, 3, Integer::sum);
+                    if (patchReady) {
+                        req.merge(ItemRelations.ANY_ALLOTMENT_SEED, 3, Integer::sum);
+                        addCompost(req, compostId, 1);
+                    }
                     needsDibber = true;
-                    addCompost(req, compostId, 1);
 
                 } else if (lower.contains("fruit tree")) {
-                    req.merge(ItemRelations.ANY_FRUIT_SAPLING, 1, Integer::sum);
-                    req.merge(ItemID.COINS, 200, Integer::sum);
-                    addCompost(req, compostId, 1);
+                    if (patchReady) {
+                        req.merge(ItemRelations.ANY_FRUIT_SAPLING, 1, Integer::sum);
+                        req.merge(ItemID.COINS, 200, Integer::sum);
+                        addCompost(req, compostId, 1);
+                    }
 
                 } else if (lower.contains("tree")) {
-                    req.merge(ItemRelations.ANY_TREE_SAPLING, 1, Integer::sum);
-                    req.merge(ItemID.COINS, 200, Integer::sum);
-                    addCompost(req, compostId, 1);
+                    if (patchReady) {
+                        req.merge(ItemRelations.ANY_TREE_SAPLING, 1, Integer::sum);
+                        req.merge(ItemID.COINS, 200, Integer::sum);
+                        addCompost(req, compostId, 1);
+                    }
 
                 } else if (lower.contains("hops")) {
-                    req.merge(ItemRelations.ANY_HOPS_SEED, 4, Integer::sum);
+                    if (patchReady) {
+                        req.merge(ItemRelations.ANY_HOPS_SEED, 4, Integer::sum);
+                        addCompost(req, compostId, 1);
+                    }
                     needsDibber = true;
                     needsWateringCan = true;
-                    addCompost(req, compostId, 1);
                 }
             }
         }
