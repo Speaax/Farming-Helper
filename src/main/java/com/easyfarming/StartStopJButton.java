@@ -4,25 +4,17 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * A JButton that can toggle between "Start" and "Stop" states.
- * Changes its text and background color based on the current state.
- * Used for run type buttons (Herb Run, Tree Run, etc.) in the plugin panel.
+ * A JButton that toggles between "Start" and "Stop". Display text is just "Start" or "Stop".
  */
 public class StartStopJButton extends JButton {
-    private String originalText;
 
-    public StartStopJButton(String text) {
-        super(text, null);
-
-        this.originalText = text;
-        this.setStartStopState(false);
+    public StartStopJButton(String runName) {
+        super("Start", null);
+        setBackground(Color.BLACK);
     }
 
-    public void setStartStopState(boolean started)
-    {
-        String startOrStop = started ? "Stop " : "Start ";
-
-        this.setText(startOrStop.concat(this.originalText));
-        this.setBackground(started ? Color.RED : Color.BLACK);
+    public void setStartStopState(boolean started) {
+        setText(started ? "Stop" : "Start");
+        setBackground(started ? Color.RED : Color.BLACK);
     }
 }

@@ -248,23 +248,26 @@ public class NavigationHandler {
     
     /**
      * Handles navigation to a specific location.
+     * @param isCustomRun when true, location is always treated as enabled (used for custom runs).
      */
     public void gettingToLocation(Graphics2D graphics, Location location, boolean herbRun,
-                                  boolean treeRun, boolean fruitTreeRun, boolean hopsRun) {
+                                  boolean treeRun, boolean fruitTreeRun, boolean hopsRun,
+                                  boolean isCustomRun) {
         Teleport teleport = location.getSelectedTeleport();
         if (teleport == null) {
             return;
         }
-        boolean locationEnabledBool = false;
-        
-        if (herbRun) {
-            locationEnabledBool = plugin.getHerbLocationEnabled(location.getName());
-        } else if (treeRun) {
-            locationEnabledBool = plugin.getTreeLocationEnabled(location.getName());
-        } else if (fruitTreeRun) {
-            locationEnabledBool = plugin.getFruitTreeLocationEnabled(location.getName());
-        } else if (hopsRun) {
-            locationEnabledBool = plugin.getHopsLocationEnabled(location.getName());
+        boolean locationEnabledBool = isCustomRun;
+        if (!locationEnabledBool) {
+            if (herbRun) {
+                locationEnabledBool = plugin.getHerbLocationEnabled(location.getName());
+            } else if (treeRun) {
+                locationEnabledBool = plugin.getTreeLocationEnabled(location.getName());
+            } else if (fruitTreeRun) {
+                locationEnabledBool = plugin.getFruitTreeLocationEnabled(location.getName());
+            } else if (hopsRun) {
+                locationEnabledBool = plugin.getHopsLocationEnabled(location.getName());
+            }
         }
         
         if (locationEnabledBool) {

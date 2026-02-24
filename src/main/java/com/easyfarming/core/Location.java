@@ -11,6 +11,8 @@ public class Location {
     private List<Teleport> teleportOptions;
     private EasyFarmingConfig config;
     private final Function<EasyFarmingConfig, EasyFarmingConfig.OptionEnumTeleport> selectedTeleportFunction;
+    /** When set (e.g. by a custom run), this overrides config-based selection. */
+    private String overrideTeleportEnumOption;
 
     public Location(Function<EasyFarmingConfig, EasyFarmingConfig.OptionEnumTeleport> selectedTeleportFunction,
                    EasyFarmingConfig config, String name, Boolean farmLimps) {
@@ -26,13 +28,25 @@ public class Location {
     }
 
     public Teleport getSelectedTeleport() {
-        String selectedEnumOption = selectedTeleportFunction.apply(config).name();
-        for (Teleport teleport : teleportOptions) {
-            if (teleport.getEnumOption().equalsIgnoreCase(selectedEnumOption)) {
-                return teleport;
+        String selectedEnumOption = overrideTeleportEnumOption != null
+                ? overrideTeleportEnumOption
+                : (selectedTeleportFunction != null && config != null ? selectedTeleportFunction.apply(config).name() : null);
+        if (selectedEnumOption != null) {
+            for (Teleport teleport : teleportOptions) {
+                if (teleport.getEnumOption().equalsIgnoreCase(selectedEnumOption)) {
+                    return teleport;
+                }
             }
         }
         return teleportOptions.isEmpty() ? null : teleportOptions.get(0);
+    }
+
+    public void setOverrideTeleportEnumOption(String enumOption) {
+        this.overrideTeleportEnumOption = enumOption;
+    }
+
+    public String getOverrideTeleportEnumOption() {
+        return overrideTeleportEnumOption;
     }
 
     // Getters

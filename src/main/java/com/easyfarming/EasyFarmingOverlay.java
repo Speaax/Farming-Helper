@@ -596,20 +596,25 @@ public class EasyFarmingOverlay extends Overlay {
             plugin.addTextToInfoBox("Grab all the items needed");
             // List of items to check
             Map<Integer, Integer> itemsToCheck = null;
-            if (plugin.getFarmingTeleportOverlay().herbRun) {
+            if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
+                    && !plugin.getFarmingTeleportOverlay().getCustomRunLocations().isEmpty()) {
+                // Custom run: use empty requirements for now so run is not blocked
+                itemsToCheck = new HashMap<>();
+            }
+            if (itemsToCheck == null && plugin.getFarmingTeleportOverlay().herbRun) {
                 itemsToCheck = herbRunItemAndLocation.getHerbItems();
             }
-            if (plugin.getFarmingTeleportOverlay().treeRun) {
+            if (itemsToCheck == null && plugin.getFarmingTeleportOverlay().treeRun) {
                 itemsToCheck = treeRunItemAndLocation.getTreeItems();
             }
-            if (plugin.getFarmingTeleportOverlay().fruitTreeRun) {
+            if (itemsToCheck == null && plugin.getFarmingTeleportOverlay().fruitTreeRun) {
                 itemsToCheck = fruitTreeRunItemAndLocation.getFruitTreeItems();
             }
-            if (plugin.getFarmingTeleportOverlay().hopsRun) {
+            if (itemsToCheck == null && plugin.getFarmingTeleportOverlay().hopsRun) {
                 itemsToCheck = hopsRunItemAndLocation.getHopsItems();
             }
 
-            if (itemsToCheck == null || itemsToCheck.isEmpty()) {
+            if (itemsToCheck == null) {
                 return null;
             }
 

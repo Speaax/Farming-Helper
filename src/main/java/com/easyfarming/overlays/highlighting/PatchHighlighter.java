@@ -38,8 +38,10 @@ public class PatchHighlighter {
     }
     
     public void highlightAllotmentPatches(Graphics2D graphics, Color color) {
-        for (Integer patchId : farmingHelperOverlay.getAllotmentPatchIds()) {
-            gameObjectHighlighter.highlightGameObject(patchId, color).render(graphics);
+        for (List<Integer> patchIds : Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.values()) {
+            for (Integer patchId : patchIds) {
+                gameObjectHighlighter.highlightGameObject(patchId, color).render(graphics);
+            }
         }
     }
     

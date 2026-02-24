@@ -1,0 +1,330 @@
+package com.easyfarming.ui;
+
+import com.easyfarming.EasyFarmingPlugin;
+import com.easyfarming.EasyFarmingPanel;
+import com.easyfarming.StartStopJButton;
+import com.easyfarming.customrun.CustomRun;
+import com.easyfarming.customrun.CustomRunStorage;
+import com.easyfarming.customrun.LocationCatalog;
+import com.easyfarming.customrun.PatchTypes;
+import com.easyfarming.customrun.RunLocation;
+import net.runelite.client.ui.ColorScheme;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.AWTEventListener;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Detail view for a custom run: editable name, filter bar (2x3), then one sub-panel per location (patch icons + teleport).
+ * No location dropdown: each location is its own sub-panel. Filter: yellow = show locations with that patch; green = enable that patch at all locations.
+ */
+public class CustomRunDetailPanel extends JPanel {
+    private final EasyFarmingPlugin plugin;
+    private final EasyFarmingPanel parentPanel;
+    private final CustomRun customRun;
+    private final boolean isNewRun;
+    private final net.runelite.client.game.ItemManager itemManager;
+
+    private final CustomRunFilterBar filterBar;
+    private final JPanel locationsContainer = new JPanel();
+    /** Order and RunLocation per location name (catalog order). */
+    private final List<RunLocation> runLocationsInOrder = new ArrayList<>();
+    private final Map<String, CustomRunLocationSubPanel> subPanelsByLocation = new LinkedHashMap<>();
+    private String draggedLocationName;
+    private AWTEventListener dragEndListener;
+
+    public CustomRunDetailPanel(EasyFarmingPlugin plugin, EasyFarmingPanel parentPanel,
+                                CustomRun customRun, boolean isNewRun,
+                                net.runelite.client.game.ItemManager itemManager) {
+        this.plugin = plugin;
+        this.parentPanel = parentPanel;
+        this.customRun = customRun;
+        this.isNewRun = isNewRun;
+        this.itemManager = itemManager;
+
+        setLayout(new BorderLayout());
+        setBackground(ColorScheme.DARK_GRAY_COLOR);
+
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        headerPanel.setBorder(new EmptyBorder(5, 5, 10, 5));
+
+        JButton backButton = new JButton("<");
+        backButton.setPreferredSize(new Dimension(40, 30));
+        backButton.setFocusable(false);
+        backButton.setToolTipText("Back to Overview");
+        backButton.addActionListener(e -> {
+            saveRun();
+            parentPanel.showOverview();
+        });
+        headerPanel.add(backButton, BorderLayout.WEST);
+
+        JLabel titleLabel = new JLabel(customRun.getName() != null ? customRun.getName() : "New Run");
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(net.runelite.client.ui.FontManager.getRunescapeBoldFont());
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        titlePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        titlePanel.add(titleLabel);
+        headerPanel.add(titlePanel, BorderLayout.CENTER);
+
+        JPanel headerButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        headerButtons.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        StartStopJButton startButton = new StartStopJButton(customRun.getName());
+        startButton.setPreferredSize(new Dimension(80, 25));
+        startButton.addActionListener(e -> {
+            boolean toggleToStop = startButton.getText().equals("Start");
+            startButton.setStartStopState(toggleToStop);
+            if (toggleToStop) {
+                parentPanel.startCustomRun(customRun);
+            } else {
+                plugin.getFarmingTeleportOverlay().removeOverlay();
+                plugin.setOverlayActive(false);
+            }
+        });
+        headerButtons.add(startButton);
+        headerPanel.add(headerButtons, BorderLayout.EAST);
+
+        syncRunWithCatalog();
+
+        filterBar = new CustomRunFilterBar(itemManager);
+        filterBar.setOnFilterChanged(this::onFilterChanged);
+        JLabel filterHint = new JLabel("Filter: yellow = show locations with patch, green = enable at all locations");
+        filterHint.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+        filterHint.setFont(filterHint.getFont().deriveFont(10f));
+        JPanel northPanel = new JPanel();
+        northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+        northPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        northPanel.add(headerPanel);
+        northPanel.add(filterBar);
+        northPanel.add(filterHint);
+        add(northPanel, BorderLayout.NORTH);
+
+        locationsContainer.setLayout(new BoxLayout(locationsContainer, BoxLayout.Y_AXIS));
+        locationsContainer.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        locationsContainer.setBorder(new EmptyBorder(0, 10, 10, 10));
+        JScrollPane scrollPane = new JScrollPane(locationsContainer);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(ColorScheme.DARK_GRAY_COLOR);
+        add(scrollPane, BorderLayout.CENTER);
+
+        syncFilterStateFromRun();
+        refreshLocationVisibility();
+    }
+
+    /** Update filter bar from run data: green if all enabled, yellow if some enabled, neutral if none. */
+    private void syncFilterStateFromRun() {
+        LocationCatalog catalog = plugin.getLocationCatalog();
+        for (String patchType : PatchTypes.ALL) {
+            boolean allEnabled = true;
+            int someEnabled = 0;
+            int locationsWithType = 0;
+            for (RunLocation rl : runLocationsInOrder) {
+                List<String> available = catalog.getPatchTypesAtLocation(rl.getLocationName());
+                if (available != null && available.contains(patchType)) {
+                    locationsWithType++;
+                    if (rl.getPatchTypes().contains(patchType)) {
+                        someEnabled++;
+                    } else {
+                        allEnabled = false;
+                    }
+                }
+            }
+            int state;
+            if (locationsWithType > 0 && allEnabled) {
+                state = 2; // green
+            } else if (someEnabled > 0) {
+                state = 1; // yellow (some but not all)
+            } else {
+                state = 0; // neutral
+            }
+            filterBar.setFilterState(patchType, state);
+        }
+    }
+
+    /** Ensure we have one RunLocation per catalog location (in catalog order); merge with saved run. */
+    private void syncRunWithCatalog() {
+        LocationCatalog catalog = plugin.getLocationCatalog();
+        List<String> names = catalog.getAllLocationNames();
+        Map<String, RunLocation> byName = new LinkedHashMap<>();
+        for (RunLocation rl : customRun.getLocations()) {
+            if (rl.getLocationName() != null) {
+                byName.put(rl.getLocationName(), rl);
+            }
+        }
+        runLocationsInOrder.clear();
+        for (String name : names) {
+            RunLocation rl = byName.get(name);
+            if (rl == null) {
+                List<String> teleports = catalog.getTeleportOptionsForLocation(name);
+                rl = new RunLocation(name, teleports.isEmpty() ? null : teleports.get(0), new ArrayList<>());
+            }
+            runLocationsInOrder.add(rl);
+        }
+        customRun.getLocations().clear();
+        customRun.getLocations().addAll(runLocationsInOrder);
+    }
+
+    private void onFilterChanged(String patchType, int fromState, int toState) {
+        if (toState == 2) {
+            applyEnablePatchEverywhere(patchType);
+        } else if (fromState == 2 && toState == 0) {
+            applyDisablePatchEverywhere(patchType);
+        }
+        refreshLocationVisibility();
+    }
+
+    private void applyEnablePatchEverywhere(String patchType) {
+        LocationCatalog catalog = plugin.getLocationCatalog();
+        for (RunLocation rl : runLocationsInOrder) {
+            List<String> available = catalog.getPatchTypesAtLocation(rl.getLocationName());
+            if (available != null && available.contains(patchType)) {
+                if (!rl.getPatchTypes().contains(patchType)) {
+                    rl.getPatchTypes().add(patchType);
+                }
+            }
+        }
+        refreshSubPanels();
+    }
+
+    private void applyDisablePatchEverywhere(String patchType) {
+        for (RunLocation rl : runLocationsInOrder) {
+            rl.getPatchTypes().remove(patchType);
+        }
+        refreshSubPanels();
+    }
+
+    private void refreshSubPanels() {
+        for (CustomRunLocationSubPanel sub : subPanelsByLocation.values()) {
+            sub.refreshFromRunLocation();
+        }
+    }
+
+    private void refreshLocationVisibility() {
+        locationsContainer.removeAll();
+        subPanelsByLocation.clear();
+        if (!filterBar.hasAnyYellowOrGreenFilter()) {
+            JLabel noFilter = new JLabel("Select a filter (yellow or green) to show locations.");
+            noFilter.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+            locationsContainer.add(noFilter);
+            locationsContainer.revalidate();
+            locationsContainer.repaint();
+            return;
+        }
+        java.util.Set<String> filterTypes = filterBar.getYellowOrGreenFilterTypes();
+        LocationCatalog catalog = plugin.getLocationCatalog();
+        for (RunLocation rl : runLocationsInOrder) {
+            String name = rl.getLocationName();
+            List<String> atLocation = catalog.getPatchTypesAtLocation(name);
+            boolean show = false;
+            for (String t : filterTypes) {
+                if (atLocation != null && atLocation.contains(t)) {
+                    show = true;
+                    break;
+                }
+            }
+            if (show) {
+                CustomRunLocationSubPanel sub = new CustomRunLocationSubPanel(plugin, itemManager, name, rl, this::onRowChanged, this::onLocationDragStart);
+                subPanelsByLocation.put(name, sub);
+                locationsContainer.add(sub);
+                locationsContainer.add(Box.createRigidArea(new Dimension(0, 6)));
+            }
+        }
+        locationsContainer.revalidate();
+        locationsContainer.repaint();
+    }
+
+    private void onRowChanged() {
+        syncFilterStateFromRun();
+        refreshLocationVisibility();
+    }
+
+    private void onLocationDragStart(String locationName) {
+        this.draggedLocationName = locationName;
+        if (dragEndListener != null) {
+            Toolkit.getDefaultToolkit().removeAWTEventListener(dragEndListener);
+        }
+        dragEndListener = event -> {
+            if (event.getID() != MouseEvent.MOUSE_RELEASED) return;
+            if (!(event instanceof MouseEvent)) return;
+            MouseEvent me = (MouseEvent) event;
+            Toolkit.getDefaultToolkit().removeAWTEventListener(dragEndListener);
+            dragEndListener = null;
+            if (draggedLocationName == null) return;
+            Component src = (Component) event.getSource();
+            Point pt = new Point(me.getX(), me.getY());
+            SwingUtilities.convertPointToScreen(pt, src);
+            SwingUtilities.convertPointFromScreen(pt, locationsContainer);
+            if (!locationsContainer.contains(pt)) {
+                draggedLocationName = null;
+                return;
+            }
+            Component at = locationsContainer.getComponentAt(pt);
+            CustomRunLocationSubPanel dropPanel = findLocationSubPanelParent(at);
+            if (dropPanel == null || dropPanel.getLocationName().equals(draggedLocationName)) {
+                draggedLocationName = null;
+                return;
+            }
+            reorderLocation(draggedLocationName, dropPanel.getLocationName());
+            draggedLocationName = null;
+        };
+        Toolkit.getDefaultToolkit().addAWTEventListener(dragEndListener, java.awt.AWTEvent.MOUSE_EVENT_MASK);
+    }
+
+    private static CustomRunLocationSubPanel findLocationSubPanelParent(Component c) {
+        while (c != null) {
+            if (c instanceof CustomRunLocationSubPanel) return (CustomRunLocationSubPanel) c;
+            c = c.getParent();
+        }
+        return null;
+    }
+
+    private void reorderLocation(String movedName, String dropBeforeName) {
+        RunLocation moved = null;
+        int fromIndex = -1;
+        for (int i = 0; i < runLocationsInOrder.size(); i++) {
+            if (runLocationsInOrder.get(i).getLocationName().equals(movedName)) {
+                moved = runLocationsInOrder.get(i);
+                fromIndex = i;
+                break;
+            }
+        }
+        if (moved == null) return;
+        runLocationsInOrder.remove(fromIndex);
+        int insertIndex = -1;
+        for (int i = 0; i < runLocationsInOrder.size(); i++) {
+            if (runLocationsInOrder.get(i).getLocationName().equals(dropBeforeName)) {
+                insertIndex = i;
+                break;
+            }
+        }
+        if (insertIndex < 0) insertIndex = runLocationsInOrder.size();
+        runLocationsInOrder.add(insertIndex, moved);
+        customRun.getLocations().clear();
+        customRun.getLocations().addAll(runLocationsInOrder);
+        refreshLocationVisibility();
+    }
+
+    private void saveRun() {
+        CustomRunStorage storage = plugin.getCustomRunStorage();
+        List<CustomRun> runs = storage.load();
+        if (isNewRun) {
+            runs.add(customRun);
+        } else {
+            String name = customRun.getName();
+            for (int i = 0; i < runs.size(); i++) {
+                if (name.equals(runs.get(i).getName())) {
+                    runs.set(i, customRun);
+                    break;
+                }
+            }
+        }
+        storage.save(runs);
+    }
+}

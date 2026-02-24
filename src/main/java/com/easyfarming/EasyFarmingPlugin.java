@@ -5,6 +5,8 @@ import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
 import com.easyfarming.core.Location;
+import com.easyfarming.customrun.CustomRunStorage;
+import com.easyfarming.customrun.LocationCatalog;
 
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
@@ -42,9 +44,28 @@ public class EasyFarmingPlugin extends Plugin
 
 	@Inject
 	private ItemManager itemManager;
+	@Inject
+	private ConfigManager configManager;
 	@Getter
     @Inject
 	private Client client;
+
+	private LocationCatalog locationCatalog;
+	private CustomRunStorage customRunStorage;
+
+	public LocationCatalog getLocationCatalog() {
+		if (locationCatalog == null) {
+			locationCatalog = new LocationCatalog(this);
+		}
+		return locationCatalog;
+	}
+
+	public CustomRunStorage getCustomRunStorage() {
+		if (customRunStorage == null) {
+			customRunStorage = new CustomRunStorage(configManager);
+		}
+		return customRunStorage;
+	}
 
 	public void runOnClientThread(Runnable task) {
 		clientThread.invokeLater(task);
@@ -109,6 +130,11 @@ public class EasyFarmingPlugin extends Plugin
 	public Location getYanilleHopsLocation() {return hopsRunItemAndLocation.yanilleHopsLocation;}
 	public Location getEntranaHopsLocation() {return hopsRunItemAndLocation.entranaHopsLocation;}
 	public Location getAldarinHopsLocation() {return hopsRunItemAndLocation.aldarinHopsLocation;}
+
+	public HerbRunItemAndLocation getHerbRunItemAndLocation() { return herbRunItemAndLocation; }
+	public TreeRunItemAndLocation getTreeRunItemAndLocation() { return treeRunItemAndLocation; }
+	public FruitTreeRunItemAndLocation getFruitTreeRunItemAndLocation() { return fruitTreeRunItemAndLocation; }
+	public HopsRunItemAndLocation getHopsRunItemAndLocation() { return hopsRunItemAndLocation; }
 
 	@Getter
     @Setter
@@ -330,7 +356,7 @@ public class EasyFarmingPlugin extends Plugin
 		hopsRunItemAndLocation = new HopsRunItemAndLocation(config, client, this);
 		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, infoBoxManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
 
-		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation, hopsRunItemAndLocation);
+		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, itemManager);
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
 
 		navButton = NavigationButton.builder()
