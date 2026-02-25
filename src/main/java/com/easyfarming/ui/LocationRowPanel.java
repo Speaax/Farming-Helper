@@ -85,6 +85,12 @@ public class LocationRowPanel extends JPanel {
             } else {
                 teleCombo.setSelectedIndex(0);
             }
+            teleCombo.addActionListener(e -> {
+                Object sel = teleCombo.getSelectedItem();
+                if (sel instanceof String) {
+                    location.setOverrideTeleportEnumOption((String) sel);
+                }
+            });
             telePanel.add(teleLabel, BorderLayout.WEST);
             telePanel.add(teleCombo, BorderLayout.EAST);
             mainBodyContainer.add(telePanel, BorderLayout.SOUTH);

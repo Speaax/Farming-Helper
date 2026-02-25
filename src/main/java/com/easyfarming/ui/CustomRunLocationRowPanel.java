@@ -30,6 +30,7 @@ public class CustomRunLocationRowPanel extends JPanel {
     private final JComboBox<String> teleportCombo;
     private final JPanel patchIconsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
     private final List<JButton> patchIconButtons = new ArrayList<>();
+    private boolean refreshingFromRun;
 
     public CustomRunLocationRowPanel(EasyFarmingPlugin plugin, ItemManager itemManager, RunLocation runLocation,
                                     Runnable onRemove, Runnable onChanged) {
@@ -38,6 +39,7 @@ public class CustomRunLocationRowPanel extends JPanel {
         this.runLocation = runLocation;
         this.onRemove = onRemove;
         this.onChanged = onChanged;
+        this.refreshingFromRun = true;
 
         setLayout(new BorderLayout());
         setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -84,12 +86,13 @@ public class CustomRunLocationRowPanel extends JPanel {
         teleportCombo.addActionListener(e -> {
             Object sel = teleportCombo.getSelectedItem();
             if (sel != null) runLocation.setTeleportOption((String) sel);
-            if (onChanged != null) onChanged.run();
+            if (!refreshingFromRun && onChanged != null) onChanged.run();
         });
         teleportRow.add(teleportCombo);
         add(teleportRow, BorderLayout.SOUTH);
 
         onLocationSelected();
+        refreshingFromRun = false;
     }
 
     private void onLocationSelected() {
@@ -98,7 +101,7 @@ public class CustomRunLocationRowPanel extends JPanel {
         runLocation.setLocationName(name);
         refreshTeleportOptions();
         refreshPatchIcons();
-        if (onChanged != null) onChanged.run();
+        if (!refreshingFromRun && onChanged != null) onChanged.run();
     }
 
     private void refreshTeleportOptions() {
@@ -150,6 +153,10 @@ public class CustomRunLocationRowPanel extends JPanel {
         }
         btn.addActionListener(e -> {
             List<String> types = runLocation.getPatchTypes();
+            if (types == null) {
+                types = new ArrayList<>();
+                runLocation.setPatchTypes(types);
+            }
             if (types.contains(patchType)) {
                 types.remove(patchType);
             } else {

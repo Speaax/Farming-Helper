@@ -21,6 +21,7 @@ public class OverviewPanel extends JPanel {
     private final EasyFarmingPlugin plugin;
     private final EasyFarmingPanel parentPanel;
     private final JPanel contentPanel;
+    private boolean creatingRun;
 
     public OverviewPanel(EasyFarmingPlugin plugin, EasyFarmingPanel parentPanel) {
         this.plugin = plugin;
@@ -96,11 +97,19 @@ public class OverviewPanel extends JPanel {
         addCard.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                CustomRun newRun = new CustomRun("New Run", new java.util.ArrayList<>());
-                List<CustomRun> runs = plugin.getCustomRunStorage().load();
-                runs.add(newRun);
-                plugin.getCustomRunStorage().save(runs);
-                parentPanel.showRunDetail(newRun);
+                if (creatingRun) {
+                    return;
+                }
+                creatingRun = true;
+                try {
+                    CustomRun newRun = new CustomRun("New Run", new java.util.ArrayList<>());
+                    List<CustomRun> runs = plugin.getCustomRunStorage().load();
+                    runs.add(newRun);
+                    plugin.getCustomRunStorage().save(runs);
+                    parentPanel.showRunDetail(newRun);
+                } finally {
+                    creatingRun = false;
+                }
             }
         });
         contentPanel.add(addCard);

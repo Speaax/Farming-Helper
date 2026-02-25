@@ -51,6 +51,22 @@ public final class CustomRunItemRequirements {
             List<String> patchTypes = rl.getPatchTypes();
             if (name == null || patchTypes == null || patchTypes.isEmpty()) continue;
 
+            Location loc = catalog.getLocationForPatch(name, patchTypes.get(0));
+            if (loc == null) continue;
+            String teleportOption = rl.getTeleportOption();
+            if (teleportOption == null) continue;
+            Teleport teleport = null;
+            for (Teleport t : loc.getTeleportOptions()) {
+                if (t != null && t.getEnumOption() != null && teleportOption.equalsIgnoreCase(t.getEnumOption())) {
+                    teleport = t;
+                    break;
+                }
+            }
+            if (teleport == null) continue;
+
+            Map<Integer, Integer> req = teleport.getItemRequirements();
+            mergeTeleportRequirements(allRequirements, req);
+
             for (String patchType : patchTypes) {
                 if (PatchTypes.HERB.equals(patchType)) {
                     herbPatchCount++;
@@ -79,21 +95,6 @@ public final class CustomRunItemRequirements {
                     compostPatchesTotal++;
                 }
             }
-
-            Location loc = catalog.getLocationForPatch(name, patchTypes.get(0));
-            if (loc == null) continue;
-            String teleportOption = rl.getTeleportOption();
-            Teleport teleport = null;
-            for (Teleport t : loc.getTeleportOptions()) {
-                if (t != null && t.getEnumOption() != null && t.getEnumOption().equalsIgnoreCase(teleportOption)) {
-                    teleport = t;
-                    break;
-                }
-            }
-            if (teleport == null) continue;
-
-            Map<Integer, Integer> req = teleport.getItemRequirements();
-            mergeTeleportRequirements(allRequirements, req);
         }
 
         int compostId = herbRun.selectedCompostID() != null ? herbRun.selectedCompostID() : -1;

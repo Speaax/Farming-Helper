@@ -205,6 +205,10 @@ public class CustomRunLocationSubPanel extends JPanel {
         }
         btn.addActionListener(e -> {
             List<String> types = runLocation.getPatchTypes();
+            if (types == null) {
+                types = new ArrayList<>();
+                runLocation.setPatchTypes(types);
+            }
             if (types.contains(patchType)) {
                 types.remove(patchType);
             } else {

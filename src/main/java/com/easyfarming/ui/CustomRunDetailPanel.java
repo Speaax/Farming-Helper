@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Detail view for a custom run: editable name, filter bar (2x3), then one sub-panel per location (patch icons + teleport).
@@ -357,7 +358,7 @@ public class CustomRunDetailPanel extends JPanel {
         } else {
             String name = customRun.getName();
             for (int i = 0; i < runs.size(); i++) {
-                if (name.equals(runs.get(i).getName())) {
+                if (Objects.equals(name, runs.get(i).getName())) {
                     runs.set(i, customRun);
                     break;
                 }

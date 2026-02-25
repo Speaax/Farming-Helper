@@ -36,13 +36,13 @@ public class ItemHighlighter {
     }
     
     /**
-     * Highlights an item in the inventory by its ID.
-     * Uses master's approach: match by slot index (ItemContainer + widget children) so highlighting is reliable.
+     * Retrieves inventory items and corresponding widgets for slot-based highlighting.
+     * @return pair of items and widgets, or null if inventory/widget not available
      */
-    public void itemHighlight(Graphics2D graphics, int itemID, Color color) {
+    private InventoryItemsAndWidgets getInventoryItemsAndWidgets() {
         net.runelite.api.ItemContainer inventory = client.getItemContainer(InventoryID.INV);
         if (inventory == null) {
-            return;
+            return null;
         }
         Item[] items = inventory.getItems();
         Widget inventoryWidget = client.getWidget(InterfaceID.INVENTORY);
@@ -50,14 +50,37 @@ public class ItemHighlighter {
             inventoryWidget = client.getWidget(149, 0);
         }
         if (inventoryWidget == null) {
-            return;
+            return null;
         }
         Widget[] children = inventoryWidget.getChildren();
         Widget[] dynamicChildren = inventoryWidget.getDynamicChildren();
         Widget[] childrenToUse = (dynamicChildren != null && dynamicChildren.length > 0) ? dynamicChildren : children;
         if (childrenToUse == null) {
+            return null;
+        }
+        return new InventoryItemsAndWidgets(items, childrenToUse);
+    }
+
+    private static final class InventoryItemsAndWidgets {
+        final Item[] items;
+        final Widget[] widgets;
+        InventoryItemsAndWidgets(Item[] items, Widget[] widgets) {
+            this.items = items;
+            this.widgets = widgets;
+        }
+    }
+
+    /**
+     * Highlights an item in the inventory by its ID.
+     * Uses master's approach: match by slot index (ItemContainer + widget children) so highlighting is reliable.
+     */
+    public void itemHighlight(Graphics2D graphics, int itemID, Color color) {
+        InventoryItemsAndWidgets data = getInventoryItemsAndWidgets();
+        if (data == null) {
             return;
         }
+        Item[] items = data.items;
+        Widget[] childrenToUse = data.widgets;
         for (int i = 0; i < items.length && i < childrenToUse.length; i++) {
             Item item = items[i];
             if (item != null && itemMatchesTarget(item.getId(), itemID)) {
@@ -98,24 +121,12 @@ public class ItemHighlighter {
             return;
         }
         Set<Integer> set = new HashSet<>(targetIds);
-        net.runelite.api.ItemContainer inventory = client.getItemContainer(InventoryID.INV);
-        if (inventory == null) {
+        InventoryItemsAndWidgets data = getInventoryItemsAndWidgets();
+        if (data == null) {
             return;
         }
-        Item[] items = inventory.getItems();
-        Widget inventoryWidget = client.getWidget(InterfaceID.INVENTORY);
-        if (inventoryWidget == null) {
-            inventoryWidget = client.getWidget(149, 0);
-        }
-        if (inventoryWidget == null) {
-            return;
-        }
-        Widget[] children = inventoryWidget.getChildren();
-        Widget[] dynamicChildren = inventoryWidget.getDynamicChildren();
-        Widget[] childrenToUse = (dynamicChildren != null && dynamicChildren.length > 0) ? dynamicChildren : children;
-        if (childrenToUse == null) {
-            return;
-        }
+        Item[] items = data.items;
+        Widget[] childrenToUse = data.widgets;
         for (int i = 0; i < items.length && i < childrenToUse.length; i++) {
             Item item = items[i];
             if (item != null && itemMatchesAny(item.getId(), set)) {

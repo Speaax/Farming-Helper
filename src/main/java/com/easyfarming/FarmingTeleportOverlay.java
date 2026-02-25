@@ -39,6 +39,8 @@ public class FarmingTeleportOverlay extends Overlay {
     private NavigationHandler navigationHandler;
     @Inject
     private FarmingStepHandler farmingStepHandler;
+    @Inject
+    private FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
     
     // Run state
     public Boolean herbRun = false;
@@ -80,7 +82,7 @@ public class FarmingTeleportOverlay extends Overlay {
                                    EasyFarmingConfig config) {
         this.areaCheck = areaCheck;
         setPosition(OverlayPosition.DYNAMIC);
-        setLayer(OverlayLayer.ABOVE_WIDGETS);
+        setLayer(OverlayLayer.ABOVE_SCENE);
         this.plugin = plugin;
         this.client = client;
         this.config = config;
@@ -634,6 +636,14 @@ public class FarmingTeleportOverlay extends Overlay {
         if (run == null || run.getLocations() == null) {
             return;
         }
+        farmingStepHandler.herbPatchDone = false;
+        farmingStepHandler.flowerPatchDone = false;
+        farmingStepHandler.allotmentPatchDone = false;
+        farmingStepHandler.treePatchDone = false;
+        farmingStepHandler.fruitTreePatchDone = false;
+        farmingStepHandler.hopsPatchDone = false;
+        farmingStepHandler.clearHintArrow();
+        farmingStepHandler.resetCompostStates();
         herbRun = false;
         treeRun = false;
         fruitTreeRun = false;

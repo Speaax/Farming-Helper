@@ -105,7 +105,9 @@ public class EasyFarmingPanel extends PluginPanel {
                 default:
                     break;
             }
-            overlayManager.add(overlay);
+            if (overlay != null) {
+                overlayManager.add(overlay);
+            }
             overlayManager.add(farmingTeleportOverlay);
         });
     }
@@ -118,7 +120,9 @@ public class EasyFarmingPanel extends PluginPanel {
             plugin.setOverlayActive(true);
             farmingTeleportOverlay.startCustomRun(customRun);
             EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-            overlayManager.add(overlay);
+            if (overlay != null) {
+                overlayManager.add(overlay);
+            }
             overlayManager.add(farmingTeleportOverlay);
         });
     }

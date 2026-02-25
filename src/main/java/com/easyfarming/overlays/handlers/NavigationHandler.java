@@ -425,8 +425,9 @@ public class NavigationHandler {
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         
         if (!widgetHelper.isInterfaceOpen(187, 3)) {
-            // Draw spirit tree object highlight above scene (not above widgets) so it appears correctly on map/scene
-            farmingTeleportSceneOverlay.requestSpiritTreeHighlight(leftColor);
+            for (Integer objectId : Constants.SPIRIT_TREE_IDS) {
+                gameObjectHighlighter.highlightGameObject(objectId, leftColor).render(graphics);
+            }
         } else {
             Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
             switch (location.getName()) {

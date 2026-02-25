@@ -33,7 +33,8 @@ public class Location {
                 : (selectedTeleportFunction != null && config != null ? selectedTeleportFunction.apply(config).name() : null);
         if (selectedEnumOption != null) {
             for (Teleport teleport : teleportOptions) {
-                if (teleport.getEnumOption().equalsIgnoreCase(selectedEnumOption)) {
+                String opt = teleport.getEnumOption();
+                if (opt != null && selectedEnumOption.equalsIgnoreCase(opt)) {
                     return teleport;
                 }
             }

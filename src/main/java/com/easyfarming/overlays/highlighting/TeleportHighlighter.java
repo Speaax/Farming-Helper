@@ -94,7 +94,9 @@ public class TeleportHighlighter {
                 break;
             case SPIRIT_TREE:
                 if (!widgetHelper.isInterfaceOpen(187, 3)) {
-                    farmingTeleportSceneOverlay.requestSpiritTreeHighlight(leftColor);
+                    for (Integer objectId : Constants.SPIRIT_TREE_IDS) {
+                        gameObjectHighlighter.highlightGameObject(objectId, leftColor).render(graphics);
+                    }
                 } else {
                     Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
                     int index = widgetHelper.getChildIndexSpiritTree(teleport.getPoint().toString());

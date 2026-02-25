@@ -5,6 +5,7 @@ import com.easyfarming.EasyFarmingPanel;
 import com.easyfarming.StartStopJButton;
 import com.easyfarming.core.Location;
 import net.runelite.client.ui.ColorScheme;
+import net.runelite.client.util.AsyncBufferedImage;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -108,44 +109,50 @@ public class RunDetailPanel extends JPanel {
         List<Location> out = new ArrayList<>();
         switch (runName) {
             case HERB_RUN:
-                out.add(plugin.getArdougneLocation());
-                out.add(plugin.getCatherbyLocation());
-                out.add(plugin.getFaladorLocation());
-                out.add(plugin.getFarmingGuildLocation());
-                out.add(plugin.getHarmonyLocation());
-                out.add(plugin.getKourendLocation());
-                out.add(plugin.getMorytaniaLocation());
-                out.add(plugin.getTrollStrongholdLocation());
-                out.add(plugin.getWeissLocation());
-                out.add(plugin.getCivitasLocation());
+                addIfNonNull(out, plugin.getArdougneLocation());
+                addIfNonNull(out, plugin.getCatherbyLocation());
+                addIfNonNull(out, plugin.getFaladorLocation());
+                addIfNonNull(out, plugin.getFarmingGuildLocation());
+                addIfNonNull(out, plugin.getHarmonyLocation());
+                addIfNonNull(out, plugin.getKourendLocation());
+                addIfNonNull(out, plugin.getMorytaniaLocation());
+                addIfNonNull(out, plugin.getTrollStrongholdLocation());
+                addIfNonNull(out, plugin.getWeissLocation());
+                addIfNonNull(out, plugin.getCivitasLocation());
                 break;
             case TREE_RUN:
-                out.add(plugin.getFaladorTreeLocation());
-                out.add(plugin.getFarmingGuildTreeLocation());
-                out.add(plugin.getGnomeStrongholdTreeLocation());
-                out.add(plugin.getLumbridgeTreeLocation());
-                out.add(plugin.getTaverleyTreeLocation());
-                out.add(plugin.getVarrockTreeLocation());
+                addIfNonNull(out, plugin.getFaladorTreeLocation());
+                addIfNonNull(out, plugin.getFarmingGuildTreeLocation());
+                addIfNonNull(out, plugin.getGnomeStrongholdTreeLocation());
+                addIfNonNull(out, plugin.getLumbridgeTreeLocation());
+                addIfNonNull(out, plugin.getTaverleyTreeLocation());
+                addIfNonNull(out, plugin.getVarrockTreeLocation());
                 break;
             case FRUIT_TREE_RUN:
-                out.add(plugin.getBrimhavenFruitTreeLocation());
-                out.add(plugin.getCatherbyFruitTreeLocation());
-                out.add(plugin.getFarmingGuildFruitTreeLocation());
-                out.add(plugin.getGnomeStrongholdFruitTreeLocation());
-                out.add(plugin.getLletyaFruitTreeLocation());
-                out.add(plugin.getTreeGnomeVillageTreeLocation());
+                addIfNonNull(out, plugin.getBrimhavenFruitTreeLocation());
+                addIfNonNull(out, plugin.getCatherbyFruitTreeLocation());
+                addIfNonNull(out, plugin.getFarmingGuildFruitTreeLocation());
+                addIfNonNull(out, plugin.getGnomeStrongholdFruitTreeLocation());
+                addIfNonNull(out, plugin.getLletyaFruitTreeLocation());
+                addIfNonNull(out, plugin.getTreeGnomeVillageTreeLocation());
                 break;
             case HOPS_RUN:
-                out.add(plugin.getLumbridgeHopsLocation());
-                out.add(plugin.getSeersVillageHopsLocation());
-                out.add(plugin.getYanilleHopsLocation());
-                out.add(plugin.getEntranaHopsLocation());
-                out.add(plugin.getAldarinHopsLocation());
+                addIfNonNull(out, plugin.getLumbridgeHopsLocation());
+                addIfNonNull(out, plugin.getSeersVillageHopsLocation());
+                addIfNonNull(out, plugin.getYanilleHopsLocation());
+                addIfNonNull(out, plugin.getEntranaHopsLocation());
+                addIfNonNull(out, plugin.getAldarinHopsLocation());
                 break;
             default:
                 break;
         }
         return out;
+    }
+
+    private static void addIfNonNull(List<Location> out, Location loc) {
+        if (loc != null) {
+            out.add(loc);
+        }
     }
 
     private JButton makeToolButton(int itemId, String tooltip, boolean active, boolean toggleable, java.util.function.Consumer<Boolean> onToggle) {
@@ -159,7 +166,12 @@ public class RunDetailPanel extends JPanel {
         btn.setOpaque(true);
         btn.setBorderPainted(false);
         if (itemManager != null) {
-            itemManager.getImage(itemId).addTo(btn);
+            AsyncBufferedImage image = itemManager.getImage(itemId);
+            if (image != null) {
+                image.addTo(btn);
+            } else {
+                btn.setText(tooltip);
+            }
         } else {
             btn.setText(tooltip);
         }

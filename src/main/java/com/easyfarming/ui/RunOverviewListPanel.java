@@ -65,6 +65,10 @@ public class RunOverviewListPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
+                    Component src = (Component) e.getSource();
+                    if (src == startStopButton || SwingUtilities.isDescendingFrom(src, startStopButton)) {
+                        return;
+                    }
                     parentPanel.showRunDetail(runName);
                 }
             }

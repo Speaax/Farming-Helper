@@ -17,7 +17,7 @@ public class FarmingTeleportSceneOverlay extends Overlay {
     private final GameObjectHighlighter gameObjectHighlighter;
 
     /** Set by NavigationHandler when spirit tree object should be highlighted next frame. */
-    private Color spiritTreeHighlightColor = null;
+    private volatile Color spiritTreeHighlightColor = null;
 
     @Inject
     public FarmingTeleportSceneOverlay(GameObjectHighlighter gameObjectHighlighter) {
@@ -27,11 +27,19 @@ public class FarmingTeleportSceneOverlay extends Overlay {
     }
 
     /**
-     * Request spirit tree game objects to be highlighted on the next frame (above scene).
-     * Called from NavigationHandler when the Spirit Tree interface is not open.
+     * Request spirit tree game objects to be highlighted (above scene).
+     * Called from NavigationHandler/TeleportHighlighter when the Spirit Tree interface is not open.
      */
     public void requestSpiritTreeHighlight(Color color) {
         this.spiritTreeHighlightColor = color;
+    }
+
+    /**
+     * Clear spirit tree highlight request. Call at start of teleport overlay render
+     * so we stop drawing when no longer on the spirit tree step.
+     */
+    public void clearSpiritTreeHighlight() {
+        this.spiritTreeHighlightColor = null;
     }
 
     @Override
@@ -40,7 +48,6 @@ public class FarmingTeleportSceneOverlay extends Overlay {
             return null;
         }
         Color color = spiritTreeHighlightColor;
-        spiritTreeHighlightColor = null;
         for (Integer objectId : Constants.SPIRIT_TREE_IDS) {
             gameObjectHighlighter.highlightGameObject(objectId, color).render(graphics);
         }
