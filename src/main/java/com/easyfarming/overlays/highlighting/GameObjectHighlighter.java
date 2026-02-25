@@ -3,6 +3,7 @@ package com.easyfarming.overlays.highlighting;
 import com.easyfarming.EasyFarmingPlugin;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
+import net.runelite.api.ObjectComposition;
 import net.runelite.api.Tile;
 import net.runelite.api.WorldView;
 import net.runelite.client.ui.overlay.Overlay;
@@ -71,7 +72,7 @@ public class GameObjectHighlighter {
                     continue;
                 }
                 for (GameObject gameObject : tile.getGameObjects()) {
-                    if (gameObject != null && gameObject.getId() == objectID) {
+                    if (gameObject != null && objectIdMatches(gameObject.getId(), objectID)) {
                         gameObjects.add(gameObject);
                     }
                 }
@@ -79,6 +80,28 @@ public class GameObjectHighlighter {
         }
         objectCache.put(objectID, gameObjects);
         return gameObjects;
+    }
+
+    /**
+     * Returns true if the scene object id matches the target (including impostor/resolved composition).
+     * Farming patches can use different scene IDs depending on state; composition id matches the base object.
+     */
+    private boolean objectIdMatches(int sceneId, int targetId) {
+        if (sceneId == targetId) {
+            return true;
+        }
+        try {
+            ObjectComposition comp = client.getObjectDefinition(sceneId);
+            if (comp == null) {
+                return false;
+            }
+            while (comp.getImpostor() != null) {
+                comp = comp.getImpostor();
+            }
+            return comp.getId() == targetId;
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     /**

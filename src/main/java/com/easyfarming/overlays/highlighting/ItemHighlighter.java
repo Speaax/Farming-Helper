@@ -9,6 +9,7 @@ import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.widgets.Widget;
+import net.runelite.client.game.ItemManager;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -22,14 +23,16 @@ import java.util.HashSet;
  */
 public class ItemHighlighter {
     private final Client client;
+    private final ItemManager itemManager;
     private final EasyFarmingOverlay farmingHelperOverlay;
     private final EasyFarmingConfig config;
     private final ColorProvider colorProvider;
     
     @Inject
-    public ItemHighlighter(Client client, EasyFarmingOverlay farmingHelperOverlay, 
+    public ItemHighlighter(Client client, ItemManager itemManager, EasyFarmingOverlay farmingHelperOverlay,
                           EasyFarmingConfig config, ColorProvider colorProvider) {
         this.client = client;
+        this.itemManager = itemManager;
         this.farmingHelperOverlay = farmingHelperOverlay;
         this.config = config;
         this.colorProvider = colorProvider;
@@ -149,8 +152,16 @@ public class ItemHighlighter {
     }
 
     private boolean itemMatchesTarget(int itemId, int targetId) {
-        return itemId == targetId
-                || isQuetzalWhistleHighlight(itemId, targetId)
+        if (itemId == targetId) {
+            return true;
+        }
+        if (itemManager != null) {
+            int canonical = itemManager.canonicalize(itemId);
+            if (canonical == targetId) {
+                return true;
+            }
+        }
+        return isQuetzalWhistleHighlight(itemId, targetId)
                 || isExplorersRingHighlight(itemId, targetId)
                 || isArdyCloakHighlight(itemId, targetId)
                 || isSkillsNecklaceHighlight(itemId, targetId)
