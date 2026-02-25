@@ -32,8 +32,10 @@ public class CustomRunLocationSubPanel extends JPanel {
     private final JComboBox<String> teleportCombo;
     private final JPanel patchIconsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
     private final JPanel contentPanel = new JPanel(new BorderLayout());
-    private boolean expanded = true;
-    private final JLabel expandCollapseLabel = new JLabel("\u25BC");
+    private boolean expanded = false;
+    private final JLabel expandCollapseLabel = new JLabel("\u25B6");
+    /** When true, programmatic refresh is in progress; do not fire onChanged to avoid re-entry loop. */
+    private boolean refreshingFromRun = false;
 
     public CustomRunLocationSubPanel(EasyFarmingPlugin plugin, ItemManager itemManager, String locationName,
                                     RunLocation runLocation, Runnable onChanged) {
@@ -63,7 +65,7 @@ public class CustomRunLocationSubPanel extends JPanel {
         expandCollapseLabel.setForeground(Color.WHITE);
         expandCollapseLabel.setFont(expandCollapseLabel.getFont().deriveFont(Font.BOLD, 14f));
         expandCollapseLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        expandCollapseLabel.setToolTipText("Collapse");
+        expandCollapseLabel.setToolTipText("Expand");
         expandCollapseLabel.setBorder(new EmptyBorder(0, 0, 0, 6));
         expandCollapseLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -121,6 +123,7 @@ public class CustomRunLocationSubPanel extends JPanel {
             }
         });
         teleportCombo.addActionListener(e -> {
+            if (refreshingFromRun) return;
             Object sel = teleportCombo.getSelectedItem();
             if (sel != null) runLocation.setTeleportOption((String) sel);
             if (onChanged != null) onChanged.run();
@@ -130,6 +133,7 @@ public class CustomRunLocationSubPanel extends JPanel {
 
         add(contentPanel, BorderLayout.CENTER);
 
+        contentPanel.setVisible(expanded);
         refreshPatchIcons();
     }
 
@@ -174,8 +178,13 @@ public class CustomRunLocationSubPanel extends JPanel {
     }
 
     public void refreshFromRunLocation() {
-        refreshTeleportOptions();
-        refreshPatchIcons();
+        refreshingFromRun = true;
+        try {
+            refreshTeleportOptions();
+            refreshPatchIcons();
+        } finally {
+            refreshingFromRun = false;
+        }
     }
 
     private JButton makePatchIconButton(String patchType, boolean selected) {
@@ -212,8 +221,8 @@ public class CustomRunLocationSubPanel extends JPanel {
             case PatchTypes.HERB: return GRIMY_RANARR_WEED;
             case PatchTypes.FLOWER: return net.runelite.api.gameval.ItemID.LIMPWURT_ROOT;
             case PatchTypes.ALLOTMENT: return net.runelite.api.gameval.ItemID.WATERMELON;
-            case PatchTypes.TREE: return net.runelite.api.gameval.ItemID.PLANTPOT_OAK_SAPLING;
-            case PatchTypes.FRUIT_TREE: return net.runelite.api.gameval.ItemID.PLANTPOT_APPLE_SAPLING;
+            case PatchTypes.TREE: return net.runelite.api.gameval.ItemID.YEW_LOGS;
+            case PatchTypes.FRUIT_TREE: return net.runelite.api.gameval.ItemID.PINEAPPLE;
             case PatchTypes.HOPS: return net.runelite.api.gameval.ItemID.BARLEY;
             default: return GRIMY_RANARR_WEED;
         }

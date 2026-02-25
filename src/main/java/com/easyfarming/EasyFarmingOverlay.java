@@ -24,6 +24,7 @@ import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
 import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
+import com.easyfarming.customrun.CustomRunItemRequirements;
 import com.easyfarming.utils.Constants;
 
 public class EasyFarmingOverlay extends Overlay {
@@ -69,6 +70,12 @@ public class EasyFarmingOverlay extends Overlay {
             22997, // Filled variant 4
             22998 // Filled variant 5
     );
+
+    /** All item IDs that represent a bottomless compost bucket (empty or any filled tier). */
+    public List<Integer> getBottomlessCompostBucketIds() {
+        return BOTTOMLESS_COMPOST_BUCKET_IDS;
+    }
+
     private static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
 
     public List<Integer> getSkillsNecklaceIds() {
@@ -598,8 +605,14 @@ public class EasyFarmingOverlay extends Overlay {
             Map<Integer, Integer> itemsToCheck = null;
             if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
                     && !plugin.getFarmingTeleportOverlay().getCustomRunLocations().isEmpty()) {
-                // Custom run: use empty requirements for now so run is not blocked
-                itemsToCheck = new HashMap<>();
+                itemsToCheck = CustomRunItemRequirements.buildRequirements(
+                        plugin.getLocationCatalog(),
+                        herbRunItemAndLocation,
+                        plugin.getConfig(),
+                        plugin.getFarmingTeleportOverlay().getCustomRunLocations(),
+                        plugin.getCustomRunIncludeSecateurs(),
+                        plugin.getCustomRunIncludeDibber(),
+                        plugin.getCustomRunIncludeRake());
             }
             if (itemsToCheck == null && plugin.getFarmingTeleportOverlay().herbRun) {
                 itemsToCheck = herbRunItemAndLocation.getHerbItems();
@@ -674,7 +687,11 @@ public class EasyFarmingOverlay extends Overlay {
 
             int totalSeeds = 0;
             int totalAllotmentSeeds = 0;
-            if (plugin.getFarmingTeleportOverlay().herbRun) {
+            int totalTreeSaplings = 0;
+            int totalFruitTreeSaplings = 0;
+            int totalHopsSeeds = 0;
+            boolean customRun = plugin.getFarmingTeleportOverlay().isCustomRunMode();
+            if (plugin.getFarmingTeleportOverlay().herbRun || customRun) {
                 for (Item item : items) {
                     if (isHerbSeed(item.getId())) {
                         totalSeeds += item.getQuantity();
@@ -684,24 +701,24 @@ public class EasyFarmingOverlay extends Overlay {
                     }
                 }
             }
-            if (plugin.getFarmingTeleportOverlay().treeRun) {
+            if (plugin.getFarmingTeleportOverlay().treeRun || customRun) {
                 for (Item item : items) {
                     if (isTreeSapling(item.getId())) {
-                        totalSeeds += item.getQuantity();
+                        totalTreeSaplings += item.getQuantity();
                     }
                 }
             }
-            if (plugin.getFarmingTeleportOverlay().fruitTreeRun) {
+            if (plugin.getFarmingTeleportOverlay().fruitTreeRun || customRun) {
                 for (Item item : items) {
                     if (isFruitTreeSapling(item.getId())) {
-                        totalSeeds += item.getQuantity();
+                        totalFruitTreeSaplings += item.getQuantity();
                     }
                 }
             }
-            if (plugin.getFarmingTeleportOverlay().hopsRun) {
+            if (plugin.getFarmingTeleportOverlay().hopsRun || customRun) {
                 for (Item item : items) {
                     if (isHopsSeed(item.getId())) {
-                        totalSeeds += item.getQuantity();
+                        totalHopsSeeds += item.getQuantity();
                     }
                 }
             }
@@ -810,14 +827,24 @@ public class EasyFarmingOverlay extends Overlay {
                 // Apply run-specific and item-specific overrides in order
                 if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_SEED_ID) {
                     inventoryCount = totalSeeds;
+                } else if (customRun && itemId == BASE_SEED_ID) {
+                    inventoryCount = totalSeeds;
                 } else if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_ALLOTMENT_SEED_ID) {
                     inventoryCount = totalAllotmentSeeds;
+                } else if (customRun && itemId == BASE_ALLOTMENT_SEED_ID) {
+                    inventoryCount = totalAllotmentSeeds;
                 } else if (plugin.getFarmingTeleportOverlay().treeRun && itemId == BASE_SAPLING_ID) {
-                    inventoryCount = totalSeeds;
+                    inventoryCount = totalTreeSaplings;
+                } else if (customRun && itemId == BASE_SAPLING_ID) {
+                    inventoryCount = totalTreeSaplings;
                 } else if (plugin.getFarmingTeleportOverlay().fruitTreeRun && itemId == BASE_FRUIT_SAPLING_ID) {
-                    inventoryCount = totalSeeds;
+                    inventoryCount = totalFruitTreeSaplings;
+                } else if (customRun && itemId == BASE_FRUIT_SAPLING_ID) {
+                    inventoryCount = totalFruitTreeSaplings;
                 } else if (plugin.getFarmingTeleportOverlay().hopsRun && itemId == BASE_HOPS_SEED_ID) {
-                    inventoryCount = totalSeeds;
+                    inventoryCount = totalHopsSeeds;
+                } else if (customRun && itemId == BASE_HOPS_SEED_ID) {
+                    inventoryCount = totalHopsSeeds;
                 } else if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
                     inventoryCount = teleportCrystalCount;
                 } else if (itemId == BASE_SKILLS_NECKLACE_ID) {

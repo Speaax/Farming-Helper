@@ -42,6 +42,7 @@ public class CustomRunOverviewRow extends JPanel {
                 plugin.setOverlayActive(false);
             }
         });
+        syncStartButtonState();
 
         JPanel container = new JPanel(new BorderLayout());
         container.setOpaque(false);
@@ -75,5 +76,13 @@ public class CustomRunOverviewRow extends JPanel {
         addMouseListener(mouseAdapter);
         nameLabel.addMouseListener(mouseAdapter);
         container.addMouseListener(mouseAdapter);
+    }
+
+    private void syncStartButtonState() {
+        if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
+                && customRun.getName() != null
+                && customRun.getName().equals(plugin.getFarmingTeleportOverlay().getActiveCustomRunName())) {
+            startStopButton.setStartStopState(true);
+        }
     }
 }

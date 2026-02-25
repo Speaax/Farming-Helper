@@ -170,9 +170,9 @@ public class CustomRunLocationRowPanel extends JPanel {
             case PatchTypes.ALLOTMENT:
                 return ItemID.WATERMELON;
             case PatchTypes.TREE:
-                return ItemID.PLANTPOT_OAK_SAPLING;
+                return ItemID.YEW_LOGS;
             case PatchTypes.FRUIT_TREE:
-                return ItemID.PLANTPOT_APPLE_SAPLING;
+                return ItemID.PINEAPPLE;
             case PatchTypes.HOPS:
                 return ItemID.BARLEY;
             default:

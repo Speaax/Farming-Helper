@@ -38,6 +38,8 @@ public class CustomRunDetailPanel extends JPanel {
     private final Map<String, CustomRunLocationSubPanel> subPanelsByLocation = new LinkedHashMap<>();
     private String draggedLocationName;
     private AWTEventListener dragEndListener;
+    /** Prevents re-entry when syncing/refreshing (e.g. combo firing during refreshFromRunLocation). */
+    private boolean inRowChangedOrRefresh = false;
 
     public CustomRunDetailPanel(EasyFarmingPlugin plugin, EasyFarmingPanel parentPanel,
                                 CustomRun customRun, boolean isNewRun,
@@ -50,6 +52,11 @@ public class CustomRunDetailPanel extends JPanel {
 
         setLayout(new BorderLayout());
         setBackground(ColorScheme.DARK_GRAY_COLOR);
+
+        filterBar = new CustomRunFilterBar(itemManager);
+        filterBar.setOnFilterChanged(this::onFilterChanged);
+
+        syncRunWithCatalog();
 
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -68,9 +75,21 @@ public class CustomRunDetailPanel extends JPanel {
         JLabel titleLabel = new JLabel(customRun.getName() != null ? customRun.getName() : "New Run");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(net.runelite.client.ui.FontManager.getRunescapeBoldFont());
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JButton saveButton = new JButton("Save");
+        saveButton.setFocusable(false);
+        saveButton.setToolTipText("Save run and stay on edit screen");
+        saveButton.addActionListener(e -> saveRun());
+        JPanel titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        titlePanel.add(titleLabel);
+        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        titleRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        titleRow.add(titleLabel);
+        titlePanel.add(titleRow);
+        JPanel saveRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
+        saveRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        saveRow.add(saveButton);
+        titlePanel.add(saveRow);
         headerPanel.add(titlePanel, BorderLayout.CENTER);
 
         JPanel headerButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
@@ -81,20 +100,20 @@ public class CustomRunDetailPanel extends JPanel {
             boolean toggleToStop = startButton.getText().equals("Start");
             startButton.setStartStopState(toggleToStop);
             if (toggleToStop) {
+                plugin.setCustomRunToolInclusion(
+                    filterBar.isSecateursIncluded(),
+                    filterBar.isDibberIncluded(),
+                    filterBar.isRakeIncluded());
                 parentPanel.startCustomRun(customRun);
             } else {
                 plugin.getFarmingTeleportOverlay().removeOverlay();
                 plugin.setOverlayActive(false);
             }
         });
+        syncStartButtonState(startButton);
         headerButtons.add(startButton);
         headerPanel.add(headerButtons, BorderLayout.EAST);
-
-        syncRunWithCatalog();
-
-        filterBar = new CustomRunFilterBar(itemManager);
-        filterBar.setOnFilterChanged(this::onFilterChanged);
-        JLabel filterHint = new JLabel("Filter: yellow = show locations with patch, green = enable at all locations");
+        JLabel filterHint = new JLabel("Tools: grey = not included, green = included. Patch: yellow = filter, green = enable at all.");
         filterHint.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
         filterHint.setFont(filterHint.getFont().deriveFont(10f));
         JPanel northPanel = new JPanel();
@@ -208,7 +227,6 @@ public class CustomRunDetailPanel extends JPanel {
 
     private void refreshLocationVisibility() {
         locationsContainer.removeAll();
-        subPanelsByLocation.clear();
         if (!filterBar.hasAnyYellowOrGreenFilter()) {
             JLabel noFilter = new JLabel("Select a filter (yellow or green) to show locations.");
             noFilter.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
@@ -230,8 +248,13 @@ public class CustomRunDetailPanel extends JPanel {
                 }
             }
             if (show) {
-                CustomRunLocationSubPanel sub = new CustomRunLocationSubPanel(plugin, itemManager, name, rl, this::onRowChanged, this::onLocationDragStart);
-                subPanelsByLocation.put(name, sub);
+                CustomRunLocationSubPanel sub = subPanelsByLocation.get(name);
+                if (sub == null) {
+                    sub = new CustomRunLocationSubPanel(plugin, itemManager, name, rl, this::onRowChanged, this::onLocationDragStart);
+                    subPanelsByLocation.put(name, sub);
+                } else {
+                    sub.refreshFromRunLocation();
+                }
                 locationsContainer.add(sub);
                 locationsContainer.add(Box.createRigidArea(new Dimension(0, 6)));
             }
@@ -241,8 +264,14 @@ public class CustomRunDetailPanel extends JPanel {
     }
 
     private void onRowChanged() {
-        syncFilterStateFromRun();
-        refreshLocationVisibility();
+        if (inRowChangedOrRefresh) return;
+        inRowChangedOrRefresh = true;
+        try {
+            syncFilterStateFromRun();
+            refreshLocationVisibility();
+        } finally {
+            inRowChangedOrRefresh = false;
+        }
     }
 
     private void onLocationDragStart(String locationName) {
@@ -309,6 +338,15 @@ public class CustomRunDetailPanel extends JPanel {
         customRun.getLocations().clear();
         customRun.getLocations().addAll(runLocationsInOrder);
         refreshLocationVisibility();
+    }
+
+    /** Sets the Start/Stop button to Stop if this run is currently the active custom run. */
+    private void syncStartButtonState(StartStopJButton startButton) {
+        if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
+                && customRun.getName() != null
+                && customRun.getName().equals(plugin.getFarmingTeleportOverlay().getActiveCustomRunName())) {
+            startButton.setStartStopState(true);
+        }
     }
 
     private void saveRun() {

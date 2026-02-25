@@ -30,7 +30,14 @@ public class PatchHighlighter {
             gameObjectHighlighter.highlightGameObject(patchId, color).render(graphics);
         }
     }
-    
+
+    /**
+     * Highlights a specific herb patch by object ID (for current location).
+     */
+    public void highlightSpecificHerbPatch(Graphics2D graphics, int objectId, Color color) {
+        gameObjectHighlighter.highlightGameObject(objectId, color).render(graphics);
+    }
+
     public void highlightFlowerPatches(Graphics2D graphics, Color color) {
         for (Integer patchId : farmingHelperOverlay.getFlowerPatchIds()) {
             gameObjectHighlighter.highlightGameObject(patchId, color).render(graphics);

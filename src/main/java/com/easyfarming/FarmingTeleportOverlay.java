@@ -49,6 +49,8 @@ public class FarmingTeleportOverlay extends Overlay {
     // Custom run state
     private boolean customRunMode = false;
     private List<RunLocation> customRunLocations = new ArrayList<>();
+    /** Name of the custom run currently active (so UI can show Stop on the correct run). */
+    private String activeCustomRunName = null;
 
     public boolean isCustomRunMode() {
         return customRunMode;
@@ -56,6 +58,10 @@ public class FarmingTeleportOverlay extends Overlay {
 
     public List<RunLocation> getCustomRunLocations() {
         return customRunLocations;
+    }
+
+    public String getActiveCustomRunName() {
+        return activeCustomRunName;
     }
     private int currentPatchTypeIndex = 0;
     
@@ -74,7 +80,7 @@ public class FarmingTeleportOverlay extends Overlay {
                                    EasyFarmingConfig config) {
         this.areaCheck = areaCheck;
         setPosition(OverlayPosition.DYNAMIC);
-        setLayer(OverlayLayer.ABOVE_SCENE);
+        setLayer(OverlayLayer.ABOVE_WIDGETS);
         this.plugin = plugin;
         this.client = client;
         this.config = config;
@@ -317,7 +323,7 @@ public class FarmingTeleportOverlay extends Overlay {
         if (customRunMode) {
             Location location = getCurrentLocationForCustomRun();
             if (location == null) {
-                removeOverlay();
+                moveToNextLocation();
                 return;
             }
             updateHintArrow(location);
@@ -588,6 +594,7 @@ public class FarmingTeleportOverlay extends Overlay {
         
         customRunMode = false;
         customRunLocations.clear();
+        activeCustomRunName = null;
         currentPatchTypeIndex = 0;
         currentLocationIndex = 0;
         enabledLocations.clear();
@@ -632,6 +639,7 @@ public class FarmingTeleportOverlay extends Overlay {
         fruitTreeRun = false;
         hopsRun = false;
         customRunMode = true;
+        activeCustomRunName = run.getName();
         customRunLocations = new ArrayList<>(run.getLocations());
         currentLocationIndex = 0;
         currentPatchTypeIndex = 0;

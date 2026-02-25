@@ -39,6 +39,7 @@ public class NavigationHandler {
     private final WidgetHelper widgetHelper;
     private final GameObjectHelper gameObjectHelper;
     private final ColorProvider colorProvider;
+    private final FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
     
     // State tracking
     public int currentTeleportCase = 1;
@@ -51,7 +52,7 @@ public class NavigationHandler {
                             WidgetHighlighter widgetHighlighter, GameObjectHighlighter gameObjectHighlighter,
                             DecorativeObjectHighlighter decorativeObjectHighlighter, MenuHighlighter menuHighlighter,
                             WidgetHelper widgetHelper, GameObjectHelper gameObjectHelper,
-                            ColorProvider colorProvider) {
+                            ColorProvider colorProvider, FarmingTeleportSceneOverlay farmingTeleportSceneOverlay) {
         this.client = client;
         this.plugin = plugin;
         this.config = config;
@@ -66,6 +67,7 @@ public class NavigationHandler {
         this.widgetHelper = widgetHelper;
         this.gameObjectHelper = gameObjectHelper;
         this.colorProvider = colorProvider;
+        this.farmingTeleportSceneOverlay = farmingTeleportSceneOverlay;
     }
     
     /**
@@ -423,10 +425,8 @@ public class NavigationHandler {
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         
         if (!widgetHelper.isInterfaceOpen(187, 3)) {
-            List<Integer> spiritTreeIds = Constants.SPIRIT_TREE_IDS;
-            for (Integer objectId : spiritTreeIds) {
-                gameObjectHighlighter.highlightGameObject(objectId, leftColor).render(graphics);
-            }
+            // Draw spirit tree object highlight above scene (not above widgets) so it appears correctly on map/scene
+            farmingTeleportSceneOverlay.requestSpiritTreeHighlight(leftColor);
         } else {
             Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
             switch (location.getName()) {

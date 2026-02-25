@@ -176,6 +176,8 @@ public class EasyFarmingPlugin extends Plugin
 	@Getter
     @Inject
 	private FarmingTeleportOverlay farmingTeleportOverlay;
+	@Inject
+	private FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
 
 	private EasyFarmingPanel farmingHelperPanel;
 	public EasyFarmingPanel panel;
@@ -186,6 +188,26 @@ public class EasyFarmingPlugin extends Plugin
 
 	@Inject
 	private EasyFarmingConfig config;
+
+	public EasyFarmingConfig getConfig() {
+		return config;
+	}
+
+	/** Custom run tool inclusion: set when starting a custom run from the detail panel. */
+	private boolean customRunIncludeSecateurs = true;
+	private boolean customRunIncludeDibber = true;
+	private boolean customRunIncludeRake = true;
+
+	public void setCustomRunToolInclusion(boolean secateurs, boolean dibber, boolean rake) {
+		this.customRunIncludeSecateurs = secateurs;
+		this.customRunIncludeDibber = dibber;
+		this.customRunIncludeRake = rake;
+	}
+
+	public boolean getCustomRunIncludeSecateurs() { return customRunIncludeSecateurs; }
+	public boolean getCustomRunIncludeDibber() { return customRunIncludeDibber; }
+	public boolean getCustomRunIncludeRake() { return customRunIncludeRake; }
+
 	@Inject
 	public OverlayManager overlayManager;
 	@Inject
@@ -368,6 +390,7 @@ public class EasyFarmingPlugin extends Plugin
 		clientToolbar.addNavigation(navButton);
 
 		overlayManager.add(farmingHelperOverlay);
+		overlayManager.add(farmingTeleportSceneOverlay);
 		overlayManager.add(farmingTeleportOverlay);
 		overlayManager.add(farmingHelperOverlayInfoBox);
 
@@ -386,6 +409,7 @@ public class EasyFarmingPlugin extends Plugin
 		}
 
 		overlayManager.remove(farmingHelperOverlay);
+		overlayManager.remove(farmingTeleportSceneOverlay);
 		overlayManager.remove(farmingTeleportOverlay);
 		overlayManager.remove(farmingHelperOverlayInfoBox);
 

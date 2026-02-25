@@ -50,6 +50,7 @@ public class OverviewPanel extends JPanel {
         titlePanel.add(title, BorderLayout.WEST);
         contentPanel.add(titlePanel);
 
+        com.easyfarming.FarmingTeleportOverlay overlay = plugin.getFarmingTeleportOverlay();
         for (String runName : RUN_TYPES) {
             StartStopJButton startBtn = new StartStopJButton(runName);
             startBtn.setPreferredSize(new Dimension(80, 25));
@@ -63,6 +64,10 @@ public class OverviewPanel extends JPanel {
                     plugin.setOverlayActive(false);
                 }
             });
+            if ("Herb Run".equals(runName) && overlay.herbRun) startBtn.setStartStopState(true);
+            else if ("Tree Run".equals(runName) && overlay.treeRun) startBtn.setStartStopState(true);
+            else if ("Fruit Tree Run".equals(runName) && overlay.fruitTreeRun) startBtn.setStartStopState(true);
+            else if ("Hops Run".equals(runName) && overlay.hopsRun) startBtn.setStartStopState(true);
             contentPanel.add(new RunOverviewListPanel(plugin, parentPanel, runName, startBtn));
             contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         }

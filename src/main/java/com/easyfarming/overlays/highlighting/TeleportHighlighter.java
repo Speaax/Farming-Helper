@@ -2,6 +2,7 @@ package com.easyfarming.overlays.highlighting;
 
 import com.easyfarming.EasyFarmingOverlay;
 import com.easyfarming.EasyFarmingPlugin;
+import com.easyfarming.FarmingTeleportSceneOverlay;
 import com.easyfarming.InventoryTabChecker;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.overlays.utils.ColorProvider;
@@ -29,12 +30,14 @@ public class TeleportHighlighter {
     private final WidgetHelper widgetHelper;
     private final GameObjectHelper gameObjectHelper;
     private final ColorProvider colorProvider;
+    private final FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
     
     @Inject
     public TeleportHighlighter(Client client, EasyFarmingPlugin plugin, EasyFarmingOverlay easyFarmingOverlay,
                                ItemHighlighter itemHighlighter, WidgetHighlighter widgetHighlighter,
                                GameObjectHighlighter gameObjectHighlighter, WidgetHelper widgetHelper,
-                               GameObjectHelper gameObjectHelper, ColorProvider colorProvider) {
+                               GameObjectHelper gameObjectHelper, ColorProvider colorProvider,
+                               FarmingTeleportSceneOverlay farmingTeleportSceneOverlay) {
         this.client = client;
         this.plugin = plugin;
         this.easyFarmingOverlay = easyFarmingOverlay;
@@ -44,6 +47,7 @@ public class TeleportHighlighter {
         this.widgetHelper = widgetHelper;
         this.gameObjectHelper = gameObjectHelper;
         this.colorProvider = colorProvider;
+        this.farmingTeleportSceneOverlay = farmingTeleportSceneOverlay;
     }
     
     /**
@@ -90,10 +94,7 @@ public class TeleportHighlighter {
                 break;
             case SPIRIT_TREE:
                 if (!widgetHelper.isInterfaceOpen(187, 3)) {
-                    List<Integer> spiritTreeIds = Constants.SPIRIT_TREE_IDS;
-                    for (Integer objectId : spiritTreeIds) {
-                        gameObjectHighlighter.highlightGameObject(objectId, leftColor).render(graphics);
-                    }
+                    farmingTeleportSceneOverlay.requestSpiritTreeHighlight(leftColor);
                 } else {
                     Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
                     int index = widgetHelper.getChildIndexSpiritTree(teleport.getPoint().toString());
