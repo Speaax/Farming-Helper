@@ -61,7 +61,7 @@ public class LocationCatalog {
         rebuild();
     }
 
-    /** Rebuild catalog from plugin (call after plugin's ItemAndLocation are ready). */
+    /** Rebuild catalog from LocationData classes and config. */
     public void rebuild() {
         locationByPatch.clear();
         teleportOptionsByLocation.clear();

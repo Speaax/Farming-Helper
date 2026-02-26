@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 /**
  * One custom run row in the overview: name + Start, click to open detail.
@@ -74,12 +75,49 @@ public class CustomRunOverviewRow extends JPanel {
                         return;
                     }
                     parentPanel.showRunDetail(customRun);
+                } else if (SwingUtilities.isRightMouseButton(e)) {
+                    showContextMenu(e);
                 }
             }
         };
         addMouseListener(mouseAdapter);
         nameLabel.addMouseListener(mouseAdapter);
         container.addMouseListener(mouseAdapter);
+    }
+
+    private void showContextMenu(MouseEvent e) {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem renameItem = new JMenuItem("Rename");
+        renameItem.addActionListener(ev -> renameRun());
+        popup.add(renameItem);
+        JMenuItem deleteItem = new JMenuItem("Delete");
+        deleteItem.addActionListener(ev -> deleteRun());
+        popup.add(deleteItem);
+        popup.show(e.getComponent(), e.getX(), e.getY());
+    }
+
+    private void renameRun() {
+        String currentName = customRun.getName() != null ? customRun.getName() : "";
+        String newName = (String) JOptionPane.showInputDialog(this, "Run name:", "Rename custom run", JOptionPane.PLAIN_MESSAGE, null, null, currentName);
+        if (newName == null) return;
+        newName = newName.trim();
+        if (newName.isEmpty()) return;
+        customRun.setName(newName);
+        plugin.getCustomRunStorage().save(plugin.getCustomRunStorage().load());
+        parentPanel.refreshOverviewList();
+    }
+
+    private void deleteRun() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Delete \"" + (customRun.getName() != null ? customRun.getName() : "run") + "\"?",
+                "Delete custom run",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+        List<CustomRun> runs = plugin.getCustomRunStorage().load();
+        runs.removeIf(r -> r == customRun || (customRun.getName() != null && customRun.getName().equals(r.getName())));
+        plugin.getCustomRunStorage().save(runs);
+        parentPanel.refreshOverviewList();
     }
 
     private void syncStartButtonState() {

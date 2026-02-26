@@ -1,6 +1,7 @@
 package com.easyfarming.overlays.highlighting;
 
 import com.easyfarming.EasyFarmingOverlay;
+import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
@@ -102,48 +103,79 @@ public class PatchHighlighter {
     }
     
     /**
-     * Highlights farming patches for a specific location.
+     * Highlights farming patches for a specific location based on patch type.
      * @param locationName The name of the location
      * @param graphics Graphics context for highlighting
-     * @param herbRun Whether this is a herb run
-     * @param treeRun Whether this is a tree run
-     * @param fruitTreeRun Whether this is a fruit tree run
+     * @param patchType One of PatchTypes.HERB, FLOWER, ALLOTMENT, TREE, FRUIT_TREE, HOPS
      * @param leftClickColor Color for left-click highlights
      * @param useItemColor Color for use-item highlights
      */
-    public void highlightFarmingPatchesForLocation(String locationName, Graphics2D graphics, 
-                                                   boolean herbRun, boolean treeRun, boolean fruitTreeRun,
-                                                   boolean hopsRun,
+    public void highlightFarmingPatchesForLocation(String locationName, Graphics2D graphics,
+                                                   String patchType,
                                                    Color leftClickColor, Color useItemColor) {
-        // Herb locations
-        if (herbRun && (locationName.equals("Ardougne") || locationName.equals("Catherby") || 
-                       locationName.equals("Falador") || locationName.equals("Farming Guild") ||
-                       locationName.equals("Harmony Island") || locationName.equals("Kourend") ||
-                       locationName.equals("Morytania") || locationName.equals("Troll Stronghold") ||
-                       locationName.equals("Weiss") || locationName.equals("Civitas illa Fortis"))) {
-            highlightHerbPatches(graphics, leftClickColor);
+        if (patchType == null) {
+            return;
         }
-        
-        // Tree locations
-        if (treeRun && (locationName.equals("Falador") || locationName.equals("Farming Guild") ||
-                       locationName.equals("Gnome Stronghold") || locationName.equals("Lumbridge") ||
-                       locationName.equals("Taverley") || locationName.equals("Varrock"))) {
-            highlightTreePatches(graphics, leftClickColor);
+        switch (patchType) {
+            case PatchTypes.HERB:
+                if (isHerbLocation(locationName)) {
+                    highlightHerbPatches(graphics, leftClickColor);
+                }
+                break;
+            case PatchTypes.FLOWER:
+                if (isHerbLocation(locationName)) {
+                    highlightFlowerPatches(graphics, leftClickColor);
+                }
+                break;
+            case PatchTypes.ALLOTMENT:
+                if (isHerbLocation(locationName)) {
+                    highlightAllotmentPatches(graphics, leftClickColor);
+                }
+                break;
+            case PatchTypes.TREE:
+                if (isTreeLocation(locationName)) {
+                    highlightTreePatches(graphics, leftClickColor);
+                }
+                break;
+            case PatchTypes.FRUIT_TREE:
+                if (isFruitTreeLocation(locationName)) {
+                    highlightFruitTreePatches(graphics, leftClickColor);
+                }
+                break;
+            case PatchTypes.HOPS:
+                if (isHopsLocation(locationName)) {
+                    highlightHopsPatches(graphics, leftClickColor);
+                }
+                break;
+            default:
+                break;
         }
-        
-        // Fruit tree locations
-        if (fruitTreeRun && (locationName.equals("Brimhaven") || locationName.equals("Catherby") ||
-                            locationName.equals("Farming Guild") || locationName.equals("Gnome Stronghold") ||
-                            locationName.equals("Lletya") || locationName.equals("Tree Gnome Village"))) {
-            highlightFruitTreePatches(graphics, leftClickColor);
-        }
-        
-        // Hops locations
-        if (hopsRun && (locationName.equals("Lumbridge") || locationName.equals("Seers Village") ||
-                       locationName.equals("Yanille") || locationName.equals("Entrana") ||
-                       locationName.equals("Aldarin"))) {
-            highlightHopsPatches(graphics, leftClickColor);
-        }
+    }
+
+    private static boolean isHerbLocation(String locationName) {
+        return locationName.equals("Ardougne") || locationName.equals("Catherby")
+                || locationName.equals("Falador") || locationName.equals("Farming Guild")
+                || locationName.equals("Harmony Island") || locationName.equals("Kourend")
+                || locationName.equals("Morytania") || locationName.equals("Troll Stronghold")
+                || locationName.equals("Weiss") || locationName.equals("Civitas illa Fortis");
+    }
+
+    private static boolean isTreeLocation(String locationName) {
+        return locationName.equals("Falador") || locationName.equals("Farming Guild")
+                || locationName.equals("Gnome Stronghold") || locationName.equals("Lumbridge")
+                || locationName.equals("Taverley") || locationName.equals("Varrock");
+    }
+
+    private static boolean isFruitTreeLocation(String locationName) {
+        return locationName.equals("Brimhaven") || locationName.equals("Catherby")
+                || locationName.equals("Farming Guild") || locationName.equals("Gnome Stronghold")
+                || locationName.equals("Lletya") || locationName.equals("Tree Gnome Village");
+    }
+
+    private static boolean isHopsLocation(String locationName) {
+        return locationName.equals("Lumbridge") || locationName.equals("Seers Village")
+                || locationName.equals("Yanille") || locationName.equals("Entrana")
+                || locationName.equals("Aldarin");
     }
 }
 

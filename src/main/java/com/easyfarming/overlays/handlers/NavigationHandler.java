@@ -215,8 +215,7 @@ public class NavigationHandler {
     /**
      * Gets the appropriate highlighting based on current situation.
      */
-    public void adaptiveHighlighting(Location location, Teleport teleport, Graphics2D graphics,
-                                     boolean herbRun, boolean treeRun, boolean fruitTreeRun, boolean hopsRun) {
+    public void adaptiveHighlighting(Location location, Teleport teleport, Graphics2D graphics, String patchType) {
         if (client.getLocalPlayer() == null) {
             return;
         }
@@ -231,7 +230,7 @@ public class NavigationHandler {
         // If player is very close to patch, highlight the patch directly
         if (nearPatch) {
             patchHighlighter.highlightFarmingPatchesForLocation(location.getName(), graphics,
-                    herbRun, treeRun, fruitTreeRun, hopsRun, leftColor, leftColor);
+                    patchType, leftColor, leftColor);
             return;
         }
         
@@ -239,7 +238,7 @@ public class NavigationHandler {
         if (inCorrectRegion && !nearTarget) {
             if (isNearAnyFarmingPatch(location.getName())) {
                 patchHighlighter.highlightFarmingPatchesForLocation(location.getName(), graphics,
-                        herbRun, treeRun, fruitTreeRun, hopsRun, leftColor, leftColor);
+                        patchType, leftColor, leftColor);
                 return;
             }
         }
@@ -250,77 +249,58 @@ public class NavigationHandler {
     
     /**
      * Handles navigation to a specific location.
-     * @param isCustomRun when true, location is always treated as enabled (used for custom runs).
+     * Caller is responsible for passing only enabled locations.
      */
-    public void gettingToLocation(Graphics2D graphics, Location location, boolean herbRun,
-                                  boolean treeRun, boolean fruitTreeRun, boolean hopsRun,
-                                  boolean isCustomRun) {
+    public void gettingToLocation(Graphics2D graphics, Location location, String patchType) {
         Teleport teleport = location.getSelectedTeleport();
         if (teleport == null) {
             return;
         }
-        boolean locationEnabledBool = isCustomRun;
-        if (!locationEnabledBool) {
-            if (herbRun) {
-                locationEnabledBool = plugin.getHerbLocationEnabled(location.getName());
-            } else if (treeRun) {
-                locationEnabledBool = plugin.getTreeLocationEnabled(location.getName());
-            } else if (fruitTreeRun) {
-                locationEnabledBool = plugin.getFruitTreeLocationEnabled(location.getName());
-            } else if (hopsRun) {
-                locationEnabledBool = plugin.getHopsLocationEnabled(location.getName());
+        if (!isAtDestination) {
+            if (client.getLocalPlayer() == null) {
+                return;
             }
-        }
-        
-        if (locationEnabledBool) {
-            if (!isAtDestination) {
-                if (client.getLocalPlayer() == null) {
-                    return;
+            int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+            
+            // Use adaptive detection to determine if we should proceed to farming
+            if (shouldProceedToFarming(location, teleport)) {
+                this.currentTeleportCase = 1;
+                isAtDestination = true;
+                if (location.getFarmLimps()) {
+                    // This will be handled by the calling code
                 }
-                int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-                
-                // Use adaptive detection to determine if we should proceed to farming
-                if (shouldProceedToFarming(location, teleport)) {
-                    this.currentTeleportCase = 1;
-                    isAtDestination = true;
-                    if (location.getFarmLimps()) {
-                        // This will be handled by the calling code
-                    }
-                    plugin.addTextToInfoBox(teleport.getDescription());
-                } else {
-                    // Use adaptive highlighting based on current situation
-                    adaptiveHighlighting(location, teleport, graphics, herbRun, treeRun, fruitTreeRun, hopsRun);
-                    plugin.addTextToInfoBox(teleport.getDescription());
-                    return;
-                }
-                
-                // Handle different teleport categories
-                switch (teleport.getCategory()) {
-                    case ITEM:
-                        handleItemTeleport(graphics, teleport, location, currentRegionId);
-                        break;
-                    case PORTAL_NEXUS:
-                        handlePortalNexusTeleport(graphics, teleport, location, currentRegionId);
-                        break;
-                    case SPIRIT_TREE:
-                        handleSpiritTreeTeleport(graphics, teleport, location, currentRegionId);
-                        break;
-                    case FAIRY_RING:
-                        handleFairyRingTeleport(graphics, teleport, location, currentRegionId);
-                        break;
-                    case JEWELLERY_BOX:
-                        handleJewelleryBoxTeleport(graphics, teleport, location, currentRegionId);
-                        break;
-                    case MOUNTED_XERICS:
-                        handleMountedXericsTeleport(graphics, teleport, location, currentRegionId);
-                        break;
-                    case SPELLBOOK:
-                        handleSpellbookTeleport(graphics, teleport, currentRegionId);
-                        break;
-                }
+                plugin.addTextToInfoBox(teleport.getDescription());
+            } else {
+                // Use adaptive highlighting based on current situation
+                adaptiveHighlighting(location, teleport, graphics, patchType);
+                plugin.addTextToInfoBox(teleport.getDescription());
+                return;
             }
-        } else {
-            // Location not enabled, skip to next
+            
+            // Handle different teleport categories
+            switch (teleport.getCategory()) {
+                case ITEM:
+                    handleItemTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case PORTAL_NEXUS:
+                    handlePortalNexusTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case SPIRIT_TREE:
+                    handleSpiritTreeTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case FAIRY_RING:
+                    handleFairyRingTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case JEWELLERY_BOX:
+                    handleJewelleryBoxTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case MOUNTED_XERICS:
+                    handleMountedXericsTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case SPELLBOOK:
+                    handleSpellbookTeleport(graphics, teleport, currentRegionId);
+                    break;
+            }
         }
     }
     

@@ -9,7 +9,6 @@ import java.awt.*;
 import com.easyfarming.customrun.CustomRun;
 import com.easyfarming.ui.CustomRunDetailPanel;
 import com.easyfarming.ui.OverviewPanel;
-import com.easyfarming.ui.RunDetailPanel;
 
 /**
  * Same UI style as the custom-run design: card layout with overview list and run detail.
@@ -60,13 +59,11 @@ public class EasyFarmingPanel extends PluginPanel {
         }
     }
 
-    public void showRunDetail(String runName) {
-        if (currentDetailPanel != null) {
-            cardContainer.remove(currentDetailPanel);
+    /** Rebuild the overview list without switching cards (e.g. after rename/delete on a row). */
+    public void refreshOverviewList() {
+        if (overviewPanel != null) {
+            overviewPanel.rebuildList();
         }
-        currentDetailPanel = new RunDetailPanel(plugin, this, runName, itemManager);
-        cardContainer.add(currentDetailPanel, DETAIL_PANEL);
-        cardLayout.show(cardContainer, DETAIL_PANEL);
     }
 
     public void showRunDetail(CustomRun customRun) {
@@ -76,40 +73,6 @@ public class EasyFarmingPanel extends PluginPanel {
         currentDetailPanel = new CustomRunDetailPanel(plugin, this, customRun, false, itemManager);
         cardContainer.add(currentDetailPanel, DETAIL_PANEL);
         cardLayout.show(cardContainer, DETAIL_PANEL);
-    }
-
-    /**
-     * Starts the given run type (Herb Run, Tree Run, etc.) - same behavior as the original run-type buttons.
-     */
-    public void startRun(String runName) {
-        SwingUtilities.invokeLater(() -> {
-            EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-            plugin.setOverlayActive(true);
-            farmingTeleportOverlay.herbRun = false;
-            farmingTeleportOverlay.treeRun = false;
-            farmingTeleportOverlay.fruitTreeRun = false;
-            farmingTeleportOverlay.hopsRun = false;
-            switch (runName) {
-                case "Herb Run":
-                    farmingTeleportOverlay.herbRun = true;
-                    break;
-                case "Tree Run":
-                    farmingTeleportOverlay.treeRun = true;
-                    break;
-                case "Fruit Tree Run":
-                    farmingTeleportOverlay.fruitTreeRun = true;
-                    break;
-                case "Hops Run":
-                    farmingTeleportOverlay.hopsRun = true;
-                    break;
-                default:
-                    break;
-            }
-            if (overlay != null) {
-                overlayManager.add(overlay);
-            }
-            overlayManager.add(farmingTeleportOverlay);
-        });
     }
 
     /**

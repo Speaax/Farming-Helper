@@ -2,7 +2,6 @@ package com.easyfarming.ui;
 
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.EasyFarmingPanel;
-import com.easyfarming.StartStopJButton;
 import com.easyfarming.customrun.CustomRun;
 import net.runelite.client.ui.ColorScheme;
 
@@ -12,12 +11,9 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Overview list: "Pick a farm run:" with fixed run-type cards (Herb, Tree, Fruit Tree, Hops)
- * and a "Custom runs" section listing saved custom runs plus "+" to add one.
+ * Overview list: "Custom runs" section with saved custom runs and "+ New custom run" card.
  */
 public class OverviewPanel extends JPanel {
-    private static final String[] RUN_TYPES = { "Herb Run", "Tree Run", "Fruit Tree Run", "Hops Run" };
-
     private final EasyFarmingPlugin plugin;
     private final EasyFarmingPanel parentPanel;
     private final JPanel contentPanel;
@@ -43,39 +39,9 @@ public class OverviewPanel extends JPanel {
     public void rebuildList() {
         contentPanel.removeAll();
 
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        titlePanel.setBorder(new EmptyBorder(0, 0, 15, 0));
-        JLabel title = new JLabel("Pick a farm run:");
-        title.setForeground(Color.WHITE);
-        titlePanel.add(title, BorderLayout.WEST);
-        contentPanel.add(titlePanel);
-
-        com.easyfarming.FarmingTeleportOverlay overlay = plugin.getFarmingTeleportOverlay();
-        for (String runName : RUN_TYPES) {
-            StartStopJButton startBtn = new StartStopJButton(runName);
-            startBtn.setPreferredSize(new Dimension(80, 25));
-            startBtn.addActionListener(e -> {
-                boolean toggleToStop = startBtn.getText().equals("Start");
-                startBtn.setStartStopState(toggleToStop);
-                if (toggleToStop) {
-                    parentPanel.startRun(runName);
-                } else {
-                    plugin.getFarmingTeleportOverlay().removeOverlay();
-                    plugin.setOverlayActive(false);
-                }
-            });
-            if ("Herb Run".equals(runName) && overlay.herbRun) startBtn.setStartStopState(true);
-            else if ("Tree Run".equals(runName) && overlay.treeRun) startBtn.setStartStopState(true);
-            else if ("Fruit Tree Run".equals(runName) && overlay.fruitTreeRun) startBtn.setStartStopState(true);
-            else if ("Hops Run".equals(runName) && overlay.hopsRun) startBtn.setStartStopState(true);
-            contentPanel.add(new RunOverviewListPanel(plugin, parentPanel, runName, startBtn));
-            contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        }
-
         JPanel customTitlePanel = new JPanel(new BorderLayout());
         customTitlePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        customTitlePanel.setBorder(new EmptyBorder(15, 0, 8, 0));
+        customTitlePanel.setBorder(new EmptyBorder(0, 0, 8, 0));
         JLabel customTitle = new JLabel("Custom runs:");
         customTitle.setForeground(Color.WHITE);
         customTitlePanel.add(customTitle, BorderLayout.WEST);
@@ -102,7 +68,18 @@ public class OverviewPanel extends JPanel {
                 }
                 creatingRun = true;
                 try {
-                    CustomRun newRun = new CustomRun("New Run", new java.util.ArrayList<>());
+                    String name = (String) JOptionPane.showInputDialog(
+                            OverviewPanel.this,
+                            "Enter a name for the new run:",
+                            "New custom run",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            null,
+                            "New Run");
+                    if (name == null) return;
+                    name = name.trim();
+                    if (name.isEmpty()) name = "New Run";
+                    CustomRun newRun = new CustomRun(name, new java.util.ArrayList<>());
                     List<CustomRun> runs = plugin.getCustomRunStorage().load();
                     runs.add(newRun);
                     plugin.getCustomRunStorage().save(runs);

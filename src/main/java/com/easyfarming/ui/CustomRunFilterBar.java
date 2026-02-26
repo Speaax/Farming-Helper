@@ -92,6 +92,24 @@ public class CustomRunFilterBar extends JPanel {
     public boolean isDibberIncluded() { return toolStates[TOOL_KEYS.indexOf(TOOL_DIBBER)] == 1; }
     public boolean isRakeIncluded() { return toolStates[TOOL_KEYS.indexOf(TOOL_RAKE)] == 1; }
 
+    /** Set tool included state (e.g. when loading a saved run). Updates button appearance. */
+    public void setSecateursIncluded(boolean included) {
+        setToolIncluded(TOOL_SECATEURS, included);
+    }
+    public void setDibberIncluded(boolean included) {
+        setToolIncluded(TOOL_DIBBER, included);
+    }
+    public void setRakeIncluded(boolean included) {
+        setToolIncluded(TOOL_RAKE, included);
+    }
+    private void setToolIncluded(String toolKey, boolean included) {
+        int idx = TOOL_KEYS.indexOf(toolKey);
+        if (idx >= 0) {
+            toolStates[idx] = included ? 1 : 0;
+            updateToolFilterButtonAppearance(toolButtons[idx], idx);
+        }
+    }
+
     public int getFilterState(String patchType) {
         int idx = PatchTypes.ALL.indexOf(patchType);
         return idx >= 0 ? filterStates[idx] : 0;

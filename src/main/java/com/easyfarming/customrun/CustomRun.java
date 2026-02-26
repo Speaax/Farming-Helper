@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User-defined run: name and an ordered list of locations, each with its own
- * teleport option and selected patch types (herb, flower, allotment, tree, fruit tree, hops).
+ * User-defined run: name, tool requirements (secateurs, dibber, rake), and an ordered list
+ * of locations, each with its own teleport option and selected patch types.
  */
 public class CustomRun {
     private String name;
     private List<RunLocation> locations;
+    /** Tool inclusion: saved with the run so Save persists current filter bar state. */
+    private boolean includeSecateurs = true;
+    private boolean includeDibber = true;
+    private boolean includeRake = true;
 
     public CustomRun() {
         this.locations = new ArrayList<>();
@@ -34,5 +38,29 @@ public class CustomRun {
 
     public void setLocations(List<RunLocation> locations) {
         this.locations = locations != null ? new ArrayList<>(locations) : new ArrayList<>();
+    }
+
+    public boolean isIncludeSecateurs() {
+        return includeSecateurs;
+    }
+
+    public void setIncludeSecateurs(boolean includeSecateurs) {
+        this.includeSecateurs = includeSecateurs;
+    }
+
+    public boolean isIncludeDibber() {
+        return includeDibber;
+    }
+
+    public void setIncludeDibber(boolean includeDibber) {
+        this.includeDibber = includeDibber;
+    }
+
+    public boolean isIncludeRake() {
+        return includeRake;
+    }
+
+    public void setIncludeRake(boolean includeRake) {
+        this.includeRake = includeRake;
     }
 }

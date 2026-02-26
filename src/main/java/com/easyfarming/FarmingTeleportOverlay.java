@@ -14,16 +14,11 @@ import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.customrun.CustomRun;
 import com.easyfarming.customrun.RunLocation;
-import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
-import com.easyfarming.ItemsAndLocations.HopsRunItemAndLocation;
 import com.easyfarming.overlays.handlers.NavigationHandler;
 import com.easyfarming.overlays.handlers.FarmingStepHandler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FarmingTeleportOverlay extends Overlay {
     private final Client client;
@@ -41,12 +36,6 @@ public class FarmingTeleportOverlay extends Overlay {
     private FarmingStepHandler farmingStepHandler;
     @Inject
     private FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
-    
-    // Run state
-    public Boolean herbRun = false;
-    public Boolean treeRun = false;
-    public Boolean fruitTreeRun = false;
-    public Boolean hopsRun = false;
     
     // Custom run state
     private boolean customRunMode = false;
@@ -69,10 +58,8 @@ public class FarmingTeleportOverlay extends Overlay {
     
     // Location tracking
     private int currentLocationIndex = 0;
-    private List<Location> enabledLocations = new ArrayList<>();
     
     // Farming state
-    private int subCase = 1;
     private boolean startSubCases = false;
     private boolean isAtDestination = false;
     private boolean farmLimps = false;
@@ -88,71 +75,6 @@ public class FarmingTeleportOverlay extends Overlay {
         this.config = config;
     }
 
-    /**
-     * Gets the list of enabled locations for the current run type in order.
-     */
-    private List<Location> getEnabledLocations() {
-        List<Location> allLocations = new ArrayList<>();
-        
-        if (herbRun && plugin.herbRunItemAndLocation != null) {
-            plugin.herbRunItemAndLocation.setupLocations();
-            // Create a copy of the list to avoid reference issues
-            allLocations = new ArrayList<>(plugin.herbRunItemAndLocation.locations);
-        } else if (treeRun && plugin.treeRunItemAndLocation != null) {
-            plugin.treeRunItemAndLocation.setupLocations();
-            allLocations = new ArrayList<>(plugin.treeRunItemAndLocation.locations);
-        } else if (fruitTreeRun && plugin.fruitTreeRunItemAndLocation != null) {
-            plugin.fruitTreeRunItemAndLocation.setupLocations();
-            allLocations = new ArrayList<>(plugin.fruitTreeRunItemAndLocation.locations);
-        } else if (hopsRun && plugin.hopsRunItemAndLocation != null) {
-            plugin.hopsRunItemAndLocation.setupLocations();
-            allLocations = new ArrayList<>(plugin.hopsRunItemAndLocation.locations);
-        }
-        
-        // Filter to only enabled locations
-        return allLocations.stream()
-            .filter(location -> isLocationEnabled(location))
-            .collect(Collectors.toList());
-    }
-    
-    /**
-     * Checks if a location is enabled for the current run type.
-     */
-    private boolean isLocationEnabled(Location location) {
-        String locationName = location.getName();
-        
-        if (herbRun) {
-            return plugin.getHerbLocationEnabled(locationName);
-        } else if (treeRun) {
-            return plugin.getTreeLocationEnabled(locationName);
-        } else if (fruitTreeRun) {
-            return plugin.getFruitTreeLocationEnabled(locationName);
-        } else if (hopsRun) {
-            return plugin.getHopsLocationEnabled(locationName);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Gets the patch point for the current location based on run type.
-     */
-    private WorldPoint getPatchPointForLocation(Location location) {
-        String locationName = location.getName();
-        
-        if (herbRun) {
-            return getHerbPatchPoint(locationName);
-        } else if (treeRun) {
-            return getTreePatchPoint(locationName);
-        } else if (fruitTreeRun) {
-            return getFruitTreePatchPoint(locationName);
-        } else if (hopsRun) {
-            return getHopsPatchPoint(locationName);
-        }
-        
-        return null;
-    }
-    
     /**
      * Gets patch point for a location and patch type (used in custom run mode).
      */
@@ -259,20 +181,15 @@ public class FarmingTeleportOverlay extends Overlay {
         if (patchTypes == null || currentPatchTypeIndex >= patchTypes.size()) return null;
         return patchTypes.get(currentPatchTypeIndex);
     }
-    
+
     /**
      * Manages hint arrows for navigation.
      */
     private void updateHintArrow(Location location) {
-        WorldPoint patchPoint;
-        if (customRunMode) {
-            String patchType = getCurrentPatchTypeForCustomRun();
-            patchPoint = location != null && patchType != null
-                    ? getPatchPointForLocationAndType(location.getName(), patchType)
-                    : null;
-        } else {
-            patchPoint = getPatchPointForLocation(location);
-        }
+        String patchType = getCurrentPatchTypeForCustomRun();
+        WorldPoint patchPoint = location != null && patchType != null
+                ? getPatchPointForLocationAndType(location.getName(), patchType)
+                : null;
         if (patchPoint == null) {
             return;
         }
@@ -281,12 +198,11 @@ public class FarmingTeleportOverlay extends Overlay {
             return;
         }
 
-        Teleport teleport = location.getSelectedTeleport();
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
         int clearDistance = "Morytania".equals(location.getName()) ? 10 : 5;
         
         // Special handling for Brimhaven
-        boolean isBrimhavenFruitTree = (fruitTreeRun || (customRunMode && PatchTypes.FRUIT_TREE.equals(getCurrentPatchTypeForCustomRun()))) && "Brimhaven".equals(location.getName());
+        boolean isBrimhavenFruitTree = customRunMode && PatchTypes.FRUIT_TREE.equals(getCurrentPatchTypeForCustomRun()) && "Brimhaven".equals(location.getName());
         if (isBrimhavenFruitTree) {
             if (currentRegionId == 10547) {
                 boolean nearBrimhavenPatch = areaCheck.isPlayerWithinArea(patchPoint, 20);
@@ -299,7 +215,7 @@ public class FarmingTeleportOverlay extends Overlay {
         }
         
         // Special handling for Entrana
-        boolean isEntranaHops = (hopsRun || (customRunMode && PatchTypes.HOPS.equals(getCurrentPatchTypeForCustomRun()))) && "Entrana".equals(location.getName());
+        boolean isEntranaHops = customRunMode && PatchTypes.HOPS.equals(getCurrentPatchTypeForCustomRun()) && "Entrana".equals(location.getName());
         if (isEntranaHops) {
             boolean nearEntranaPatch = areaCheck.isPlayerWithinArea(patchPoint, 20);
             if (!nearEntranaPatch) {
@@ -322,47 +238,17 @@ public class FarmingTeleportOverlay extends Overlay {
      * Handles navigation to the current location.
      */
     private void navigateToCurrentLocation(Graphics2D graphics) {
-        if (customRunMode) {
-            Location location = getCurrentLocationForCustomRun();
-            if (location == null) {
-                moveToNextLocation();
-                return;
-            }
-            updateHintArrow(location);
-            String patchType = getCurrentPatchTypeForCustomRun();
-            boolean h = PatchTypes.HERB.equals(patchType) || PatchTypes.FLOWER.equals(patchType) || PatchTypes.ALLOTMENT.equals(patchType);
-            boolean t = PatchTypes.TREE.equals(patchType);
-            boolean f = PatchTypes.FRUIT_TREE.equals(patchType);
-            boolean ho = PatchTypes.HOPS.equals(patchType);
-            navigationHandler.gettingToLocation(graphics, location, h, t, f, ho, true);
-            if (navigationHandler.isAtDestination) {
-                isAtDestination = true;
-                startSubCases = true;
-                if (location.getFarmLimps()) farmLimps = true;
-            }
+        Location location = getCurrentLocationForCustomRun();
+        if (location == null) {
+            moveToNextLocation();
             return;
         }
-        
-        if (currentLocationIndex >= enabledLocations.size()) {
-            removeOverlay();
-            return;
-        }
-        
-        Location location = enabledLocations.get(currentLocationIndex);
-        
-        // Update hint arrow
         updateHintArrow(location);
-        
-        // Use NavigationHandler for all navigation logic
-        navigationHandler.gettingToLocation(graphics, location, herbRun, treeRun, fruitTreeRun, hopsRun, false);
-        
-        // Check if we've reached the destination
+        navigationHandler.gettingToLocation(graphics, location, getCurrentPatchTypeForCustomRun());
         if (navigationHandler.isAtDestination) {
             isAtDestination = true;
             startSubCases = true;
-            if (location.getFarmLimps()) {
-                farmLimps = true;
-            }
+            if (location.getFarmLimps()) farmLimps = true;
         }
     }
     
@@ -373,29 +259,7 @@ public class FarmingTeleportOverlay extends Overlay {
         if (!startSubCases) {
             return;
         }
-        
-        if (customRunMode) {
-            handleCustomRunSteps(graphics);
-            return;
-        }
-        
-        Location location = enabledLocations.get(currentLocationIndex);
-        Teleport teleport = location.getSelectedTeleport();
-        
-        // Guard against null teleport when location has no valid selection (e.g. transitioning patches)
-        if (teleport == null) {
-            return;
-        }
-
-        if (herbRun) {
-            handleHerbRunSteps(graphics, teleport);
-        } else if (treeRun) {
-            handleTreeRunSteps(graphics, teleport);
-        } else if (fruitTreeRun) {
-            handleFruitTreeRunSteps(graphics, teleport);
-        } else if (hopsRun) {
-            handleHopsRunSteps(graphics, teleport);
-        }
+        handleCustomRunSteps(graphics);
     }
     
     private void handleCustomRunSteps(Graphics2D graphics) {
@@ -479,68 +343,10 @@ public class FarmingTeleportOverlay extends Overlay {
         moveToNextLocation();
     }
     
-    private void handleHerbRunSteps(Graphics2D graphics, Teleport teleport) {
-        if (subCase == 1) {
-            farmingStepHandler.herbSteps(graphics, teleport);
-            if (farmingStepHandler.herbPatchDone) {
-                subCase = 2;
-                farmingStepHandler.herbPatchDone = false;
-            }
-        } else if (subCase == 2) {
-            if (config.generalLimpwurt()) {
-                farmingStepHandler.flowerSteps(graphics, farmLimps);
-                if (farmingStepHandler.flowerPatchDone) {
-                    if (config.generalAllotment()) {
-                        subCase = 3;
-                        farmingStepHandler.flowerPatchDone = false;
-                    } else {
-                        moveToNextLocation();
-                    }
-                }
-            } else if (config.generalAllotment()) {
-                subCase = 3;
-                farmingStepHandler.allotmentPatchDone = false;
-            } else {
-                moveToNextLocation();
-            }
-        } else if (subCase == 3) {
-            if (config.generalAllotment()) {
-                farmingStepHandler.allotmentSteps(graphics, teleport);
-                if (farmingStepHandler.allotmentPatchDone) {
-                    moveToNextLocation();
-                }
-            } else {
-                moveToNextLocation();
-            }
-        }
-    }
-    
-    private void handleTreeRunSteps(Graphics2D graphics, Teleport teleport) {
-        farmingStepHandler.treeSteps(graphics, teleport);
-        if (farmingStepHandler.treePatchDone) {
-            moveToNextLocation();
-        }
-    }
-    
-    private void handleFruitTreeRunSteps(Graphics2D graphics, Teleport teleport) {
-        farmingStepHandler.fruitTreeSteps(graphics, teleport);
-        if (farmingStepHandler.fruitTreePatchDone) {
-            moveToNextLocation();
-        }
-    }
-    
-    private void handleHopsRunSteps(Graphics2D graphics, Teleport teleport) {
-        farmingStepHandler.hopsSteps(graphics, teleport);
-        if (farmingStepHandler.hopsPatchDone) {
-            moveToNextLocation();
-        }
-    }
-    
     /**
      * Moves to the next location in the run.
      */
     private void moveToNextLocation() {
-        subCase = 1;
         startSubCases = false;
         isAtDestination = false;
         currentLocationIndex++;
@@ -562,28 +368,9 @@ public class FarmingTeleportOverlay extends Overlay {
         navigationHandler.currentTeleportCase = 1;
         navigationHandler.isAtDestination = false;
         
-        if (customRunMode && currentLocationIndex >= customRunLocations.size()) {
+        if (currentLocationIndex >= customRunLocations.size()) {
             removeOverlay();
         }
-    }
-    
-    /**
-     * Initializes a new run.
-     */
-    public void startRun(boolean herbRun, boolean treeRun, boolean fruitTreeRun, boolean hopsRun) {
-        this.herbRun = herbRun;
-        this.treeRun = treeRun;
-        this.fruitTreeRun = fruitTreeRun;
-        this.hopsRun = hopsRun;
-        
-        currentLocationIndex = 0;
-        enabledLocations = getEnabledLocations();
-        subCase = 1;
-        startSubCases = false;
-        isAtDestination = false;
-        farmLimps = false;
-        navigationHandler.currentTeleportCase = 1;
-        navigationHandler.isAtDestination = false;
     }
     
     public void removeOverlay() {
@@ -599,8 +386,6 @@ public class FarmingTeleportOverlay extends Overlay {
         activeCustomRunName = null;
         currentPatchTypeIndex = 0;
         currentLocationIndex = 0;
-        enabledLocations.clear();
-        subCase = 1;
         startSubCases = false;
         isAtDestination = false;
         farmLimps = false;
@@ -620,16 +405,6 @@ public class FarmingTeleportOverlay extends Overlay {
         navigationHandler.isAtDestination = false;
         
         plugin.setItemsCollected(false);
-        
-        plugin.getFarmingTeleportOverlay().herbRun = false;
-        plugin.getFarmingTeleportOverlay().treeRun = false;
-        plugin.getFarmingTeleportOverlay().fruitTreeRun = false;
-        plugin.getFarmingTeleportOverlay().hopsRun = false;
-        
-        herbRun = false;
-        treeRun = false;
-        fruitTreeRun = false;
-        hopsRun = false;
     }
     
     public void startCustomRun(CustomRun run) {
@@ -644,17 +419,11 @@ public class FarmingTeleportOverlay extends Overlay {
         farmingStepHandler.hopsPatchDone = false;
         farmingStepHandler.clearHintArrow();
         farmingStepHandler.resetCompostStates();
-        herbRun = false;
-        treeRun = false;
-        fruitTreeRun = false;
-        hopsRun = false;
         customRunMode = true;
         activeCustomRunName = run.getName();
         customRunLocations = new ArrayList<>(run.getLocations());
         currentLocationIndex = 0;
         currentPatchTypeIndex = 0;
-        enabledLocations.clear();
-        subCase = 1;
         startSubCases = false;
         isAtDestination = false;
         farmLimps = false;
@@ -673,20 +442,9 @@ public class FarmingTeleportOverlay extends Overlay {
             return null;
         }
         
-        if (customRunMode) {
-            if (customRunLocations.isEmpty()) {
-                removeOverlay();
-                return null;
-            }
-        } else {
-            // Initialize enabled locations if not already done
-            if (enabledLocations.isEmpty()) {
-                enabledLocations = getEnabledLocations();
-            }
-            if (enabledLocations.isEmpty()) {
-                removeOverlay();
-                return null;
-            }
+        if (customRunLocations.isEmpty()) {
+            removeOverlay();
+            return null;
         }
         
         if (isAtDestination) {

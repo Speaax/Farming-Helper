@@ -32,10 +32,13 @@ public class CustomRunDetailPanel extends JPanel {
     private final EasyFarmingPanel parentPanel;
     private final CustomRun customRun;
     private final boolean isNewRun;
+    /** Name when the panel was opened; used when saving to find the run in the loaded list (in case user renamed). */
+    private final String originalRunName;
     private final net.runelite.client.game.ItemManager itemManager;
 
     private final CustomRunFilterBar filterBar;
     private final JPanel locationsContainer = new JPanel();
+    private final JTextField runNameField;
     /** Order and RunLocation per location name (catalog order). */
     private final List<RunLocation> runLocationsInOrder = new ArrayList<>();
     private final Map<String, CustomRunLocationSubPanel> subPanelsByLocation = new LinkedHashMap<>();
@@ -51,6 +54,7 @@ public class CustomRunDetailPanel extends JPanel {
         this.parentPanel = parentPanel;
         this.customRun = customRun;
         this.isNewRun = isNewRun;
+        this.originalRunName = customRun.getName() != null ? customRun.getName() : "";
         this.itemManager = itemManager;
 
         setLayout(new BorderLayout());
@@ -75,19 +79,22 @@ public class CustomRunDetailPanel extends JPanel {
         });
         headerPanel.add(backButton, BorderLayout.WEST);
 
-        JLabel titleLabel = new JLabel(customRun.getName() != null ? customRun.getName() : "New Run");
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(net.runelite.client.ui.FontManager.getRunescapeBoldFont());
+        runNameField = new JTextField(customRun.getName() != null ? customRun.getName() : "New Run", 20);
+        runNameField.setForeground(Color.WHITE);
+        runNameField.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        runNameField.setCaretColor(Color.WHITE);
+        runNameField.setFont(net.runelite.client.ui.FontManager.getRunescapeBoldFont());
+        runNameField.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
         JButton saveButton = new JButton("Save");
         saveButton.setFocusable(false);
-        saveButton.setToolTipText("Save run and stay on edit screen");
+        saveButton.setToolTipText("Save run and stay on edit screen (saves current name and all locations as shown)");
         saveButton.addActionListener(e -> saveRun());
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
         JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         titleRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        titleRow.add(titleLabel);
+        titleRow.add(runNameField);
         titlePanel.add(titleRow);
         JPanel saveRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         saveRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -137,6 +144,10 @@ public class CustomRunDetailPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         syncFilterStateFromRun();
+        // Restore saved tool requirement state
+        filterBar.setSecateursIncluded(customRun.isIncludeSecateurs());
+        filterBar.setDibberIncluded(customRun.isIncludeDibber());
+        filterBar.setRakeIncluded(customRun.isIncludeRake());
         refreshLocationVisibility();
     }
 
@@ -366,15 +377,31 @@ public class CustomRunDetailPanel extends JPanel {
         }
     }
 
+    /** Saves the config state as it exists on button press: name, tool requirements, and all locations from UI. */
     private void saveRun() {
+        // 1. Commit name from text field
+        if (runNameField != null) {
+            String currentName = runNameField.getText();
+            if (currentName != null && !currentName.trim().isEmpty()) {
+                customRun.setName(currentName.trim());
+            }
+        }
+        // 2. Commit tool requirement state from filter bar
+        customRun.setIncludeSecateurs(filterBar.isSecateursIncluded());
+        customRun.setIncludeDibber(filterBar.isDibberIncluded());
+        customRun.setIncludeRake(filterBar.isRakeIncluded());
+        // 3. Commit location order and ensure customRun.getLocations() matches current UI
+        customRun.getLocations().clear();
+        customRun.getLocations().addAll(runLocationsInOrder);
+        // 4. Persist: load current list and update or add this run
         CustomRunStorage storage = plugin.getCustomRunStorage();
         List<CustomRun> runs = storage.load();
         if (isNewRun) {
             runs.add(customRun);
         } else {
-            String name = customRun.getName();
+            // Find by original name so we still find the run if the user renamed it
             for (int i = 0; i < runs.size(); i++) {
-                if (Objects.equals(name, runs.get(i).getName())) {
+                if (Objects.equals(originalRunName, runs.get(i).getName())) {
                     runs.set(i, customRun);
                     break;
                 }
