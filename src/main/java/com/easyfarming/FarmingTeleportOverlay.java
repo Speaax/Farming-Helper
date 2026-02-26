@@ -17,6 +17,7 @@ import com.easyfarming.customrun.RunLocation;
 import com.easyfarming.overlays.handlers.NavigationHandler;
 import com.easyfarming.overlays.handlers.FarmingStepHandler;
 
+import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -405,6 +406,12 @@ public class FarmingTeleportOverlay extends Overlay {
         navigationHandler.isAtDestination = false;
         
         plugin.setItemsCollected(false);
+
+        SwingUtilities.invokeLater(() -> {
+            if (plugin.panel != null) {
+                plugin.panel.onCustomRunEnded();
+            }
+        });
     }
     
     public void startCustomRun(CustomRun run) {

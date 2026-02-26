@@ -37,6 +37,7 @@ public class CustomRunDetailPanel extends JPanel {
     private final CustomRunFilterBar filterBar;
     private final JPanel locationsContainer = new JPanel();
     private final JTextField runNameField;
+    private final StartStopJButton startButton;
     /** Order and RunLocation per location name (catalog order). */
     private final List<RunLocation> runLocationsInOrder = new ArrayList<>();
     private final Map<String, CustomRunLocationSubPanel> subPanelsByLocation = new LinkedHashMap<>();
@@ -102,7 +103,7 @@ public class CustomRunDetailPanel extends JPanel {
 
         JPanel headerButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         headerButtons.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        StartStopJButton startButton = new StartStopJButton(customRun.getName());
+        startButton = new StartStopJButton(customRun.getName());
         startButton.setPreferredSize(new Dimension(80, 25));
         startButton.addActionListener(e -> {
             boolean toggleToStop = startButton.getText().equals("Start");
@@ -352,13 +353,17 @@ public class CustomRunDetailPanel extends JPanel {
         refreshLocationVisibility();
     }
 
-    /** Sets the Start/Stop button to Stop if this run is currently the active custom run. */
+    /** Sets the Start/Stop button to Start or Stop based on whether this run is the active custom run. */
     private void syncStartButtonState(StartStopJButton startButton) {
-        if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
+        boolean active = plugin.getFarmingTeleportOverlay().isCustomRunMode()
                 && customRun.getName() != null
-                && customRun.getName().equals(plugin.getFarmingTeleportOverlay().getActiveCustomRunName())) {
-            startButton.setStartStopState(true);
-        }
+                && customRun.getName().equals(plugin.getFarmingTeleportOverlay().getActiveCustomRunName());
+        startButton.setStartStopState(active);
+    }
+
+    /** Called when a run ends (e.g. from overlay) so the Start button returns to Start state. */
+    public void refreshStartButtonState() {
+        syncStartButtonState(startButton);
     }
 
     /** Saves the config state as it exists on button press: name, tool requirements, and all locations from UI. */

@@ -66,6 +66,14 @@ public class EasyFarmingPanel extends PluginPanel {
         }
     }
 
+    /** Called when the active custom run ends (e.g. last location completed). Refreshes overview and detail Start button. */
+    public void onCustomRunEnded() {
+        refreshOverviewList();
+        if (currentDetailPanel instanceof CustomRunDetailPanel) {
+            ((CustomRunDetailPanel) currentDetailPanel).refreshStartButtonState();
+        }
+    }
+
     public void showRunDetail(CustomRun customRun) {
         if (currentDetailPanel != null) {
             cardContainer.remove(currentDetailPanel);
