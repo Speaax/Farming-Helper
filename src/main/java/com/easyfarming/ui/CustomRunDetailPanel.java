@@ -5,6 +5,8 @@ import com.easyfarming.EasyFarmingPanel;
 import com.easyfarming.StartStopJButton;
 import com.easyfarming.customrun.CustomRun;
 import com.easyfarming.customrun.CustomRunStorage;
+import com.easyfarming.core.Location;
+import com.easyfarming.core.Teleport;
 import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.customrun.RunLocation;
@@ -183,7 +185,21 @@ public class CustomRunDetailPanel extends JPanel {
             RunLocation rl = byName.get(name);
             if (rl == null) {
                 List<String> teleports = catalog.getTeleportOptionsForLocation(name);
-                rl = new RunLocation(name, teleports.isEmpty() ? null : teleports.get(0), new ArrayList<>());
+                String defaultTeleport = null;
+                List<String> patchTypes = catalog.getPatchTypesAtLocation(name);
+                if (!patchTypes.isEmpty()) {
+                    Location location = catalog.getLocationForPatch(name, patchTypes.get(0));
+                    if (location != null) {
+                        Teleport selected = location.getSelectedTeleport();
+                        if (selected != null && selected.getEnumOption() != null) {
+                            defaultTeleport = selected.getEnumOption();
+                        }
+                    }
+                }
+                if (defaultTeleport == null) {
+                    defaultTeleport = teleports.isEmpty() ? null : teleports.get(0);
+                }
+                rl = new RunLocation(name, defaultTeleport, new ArrayList<>());
             }
             runLocationsInOrder.add(rl);
         }

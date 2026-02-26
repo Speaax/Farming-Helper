@@ -607,7 +607,6 @@ public class EasyFarmingOverlay extends Overlay {
                     && !plugin.getFarmingTeleportOverlay().getCustomRunLocations().isEmpty()) {
                 itemsToCheck = CustomRunItemRequirements.buildRequirements(
                         plugin.getLocationCatalog(),
-                        herbRunItemAndLocation,
                         plugin.getConfig(),
                         plugin.getFarmingTeleportOverlay().getCustomRunLocations(),
                         plugin.getCustomRunIncludeSecateurs(),

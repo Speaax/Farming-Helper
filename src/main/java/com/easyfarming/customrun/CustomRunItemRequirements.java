@@ -1,7 +1,6 @@
 package com.easyfarming.customrun;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.utils.Constants;
@@ -21,20 +20,19 @@ public final class CustomRunItemRequirements {
 
     /**
      * Builds a single requirement map for the given custom run locations.
-     * Uses catalog to resolve Location/Teleport, herbRun for compost.
+     * Uses catalog to resolve Location/Teleport; compost from config via selectedCompostId.
      * Tool inclusion: when includeSecateurs/includeDibber/includeRake are non-null, use them;
      * otherwise fall back to config (generalSecateurs, generalSeedDibber, generalRake).
      */
     public static Map<Integer, Integer> buildRequirements(
             com.easyfarming.customrun.LocationCatalog catalog,
-            HerbRunItemAndLocation herbRun,
             EasyFarmingConfig config,
             List<RunLocation> runLocations,
             Boolean includeSecateurs,
             Boolean includeDibber,
             Boolean includeRake) {
         Map<Integer, Integer> allRequirements = new HashMap<>();
-        if (catalog == null || herbRun == null || runLocations == null || runLocations.isEmpty()) {
+        if (catalog == null || runLocations == null || runLocations.isEmpty()) {
             return allRequirements;
         }
 
@@ -97,7 +95,8 @@ public final class CustomRunItemRequirements {
             }
         }
 
-        int compostId = herbRun.selectedCompostID() != null ? herbRun.selectedCompostID() : -1;
+        Integer selectedCompost = selectedCompostId(config);
+        int compostId = selectedCompost != null ? selectedCompost : -1;
         if (compostId != -1 && compostId != 0) {
             if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                 allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
@@ -141,6 +140,28 @@ public final class CustomRunItemRequirements {
         }
 
         return allRequirements;
+    }
+
+    /**
+     * Returns the selected compost item ID from config. Logic matches ItemAndLocation.selectedCompostID().
+     */
+    private static Integer selectedCompostId(EasyFarmingConfig config) {
+        if (config == null) {
+            return null;
+        }
+        EasyFarmingConfig.OptionEnumCompost selectedCompost = config.enumConfigCompost();
+        switch (selectedCompost) {
+            case Compost:
+                return ItemID.BUCKET_COMPOST;
+            case Supercompost:
+                return ItemID.BUCKET_SUPERCOMPOST;
+            case Ultracompost:
+                return ItemID.BUCKET_ULTRACOMPOST;
+            case Bottomless:
+                return ItemID.BOTTOMLESS_COMPOST_BUCKET;
+            default:
+                return 0;
+        }
     }
 
     private static void mergeTeleportRequirements(Map<Integer, Integer> into, Map<Integer, Integer> from) {
