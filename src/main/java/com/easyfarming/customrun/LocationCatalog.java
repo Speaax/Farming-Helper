@@ -303,6 +303,26 @@ public class LocationCatalog {
         return types != null ? new ArrayList<>(types) : Collections.emptyList();
     }
 
+    /**
+     * Returns the config default teleport enum option for a location when creating a new custom run.
+     * Uses the config default from each patch type at this location; for a single teleport per location
+     * we use the first patch type's config default (herb/allotment before tree/fruit tree/hops).
+     * If the config default is not in the allowed teleport list, falls back to the first allowed option.
+     */
+    public String getDefaultTeleportOptionForNewRun(String locationName) {
+        List<String> patchTypes = getPatchTypesAtLocation(locationName);
+        if (patchTypes.isEmpty()) return null;
+        Location location = getLocationForPatch(locationName, patchTypes.get(0));
+        if (location == null) return null;
+        Teleport selected = location.getSelectedTeleport();
+        String configDefault = (selected != null && selected.getEnumOption() != null) ? selected.getEnumOption() : null;
+        List<String> allowed = getTeleportOptionsForLocation(locationName);
+        if (configDefault != null && allowed.stream().anyMatch(opt -> configDefault.equalsIgnoreCase(opt))) {
+            return configDefault;
+        }
+        return allowed.isEmpty() ? null : allowed.get(0);
+    }
+
     public List<String> getAllLocationNames() {
         return new ArrayList<>(allLocationNames);
     }

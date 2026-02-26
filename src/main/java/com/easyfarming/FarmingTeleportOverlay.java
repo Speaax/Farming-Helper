@@ -69,7 +69,7 @@ public class FarmingTeleportOverlay extends Overlay {
                                    EasyFarmingConfig config) {
         this.areaCheck = areaCheck;
         setPosition(OverlayPosition.DYNAMIC);
-        setLayer(OverlayLayer.ABOVE_SCENE);
+        setLayer(OverlayLayer.ABOVE_WIDGETS);
         this.plugin = plugin;
         this.client = client;
         this.config = config;

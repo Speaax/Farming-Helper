@@ -155,8 +155,8 @@ public class Constants {
     
     static {
         Map<String, Integer> patchMap = new HashMap<>();
-        patchMap.put("Ardougne", 8150);
-        patchMap.put("Catherby", 8152);
+        patchMap.put("Ardougne", 8152);   // Ardougne herb patch
+        patchMap.put("Catherby", 8151);   // Catherby herb patch
         patchMap.put("Falador", 8150);
         patchMap.put("Farming Guild", 33979);  // Farming Guild herb patch object ID
         patchMap.put("Harmony Island", 9372);

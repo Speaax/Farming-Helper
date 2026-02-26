@@ -466,7 +466,7 @@ public class EasyFarmingOverlay extends Overlay {
         this.itemManager = itemManager;
         this.infoBoxManager = infoBoxManager;
         setPosition(OverlayPosition.BOTTOM_RIGHT);
-        setLayer(OverlayLayer.ABOVE_SCENE);
+        setLayer(OverlayLayer.ABOVE_WIDGETS);
     }
 
     private void handleCombinationRunes(int runeId, int runeAmount, Map<Integer, Integer> runePouchContents) {
