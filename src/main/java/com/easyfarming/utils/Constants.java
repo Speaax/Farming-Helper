@@ -110,7 +110,9 @@ public class Constants {
     ));
     
     public static final List<Integer> HERB_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
-        33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372, 33979, 50697
+        33176, 27115, 8152, 8150, 8153, 18816, 8151, 9372,
+        33979,  // Farming Guild herb patch
+        50697
     ));
     
     public static final List<Integer> FLOWER_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -156,7 +158,7 @@ public class Constants {
         patchMap.put("Ardougne", 8150);
         patchMap.put("Catherby", 8152);
         patchMap.put("Falador", 8150);
-        patchMap.put("Farming Guild", 33979);
+        patchMap.put("Farming Guild", 33979);  // Farming Guild herb patch object ID
         patchMap.put("Harmony Island", 9372);
         patchMap.put("Kourend", 27115);
         patchMap.put("Morytania", 8153);

@@ -85,20 +85,34 @@ public class GameObjectHighlighter {
     /**
      * Returns true if the scene object id matches the target (including impostor/resolved composition).
      * Farming patches can use different scene IDs depending on state; composition id matches the base object.
+     * Checks both directions: scene object may be a variant of target, or target may be a variant of scene object.
      */
     private boolean objectIdMatches(int sceneId, int targetId) {
         if (sceneId == targetId) {
             return true;
         }
         try {
+            // Is the scene object a variant of the target? (scene's base == target)
             ObjectComposition comp = client.getObjectDefinition(sceneId);
-            if (comp == null) {
-                return false;
+            if (comp != null) {
+                while (comp.getImpostor() != null) {
+                    comp = comp.getImpostor();
+                }
+                if (comp.getId() == targetId) {
+                    return true;
+                }
             }
-            while (comp.getImpostor() != null) {
-                comp = comp.getImpostor();
+            // Is the target a variant of the scene object? (target's base == scene) - e.g. Farming Guild herb 33979
+            comp = client.getObjectDefinition(targetId);
+            if (comp != null) {
+                while (comp.getImpostor() != null) {
+                    comp = comp.getImpostor();
+                }
+                if (comp.getId() == sceneId) {
+                    return true;
+                }
             }
-            return comp.getId() == targetId;
+            return false;
         } catch (Exception e) {
             return false;
         }

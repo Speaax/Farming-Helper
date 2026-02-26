@@ -22,7 +22,7 @@ public final class CustomRunItemRequirements {
      * Builds a single requirement map for the given custom run locations.
      * Uses catalog to resolve Location/Teleport; compost from config via selectedCompostId.
      * Tool inclusion: when includeSecateurs/includeDibber/includeRake are non-null, use them;
-     * otherwise fall back to config (generalSecateurs, generalSeedDibber, generalRake).
+     * otherwise fall back to defaults (secateurs/dibber true, rake false).
      */
     public static Map<Integer, Integer> buildRequirements(
             com.easyfarming.customrun.LocationCatalog catalog,
@@ -126,9 +126,9 @@ public final class CustomRunItemRequirements {
         }
 
         allRequirements.merge(ItemID.SPADE, 1, Integer::sum);
-        boolean needDibber = includeDibber != null ? includeDibber : (config != null && config.generalSeedDibber());
-        boolean needRake = includeRake != null ? includeRake : (config != null && config.generalRake());
-        boolean needSecateurs = includeSecateurs != null ? includeSecateurs : (config != null && config.generalSecateurs());
+        boolean needDibber = includeDibber != null ? includeDibber : true;
+        boolean needRake = includeRake != null ? includeRake : false;
+        boolean needSecateurs = includeSecateurs != null ? includeSecateurs : true;
         if (needDibber) {
             allRequirements.merge(ItemID.DIBBER, 1, Integer::sum);
         }

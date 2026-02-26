@@ -38,6 +38,8 @@ public class EasyFarmingOverlay extends Overlay {
             ItemID.MOURNING_TELEPORT_CRYSTAL_2, ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4,
             ItemID.MOURNING_TELEPORT_CRYSTAL_5, ItemID.PRIF_TELEPORT_CRYSTAL);
     private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
+    /** Lunar staff item ID (satisfies dramen staff for fairy rings); may not be in ItemID in all API versions. */
+    private static final int LUNAR_STAFF_ITEM_ID = 9084;
 
     public List<Integer> getTeleportCrystalIds() {
         return TELEPORT_CRYSTAL_IDS;
@@ -778,9 +780,9 @@ public class EasyFarmingOverlay extends Overlay {
                 // Start with inventory count from single scan
                 int inventoryCount = inventoryItemCounts.getOrDefault(itemId, 0);
 
-                // Lunar staff satisfies dramen staff requirement for fairy rings
+                // Lunar staff (9084) satisfies dramen staff requirement for fairy rings
                 if (itemId == ItemID.DRAMEN_STAFF) {
-                    int lunarCount = inventoryItemCounts.getOrDefault(ItemID.LUNAR_STAFF, 0);
+                    int lunarCount = inventoryItemCounts.getOrDefault(LUNAR_STAFF_ITEM_ID, 0);
                     inventoryCount += lunarCount;
                 }
 
