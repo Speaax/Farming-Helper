@@ -15,11 +15,18 @@ public class RequiredItemInfoBox extends InfoBox {
     private final int itemId;
     private final int missingCount;
 
-    public RequiredItemInfoBox(BufferedImage image, Plugin plugin, int itemId, int missingCount) {
+    /**
+     * @param itemName display name for tooltip (e.g. "Guam seed"); if null or empty, tooltip is "Missing: &lt;count&gt;"
+     */
+    public RequiredItemInfoBox(BufferedImage image, Plugin plugin, int itemId, int missingCount, String itemName) {
         super(image, plugin);
         this.itemId = itemId;
         this.missingCount = missingCount;
-        setTooltip("Missing: " + missingCount);
+        if (itemName != null && !itemName.isEmpty()) {
+            setTooltip("Missing " + missingCount + " " + itemName);
+        } else {
+            setTooltip("Missing: " + missingCount);
+        }
     }
 
     public int getItemId() {

@@ -21,16 +21,15 @@ public final class CustomRunItemRequirements {
     /**
      * Builds a single requirement map for the given custom run locations.
      * Uses catalog to resolve Location/Teleport; compost from config via selectedCompostId.
-     * Tool inclusion: when includeSecateurs/includeDibber/includeRake are non-null, use them;
-     * otherwise fall back to defaults (secateurs/dibber true, rake false).
+     * Tool inclusion: use only the provided flags (from run config or saved state); no fallbacks.
      */
     public static Map<Integer, Integer> buildRequirements(
             com.easyfarming.customrun.LocationCatalog catalog,
             EasyFarmingConfig config,
             List<RunLocation> runLocations,
-            Boolean includeSecateurs,
-            Boolean includeDibber,
-            Boolean includeRake) {
+            boolean includeSecateurs,
+            boolean includeDibber,
+            boolean includeRake) {
         Map<Integer, Integer> allRequirements = new HashMap<>();
         if (catalog == null || runLocations == null || runLocations.isEmpty()) {
             return allRequirements;
@@ -125,17 +124,20 @@ public final class CustomRunItemRequirements {
             allRequirements.merge(ItemID.BARLEY_SEED, hopsPatchCount, Integer::sum);
         }
 
+        // Tree/fruit tree runs instruct paying farmer to chop down after check-health (200gp per patch)
+        int treeAndFruitCount = treePatchCount + fruitTreePatchCount;
+        if (treeAndFruitCount > 0) {
+            allRequirements.merge(ItemID.COINS, 200 * treeAndFruitCount, Integer::sum);
+        }
+
         allRequirements.merge(ItemID.SPADE, 1, Integer::sum);
-        boolean needDibber = includeDibber != null ? includeDibber : true;
-        boolean needRake = includeRake != null ? includeRake : false;
-        boolean needSecateurs = includeSecateurs != null ? includeSecateurs : true;
-        if (needDibber) {
+        if (includeDibber) {
             allRequirements.merge(ItemID.DIBBER, 1, Integer::sum);
         }
-        if (needRake) {
+        if (includeRake) {
             allRequirements.merge(ItemID.RAKE, 1, Integer::sum);
         }
-        if (needSecateurs) {
+        if (includeSecateurs) {
             allRequirements.merge(ItemID.FAIRY_ENCHANTED_SECATEURS, 1, Integer::sum);
         }
 

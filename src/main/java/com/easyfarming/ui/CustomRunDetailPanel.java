@@ -45,6 +45,8 @@ public class CustomRunDetailPanel extends JPanel {
     private AWTEventListener dragEndListener;
     /** Prevents re-entry when syncing/refreshing (e.g. combo firing during refreshFromRunLocation). */
     private boolean inRowChangedOrRefresh = false;
+    /** When true, hide locations that have no enabled patches (reduces clutter). */
+    private boolean hideEmptyLocations = false;
 
     public CustomRunDetailPanel(EasyFarmingPlugin plugin, EasyFarmingPanel parentPanel,
                                 CustomRun customRun, boolean isNewRun,
@@ -109,10 +111,10 @@ public class CustomRunDetailPanel extends JPanel {
             boolean toggleToStop = startButton.getText().equals("Start");
             startButton.setStartStopState(toggleToStop);
             if (toggleToStop) {
-                plugin.setCustomRunToolInclusion(
-                    filterBar.isSecateursIncluded(),
-                    filterBar.isDibberIncluded(),
-                    filterBar.isRakeIncluded());
+                // Commit config state to run so required items use it (no fallbacks)
+                customRun.setIncludeSecateurs(filterBar.isSecateursIncluded());
+                customRun.setIncludeDibber(filterBar.isDibberIncluded());
+                customRun.setIncludeRake(filterBar.isRakeIncluded());
                 parentPanel.startCustomRun(customRun);
             } else {
                 plugin.getFarmingTeleportOverlay().removeOverlay();
@@ -125,12 +127,34 @@ public class CustomRunDetailPanel extends JPanel {
         JLabel filterHint = new JLabel("Tools: grey = not included, green = included. Patch: yellow = filter, green = enable at all.");
         filterHint.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
         filterHint.setFont(filterHint.getFont().deriveFont(10f));
+        // Same eye icon for both modes. Red = hiding locations with no patches.
+        final String eyeIcon = "\uD83D\uDC41";
+        JToggleButton hideEmptyToggle = new JToggleButton(eyeIcon, false);
+        hideEmptyToggle.setToolTipText(hideEmptyLocations
+            ? "Hiding locations with no enabled patches (click to show all)"
+            : "Show all locations for filter (click to hide locations with no patches)");
+        hideEmptyToggle.setFocusable(false);
+        hideEmptyToggle.setSelected(hideEmptyLocations);
+        hideEmptyToggle.setOpaque(true);
+        hideEmptyToggle.setBackground(hideEmptyLocations ? Color.RED : ColorScheme.DARKER_GRAY_COLOR);
+        hideEmptyToggle.addItemListener(e -> {
+            hideEmptyLocations = hideEmptyToggle.isSelected();
+            hideEmptyToggle.setBackground(hideEmptyLocations ? Color.RED : ColorScheme.DARKER_GRAY_COLOR);
+            hideEmptyToggle.setToolTipText(hideEmptyLocations
+                ? "Hiding locations with no enabled patches (click to show all)"
+                : "Show all locations for filter (click to hide locations with no patches)");
+            refreshLocationVisibility();
+        });
+        JPanel filterOptionsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        filterOptionsRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        filterOptionsRow.add(hideEmptyToggle);
+        filterOptionsRow.add(filterHint);
         JPanel northPanel = new JPanel();
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
         northPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
         northPanel.add(headerPanel);
         northPanel.add(filterBar);
-        northPanel.add(filterHint);
+        northPanel.add(filterOptionsRow);
         add(northPanel, BorderLayout.NORTH);
 
         locationsContainer.setLayout(new BoxLayout(locationsContainer, BoxLayout.Y_AXIS));
@@ -260,7 +284,7 @@ public class CustomRunDetailPanel extends JPanel {
                     break;
                 }
             }
-            if (show) {
+            if (show && (!hideEmptyLocations || !rl.getPatchTypes().isEmpty())) {
                 CustomRunLocationSubPanel sub = subPanelsByLocation.get(name);
                 if (sub == null) {
                     sub = new CustomRunLocationSubPanel(plugin, itemManager, name, rl, this::onRowChanged, this::onLocationDragStart);

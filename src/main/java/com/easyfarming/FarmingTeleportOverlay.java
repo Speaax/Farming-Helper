@@ -418,6 +418,11 @@ public class FarmingTeleportOverlay extends Overlay {
         if (run == null || run.getLocations() == null) {
             return;
         }
+        // Use run's config/saved state for required items (no fallbacks)
+        plugin.setCustomRunToolInclusion(
+            run.isIncludeSecateurs(),
+            run.isIncludeDibber(),
+            run.isIncludeRake());
         farmingStepHandler.herbPatchDone = false;
         farmingStepHandler.flowerPatchDone = false;
         farmingStepHandler.allotmentPatchDone = false;

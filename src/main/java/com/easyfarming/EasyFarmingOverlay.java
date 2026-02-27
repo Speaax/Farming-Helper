@@ -924,20 +924,34 @@ public class EasyFarmingOverlay extends Overlay {
 
                     BufferedImage itemImage = itemManager.getImage(itemId);
                     if (itemImage != null) {
+                        String itemName = itemManager.getItemComposition(itemId).getName();
+                        if (isTreeSapling(itemId)) {
+                            itemName = missingCount == 1 ? "tree sapling" : "tree saplings";
+                        } else if (isFruitTreeSapling(itemId)) {
+                            itemName = missingCount == 1 ? "fruit tree sapling" : "fruit tree saplings";
+                        } else if (isHerbSeed(itemId)) {
+                            itemName = missingCount == 1 ? "herb seed" : "herb seeds";
+                        } else if (itemId == ItemID.LIMPWURT_SEED) {
+                            itemName = missingCount == 1 ? "flower seed" : "flower seeds";
+                        } else if (isAllotmentSeed(itemId)) {
+                            itemName = missingCount == 1 ? "allotment seed" : "allotment seeds";
+                        } else if (isHopsSeed(itemId)) {
+                            itemName = missingCount == 1 ? "hops seed" : "hops seeds";
+                        }
                         RequiredItemInfoBox existingInfoBox = currentInfoBoxes.get(itemId);
                         if (existingInfoBox != null) {
                             // Update existing InfoBox if count changed
                             if (existingInfoBox.getMissingCount() != missingCount) {
                                 infoBoxManager.removeInfoBox(existingInfoBox);
                                 RequiredItemInfoBox newInfoBox = new RequiredItemInfoBox(itemImage, plugin, itemId,
-                                        missingCount);
+                                        missingCount, itemName);
                                 infoBoxManager.addInfoBox(newInfoBox);
                                 currentInfoBoxes.put(itemId, newInfoBox);
                             }
                         } else {
                             // Create new InfoBox
                             RequiredItemInfoBox infoBox = new RequiredItemInfoBox(itemImage, plugin, itemId,
-                                    missingCount);
+                                    missingCount, itemName);
                             infoBoxManager.addInfoBox(infoBox);
                             currentInfoBoxes.put(itemId, infoBox);
                         }
