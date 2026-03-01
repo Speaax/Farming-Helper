@@ -28,7 +28,7 @@ public class EasyFarmingOverlayInfoBox extends OverlayPanel {
         this.client = client;
         this.plugin = plugin;
         setPosition(OverlayPosition.TOP_LEFT);
-        setLayer(OverlayLayer.ABOVE_SCENE);
+        setLayer(OverlayLayer.ABOVE_WIDGETS);
     }
 
     public void setText(String text) {

@@ -85,338 +85,19 @@ public interface EasyFarmingConfig extends Config
 	)
 	default OptionEnumCompost enumConfigCompost() { return OptionEnumCompost.Bottomless; }
 
-
-	@ConfigItem(
-			keyName = "booleanConfigRake",
-			name = "Rake",
-			description = "Include rake?",
-			position = 6,
-			section = generalList
-	)
-	default boolean generalRake() { return false; }
-	@ConfigItem(
-		keyName = "booleanConfigSeedDibber",
-		name = "Seed dibber",
-		description = "Include seed dibber?",
-		position = 7,
-		section = generalList
-	)
-	default boolean generalSeedDibber() { return true; }
-	@ConfigItem(
-			keyName = "booleanConfigSecateurs",
-			name = "Magic secateurs",
-			description = "Include magic secateurs?",
-			position = 8,
-			section = generalList
-	)
-	default boolean generalSecateurs() { return true; }
-	@ConfigItem(
-			keyName = "booleanConfigLimpwurt",
-			name = "Limpwurt",
-			description = "Want to include limpwurts in your herb run?",
-			position = 9,
-			section = generalList
-	)
-	default boolean generalLimpwurt() { return false; }
-	@ConfigItem(
-			keyName = "booleanConfigAllotment",
-			name = "Allotments",
-			description = "Want to include Allotments in your herb run?",
-			position = 10,
-			section = generalList
-	)
-	default boolean generalAllotment() { return false; }
-
 	@ConfigItem(
 		keyName = "booleanConfigPayForProtection",
 		name = "Pay for protection",
 		description = "Want a reminder to pay for protection? (This currently doesn't check for the required items, only prompts you to pay the farmer.)",
-		position = 11,
+		position = 6,
 		section = generalList
 	)
 	default boolean generalPayForProtection() { return false; }
 
-
 	@ConfigSection(
-		name = "Herbs",
-		description = "The highlighted and hidden item lists",
-		position = 1,
-		closedByDefault = true
-	)
-	String herbList = "herbList";
-
-	@ConfigItem(
-		keyName = "booleanConfigArdougneHerb",
-		name = "Ardougne",
-		description = "Include Ardougne?",
-		position = 1,
-		section = herbList
-	)
-	default boolean ardougneHerb() { return true; }
-	
-	@ConfigItem(
-		position = 2,
-		keyName = "booleanConfigCatherbyHerb",
-		name = "Catherby",
-		description = "Include Catherby?",
-		section = herbList
-	)
-	default boolean catherbyHerb() { return true; }
-	
-	@ConfigItem(
-		position = 3,
-		keyName = "booleanConfigFaladorHerb",
-		name = "Falador",
-		description = "Include Falador?",
-		section = herbList
-	)
-	default boolean faladorHerb() { return true; }
-	
-	@ConfigItem(
-		position = 4,
-		keyName = "booleanConfigFarmingGuildHerb",
-		name = "Farming Guild",
-		description = "Include Farming guild? (Requires level 65 farming and 60% Hosidious favour)",
-		section = herbList
-	)
-	default boolean farmingGuildHerb() { return false; }
-	
-	@ConfigItem(
-		position = 5,
-		keyName = "booleanConfigHarmonyHerb",
-		name = "Harmony",
-		description = "Include Harmony? (Requires elite Morytania diary)",
-		section = herbList
-	)
-	default boolean harmonyHerb() { return false; }
-	
-	@ConfigItem(
-		position = 6,
-		keyName = "booleanConfigKourendHerb",
-		name = "Kourend",
-		description = "Include Kourend?",
-		section = herbList
-	)
-	default boolean kourendHerb() { return true; }
-	
-	@ConfigItem(
-		position = 7,
-		keyName = "booleanConfigMorytaniaHerb",
-		name = "Morytania",
-		description = "Include Morytania?",
-		section = herbList
-	)
-	default boolean morytaniaHerb() { return true; }
-	
-	@ConfigItem(
-		position = 8,
-		keyName = "booleanConfigTrollStrongholdHerb",
-		name = "Troll Stronghold",
-		description = "Include Troll Stronghold(Requires completion of My Arm's Big Adventure)?",
-		section = herbList
-	)
-	default boolean trollStrongholdHerb() { return false; }
-	
-	@ConfigItem(
-		position = 9,
-		keyName = "booleanConfigWeissHerb",
-		name = "Weiss",
-		description = "Include Weiss? (Requires completion of Making Friends with My Arm, and The Fire of Nourishment must be built)",
-		section = herbList
-	)
-	default boolean weissHerb() { return false; }
-
-	@ConfigItem(
-		position = 10,
-		keyName = "booleanConfigCivitasHerb",
-		name = "Civitas illa Fortis",
-		description = "Include Civitas illa Fortis?",
-		section = herbList
-	)
-	default boolean civitasHerb() { return false; }
-
-	@ConfigSection(
-		name = "Tree",
-		description = "The highlighted and hidden item lists",
-		position = 2,
-		closedByDefault = true
-	)
-	String treeList = "treeList";
-	
-	@ConfigItem(
-		position = 10,
-		keyName = "booleanConfigFaladorTree",
-		name = "Falador",
-		description = "Include Falador?",
-		section = treeList
-	)
-	default boolean faladorTree() { return true; }
-	
-	@ConfigItem(
-		position = 11,
-		keyName = "booleanConfigFarmingGuildTree",
-		name = "Farming guild",
-		description = "Include Farming Guild? (Requires 65 farming)",
-		section = treeList
-	)
-	default boolean farmingGuildTree() { return false; }
-	
-	@ConfigItem(
-		position = 12,
-		keyName = "booleanConfigGnomeStrongholdTree",
-		name = "Gnome Stronghold",
-		description = "Include Gnome Stronghold?",
-		section = treeList
-	)
-	default boolean gnomeStrongholdTree() { return true; }
-	
-	@ConfigItem(
-		position = 13,
-		keyName = "booleanConfigLumbridgeTree",
-		name = "Lumbridge",
-		description = "Include Lumbridge?",
-		section = treeList
-	)
-	default boolean lumbridgeTree() { return true; }
-	
-	@ConfigItem(
-		position = 14,
-		keyName = "booleanConfigTaverleyTree",
-		name = "Taverley",
-		description = "Include Taverley?",
-		section = treeList
-	)
-	default boolean taverleyTree() { return true; }
-	
-	@ConfigItem(
-		position = 15,
-		keyName = "booleanConfigVarrockTree",
-		name = "Varrock",
-		description = "Include Varrock?",
-		section = treeList
-	)
-	default boolean varrockTree() { return true; }
-	
-	@ConfigSection(
-		name = "Fruit Tree",
-		description = "The highlighted and hidden item lists",
-		position = 3,
-		closedByDefault = true
-	)
-	String fruitTreeList = "fruitTreeList";
-	
-	@ConfigItem(
-		position = 16,
-		keyName = "booleanConfigBrimhavenFruitTree",
-		name = "Brimhaven",
-		description = "Include Brimhaven?",
-		section = fruitTreeList
-	)
-	default boolean brimhavenFruitTree() { return true; }
-	
-	@ConfigItem(
-		position = 17,
-		keyName = "booleanConfigCatherbyFruitTree",
-		name = "Catherby",
-		description = "Include Catherby?",
-		section = fruitTreeList
-	)
-	default boolean catherbyFruitTree() { return true; }
-	
-	@ConfigItem(
-		position = 18,
-		keyName = "booleanConfigFarmingGuildFruitTree",
-		name = "Farming Guild",
-		description = "Include Farming Guild? (Requires 85 farming)",
-		section = fruitTreeList
-	)
-	default boolean farmingGuildFruitTree() { return false; }
-	
-	@ConfigItem(
-		position = 19,
-		keyName = "booleanConfigGnomeStrongholdFruitTree",
-		name = "Gnome Stronghold",
-		description = "Include Gnome Stronghold?",
-		section = fruitTreeList
-	)
-	default boolean gnomeStrongholdFruitTree() { return true; }
-	
-	@ConfigItem(
-		position = 20,
-		keyName = "booleanConfigLletyaFruitTree",
-		name = "Lletya",
-		description = "Include Lletya? (Requires starting Mourning's End Part I)",
-		section = fruitTreeList
-	)
-	default boolean lletyaFruitTree() { return false; }
-	
-	@ConfigItem(
-		position = 21,
-		keyName = "booleanConfigTreeGnomeVillageFruitTree",
-		name = "Tree Gnome Village",
-		description = "Include Tree Gnome Village?",
-		section = fruitTreeList
-	)
-	default boolean treeGnomeVillageFruitTree() { return true; }
-
-	@ConfigSection(
-		name = "Hops",
-		description = "The highlighted and hidden item lists",
-		position = 4,
-		closedByDefault = true
-	)
-	String hopsList = "hopsList";
-
-	@ConfigItem(
-		position = 22,
-		keyName = "booleanConfigLumbridgeHops",
-		name = "Lumbridge",
-		description = "Include Lumbridge?",
-		section = hopsList
-	)
-	default boolean lumbridgeHops() { return true; }
-
-	@ConfigItem(
-		position = 23,
-		keyName = "booleanConfigSeersVillageHops",
-		name = "Seers Village",
-		description = "Include Seers Village?",
-		section = hopsList
-	)
-	default boolean seersVillageHops() { return true; }
-
-	@ConfigItem(
-		position = 24,
-		keyName = "booleanConfigYanilleHops",
-		name = "Yanille",
-		description = "Include Yanille?",
-		section = hopsList
-	)
-	default boolean yanilleHops() { return true; }
-
-	@ConfigItem(
-		position = 25,
-		keyName = "booleanConfigEntranaHops",
-		name = "Entrana",
-		description = "Include Entrana?",
-		section = hopsList
-	)
-	default boolean entranaHops() { return true; }
-
-	@ConfigItem(
-		position = 26,
-		keyName = "booleanConfigAldarinHops",
-		name = "Aldarin",
-		description = "Include Aldarin?",
-		section = hopsList
-	)
-	default boolean aldarinHops() { return false; }
-
-
-	@ConfigSection(
-			name = "Herb teleport options",
+			name = "Herb teleport defaults",
 			description = "Choose what teleport to use for each Herb patch",
-			position = 5,
+			position = 1,
 			closedByDefault = true
 		)
 	String teleportOptionList = "teleportOptionList";
@@ -583,9 +264,9 @@ public interface EasyFarmingConfig extends Config
 	default OptionEnumCivitasTeleport enumOptionEnumCivitasTeleport() { return OptionEnumCivitasTeleport.Portal_Nexus; }
 
 	@ConfigSection(
-			name = "Tree teleport options",
+			name = "Tree teleport defaults",
 			description = "Choose what teleport to use for each Herb patch",
-			position = 6,
+			position = 2,
 			closedByDefault = true
 	)
 	String treeTeleportOptionList = "treeTeleportOptionList";
@@ -680,9 +361,9 @@ public interface EasyFarmingConfig extends Config
 	default TreeOptionEnumVarrockTeleport enumTreeVarrockTeleport() { return TreeOptionEnumVarrockTeleport.Teleport; }
 
 	@ConfigSection(
-			name = "Fruit tree teleport options",
+			name = "Fruit tree teleport defaults",
 			description = "Choose what teleport to use for each fruit tree",
-			position = 7,
+			position = 3,
 			closedByDefault = true
 	)
 	String fruitTreeTeleportOptionList = "fruitTreeTeleportOptionList";
@@ -781,9 +462,9 @@ public interface EasyFarmingConfig extends Config
 	default FruitTreeOptionEnumTreeGnomeVillageTeleport enumFruitTreeTreeGnomeVillageTeleport() { return FruitTreeOptionEnumTreeGnomeVillageTeleport.Spirit_Tree; }
 
 	@ConfigSection(
-			name = "Hops teleport options",
+			name = "Hops teleport defaults",
 			description = "Choose what teleport to use for each Hops patch",
-			position = 8,
+			position = 4,
 			closedByDefault = true
 	)
 	String hopsTeleportOptionList = "hopsTeleportOptionList";

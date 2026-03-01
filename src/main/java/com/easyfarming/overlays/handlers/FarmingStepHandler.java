@@ -128,10 +128,15 @@ public class FarmingStepHandler {
             plantState = HerbPatchChecker.checkHerbPatch(client, varbitId);
         }
         
+        boolean useSpecificPatch = patchObjectId != null;
         if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
             // Navigation handles hint arrows when far away - don't set here; skip if teleport is null (transitioning)
             if (teleport != null) {
-                patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                if (useSpecificPatch) {
+                    patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, leftColor);
+                } else {
+                    patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                }
             }
         } else {
             // Clear hint arrow when near patch - it's distracting when you're already there
@@ -141,20 +146,36 @@ public class FarmingStepHandler {
             switch (plantState) {
                 case HARVESTABLE:
                     plugin.addTextToInfoBox("Harvest Herbs.");
-                    patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    if (useSpecificPatch) {
+                        patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, leftColor);
+                    } else {
+                        patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    }
                     break;
                 case PLANT:
                     plugin.addTextToInfoBox("Use Herb seed on patch.");
-                    patchHighlighter.highlightHerbPatches(graphics, useItemColor);
+                    if (useSpecificPatch) {
+                        patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, useItemColor);
+                    } else {
+                        patchHighlighter.highlightHerbPatches(graphics, useItemColor);
+                    }
                     itemHighlighter.highlightHerbSeeds(graphics);
                     break;
                 case DEAD:
                     plugin.addTextToInfoBox("Clear the dead herb patch.");
-                    patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    if (useSpecificPatch) {
+                        patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, leftColor);
+                    } else {
+                        patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    }
                     break;
                 case DISEASED:
                     plugin.addTextToInfoBox("Use Plant cure on herb patch. Buy at GE or in farming guild/catherby, and store at Tool Leprechaun for easy access.");
-                    patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    if (useSpecificPatch) {
+                        patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, leftColor);
+                    } else {
+                        patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                    }
                     itemHighlighter.itemHighlight(graphics, ItemID.PLANT_CURE, useItemColor);
                     break;
                 case WEEDS:
@@ -163,12 +184,20 @@ public class FarmingStepHandler {
                     if (varbitValue == 3) {
                         // Fully raked patch, ready to plant
                         plugin.addTextToInfoBox("Use Herb seed on patch.");
-                        patchHighlighter.highlightHerbPatches(graphics, useItemColor);
+                        if (useSpecificPatch) {
+                            patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, useItemColor);
+                        } else {
+                            patchHighlighter.highlightHerbPatches(graphics, useItemColor);
+                        }
                         itemHighlighter.highlightHerbSeeds(graphics);
                     } else {
                         // Needs raking
                         plugin.addTextToInfoBox("Rake the herb patch.");
-                        patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                        if (useSpecificPatch) {
+                            patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, leftColor);
+                        } else {
+                            patchHighlighter.highlightHerbPatches(graphics, leftColor);
+                        }
                     }
                     break;
                 case GROWING:
@@ -202,6 +231,11 @@ public class FarmingStepHandler {
                     } else {
                         // Clear hint arrow if compost is in inventory (no NPC interaction needed)
                         clearHintArrow();
+                    }
+                    if (useSpecificPatch) {
+                        patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, useItemColor);
+                    } else {
+                        patchHighlighter.highlightHerbPatches(graphics, useItemColor);
                     }
                     compostHighlighter.highlightCompost(graphics, true, false, false, 1);
                     break;
@@ -895,7 +929,7 @@ public class FarmingStepHandler {
                     patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
                     Integer compostId = itemHighlighter.selectedCompostID();
                     if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
-                        itemHighlighter.itemHighlight(graphics, compostId, useItemColor);
+                        itemHighlighter.highlightCompost(graphics, compostId, useItemColor);
                         // Clear hint arrow if compost is in inventory (no NPC interaction needed)
                         clearHintArrow();
                     } else {
@@ -1056,7 +1090,7 @@ public class FarmingStepHandler {
                     patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
                     Integer compostId = itemHighlighter.selectedCompostID();
                     if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
-                        itemHighlighter.itemHighlight(graphics, compostId, useItemColor);
+                        itemHighlighter.highlightCompost(graphics, compostId, useItemColor);
                         // Clear hint arrow if compost is in inventory (no NPC interaction needed)
                         clearHintArrow();
                     } else {

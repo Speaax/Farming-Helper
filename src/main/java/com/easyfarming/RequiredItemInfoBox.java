@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 
 /**
  * InfoBox that displays missing item requirements for farming runs.
- * Shows the item icon and the count of missing items (if greater than 1).
+ * Shows the item icon and the count of missing items (1 or more).
  * Used in the overlay to indicate which items the player still needs to gather.
  */
 public class RequiredItemInfoBox extends InfoBox {
@@ -32,7 +32,7 @@ public class RequiredItemInfoBox extends InfoBox {
 
     @Override
     public String getText() {
-        return missingCount > 1 ? String.valueOf(missingCount) : null;
+        return missingCount >= 1 ? String.valueOf(missingCount) : null;
     }
 
     @Override

@@ -64,7 +64,7 @@ public class CompostHighlighter {
                 patchHighlighter.highlightFruitTreePatches(graphics, color);
             }
             
-            itemHighlighter.itemHighlight(graphics, compostId, color);
+            itemHighlighter.highlightCompost(graphics, compostId, color);
         } else {
             withdrawCompost(graphics);
         }
