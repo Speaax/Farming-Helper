@@ -17,10 +17,11 @@ public class CustomRunStorage {
     private static final Type LIST_TYPE = new TypeToken<ArrayList<CustomRun>>() {}.getType();
 
     private final ConfigManager configManager;
-    private final Gson gson = new Gson();
+    private final Gson gson;
 
-    public CustomRunStorage(ConfigManager configManager) {
+    public CustomRunStorage(ConfigManager configManager, Gson gson) {
         this.configManager = configManager;
+        this.gson = gson;
     }
 
     public List<CustomRun> load() {

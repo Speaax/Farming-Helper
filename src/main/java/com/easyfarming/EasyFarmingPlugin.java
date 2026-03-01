@@ -2,7 +2,7 @@ package com.easyfarming;
 
 import com.easyfarming.customrun.CustomRunStorage;
 import com.easyfarming.customrun.LocationCatalog;
-
+import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
 import javax.inject.Inject;
@@ -35,6 +35,8 @@ public class EasyFarmingPlugin extends Plugin
 	private ItemManager itemManager;
 	@Inject
 	private ConfigManager configManager;
+	@Inject
+	private Gson gson;
 	@Getter
     @Inject
 	private Client client;
@@ -51,7 +53,7 @@ public class EasyFarmingPlugin extends Plugin
 
 	public CustomRunStorage getCustomRunStorage() {
 		if (customRunStorage == null) {
-			customRunStorage = new CustomRunStorage(configManager);
+			customRunStorage = new CustomRunStorage(configManager, gson);
 		}
 		return customRunStorage;
 	}
