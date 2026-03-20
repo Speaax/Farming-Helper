@@ -183,6 +183,8 @@ public final class CustomRunItemRequirements {
                 into.merge(ItemID.ARDY_CAPE_MEDIUM, quantity, (a, b) -> Math.min(1, a + b));
             } else if (itemId == ItemID.DRAMEN_STAFF) {
                 into.merge(ItemID.DRAMEN_STAFF, quantity, (a, b) -> Math.min(1, a + b));
+            } else if (itemId == ItemID.SKILLCAPE_FARMING || itemId == ItemID.SKILLCAPE_FARMING_TRIMMED || itemId == ItemID.SKILLCAPE_MAX){
+                into.merge(itemId, quantity, (a, b) -> Math.min(1, a + b));
             } else {
                 into.merge(itemId, quantity, Integer::sum);
             }
