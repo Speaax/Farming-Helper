@@ -16,10 +16,13 @@ import java.awt.*;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Detail view for a custom run: editable name, filter bar (2x3), then one sub-panel per location (patch icons + teleport).
@@ -38,7 +41,7 @@ public class CustomRunDetailPanel extends JPanel {
     private final JPanel locationsContainer = new JPanel();
     private final JTextField runNameField;
     private final StartStopJButton startButton;
-    /** Order and RunLocation per location name (catalog order). */
+    /** Ordered list of locations (saved order; see {@link #syncRunWithCatalog()}). */
     private final List<RunLocation> runLocationsInOrder = new ArrayList<>();
     private final Map<String, CustomRunLocationSubPanel> subPanelsByLocation = new LinkedHashMap<>();
     private String draggedLocationName;
@@ -204,25 +207,46 @@ public class CustomRunDetailPanel extends JPanel {
         }
     }
 
-    /** Ensure we have one RunLocation per catalog location (in catalog order); merge with saved run. */
+    /**
+     * Ensure we have one {@link RunLocation} per catalog location, merging with the saved run.
+     * Preserves the order stored in {@link CustomRun#getLocations()} (e.g. user drag-and-drop),
+     * then appends any catalog locations missing from the save (new areas after a plugin update).
+     */
     private void syncRunWithCatalog() {
         LocationCatalog catalog = plugin.getLocationCatalog();
-        List<String> names = catalog.getAllLocationNames();
+        List<String> catalogNames = catalog.getAllLocationNames();
+        Set<String> catalogNameSet = new LinkedHashSet<>(catalogNames);
+
         Map<String, RunLocation> byName = new LinkedHashMap<>();
         for (RunLocation rl : customRun.getLocations()) {
             if (rl.getLocationName() != null) {
                 byName.put(rl.getLocationName(), rl);
             }
         }
+
         runLocationsInOrder.clear();
-        for (String name : names) {
-            RunLocation rl = byName.get(name);
-            if (rl == null) {
-                String defaultTeleport = catalog.getDefaultTeleportOptionForNewRun(name);
-                rl = new RunLocation(name, defaultTeleport, new ArrayList<>());
+        Set<String> added = new HashSet<>();
+
+        for (RunLocation rl : customRun.getLocations()) {
+            String name = rl.getLocationName();
+            if (name != null && catalogNameSet.contains(name)) {
+                runLocationsInOrder.add(rl);
+                added.add(name);
             }
-            runLocationsInOrder.add(rl);
         }
+
+        for (String name : catalogNames) {
+            if (!added.contains(name)) {
+                RunLocation rl = byName.get(name);
+                if (rl == null) {
+                    String defaultTeleport = catalog.getDefaultTeleportOptionForNewRun(name);
+                    rl = new RunLocation(name, defaultTeleport, new ArrayList<>());
+                }
+                runLocationsInOrder.add(rl);
+                added.add(name);
+            }
+        }
+
         customRun.getLocations().clear();
         customRun.getLocations().addAll(runLocationsInOrder);
     }

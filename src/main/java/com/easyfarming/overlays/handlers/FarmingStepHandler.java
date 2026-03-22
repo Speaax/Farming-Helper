@@ -129,7 +129,13 @@ public class FarmingStepHandler {
         }
         
         boolean useSpecificPatch = patchObjectId != null;
-        if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
+        // Teleport WorldPoints (e.g. fairy ring) are often far from the patch; use actual patch proximity too (same idea as hopsSteps).
+        WorldPoint herbPatchPoint = getFlowerPatchPoint(locationName);
+        boolean nearHerbPatch = herbPatchPoint != null && areaCheck.isPlayerWithinArea(herbPatchPoint, 20);
+        boolean nearTeleport = teleport != null && areaCheck.isPlayerWithinArea(teleport.getPoint(), 15);
+        boolean showDetailedHerbSteps = teleport != null && (nearTeleport || nearHerbPatch);
+
+        if (teleport == null || !showDetailedHerbSteps) {
             // Navigation handles hint arrows when far away - don't set here; skip if teleport is null (transitioning)
             if (teleport != null) {
                 if (useSpecificPatch) {
