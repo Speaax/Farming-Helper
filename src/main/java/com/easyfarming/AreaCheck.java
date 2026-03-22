@@ -15,6 +15,9 @@ public class AreaCheck {
 
     public boolean isPlayerWithinArea(WorldPoint centerTile, int range) {
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        if (playerLocation.getPlane() != centerTile.getPlane()) {
+            return false;
+        }
 
         int minX = centerTile.getX() - range;
         int maxX = centerTile.getX() + range;

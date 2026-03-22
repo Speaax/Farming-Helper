@@ -200,7 +200,9 @@ public class FarmingTeleportOverlay extends Overlay {
         }
 
         int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
-        int clearDistance = "Morytania".equals(location.getName()) ? 10 : 5;
+        // Morytania: slightly larger radius so navigation hint clears before farming steps
+        // (aligns with FarmingStepHandler PATCH_HINT_ARROW_RANGE_TILES).
+        int clearDistance = "Morytania".equals(location.getName()) ? 15 : 5;
         
         // Special handling for Brimhaven
         boolean isBrimhavenFruitTree = customRunMode && PatchTypes.FRUIT_TREE.equals(getCurrentPatchTypeForCustomRun()) && "Brimhaven".equals(location.getName());
@@ -250,6 +252,9 @@ public class FarmingTeleportOverlay extends Overlay {
             isAtDestination = true;
             startSubCases = true;
             if (location.getFarmLimps()) farmLimps = true;
+            // Navigation hint points at the patch tile until "near" clears it; destination can be
+            // reached while still outside that radius, after which updateHintArrow no longer runs.
+            farmingStepHandler.clearHintArrow();
         }
     }
     
