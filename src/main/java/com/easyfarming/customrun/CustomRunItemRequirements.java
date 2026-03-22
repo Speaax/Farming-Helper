@@ -4,6 +4,8 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.TeleportItemRequirements;
+import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
 
 import java.util.HashMap;
@@ -26,6 +28,7 @@ public final class CustomRunItemRequirements {
     public static Map<Integer, Integer> buildRequirements(
             com.easyfarming.customrun.LocationCatalog catalog,
             EasyFarmingConfig config,
+            Client client,
             List<RunLocation> runLocations,
             boolean includeSecateurs,
             boolean includeDibber,
@@ -139,6 +142,11 @@ public final class CustomRunItemRequirements {
         }
         if (includeSecateurs) {
             allRequirements.merge(ItemID.FAIRY_ENCHANTED_SECATEURS, 1, Integer::sum);
+        }
+
+        // Teleport objects snapshot fairy ring staff requirements when the catalog is built; re-check live
+        if (!TeleportItemRequirements.needsDramenStaffForFairyRings(client)) {
+            allRequirements.remove(ItemID.DRAMEN_STAFF);
         }
 
         return allRequirements;

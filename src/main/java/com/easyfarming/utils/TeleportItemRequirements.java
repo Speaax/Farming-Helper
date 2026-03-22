@@ -53,6 +53,27 @@ public final class TeleportItemRequirements {
     }
 
     /**
+     * Whether the player currently needs a Dramen or Lunar staff to use fairy rings.
+     * Lumbridge and Draynor Elite diary completion removes this requirement
+     * ({@link net.runelite.api.gameval.VarbitID#LUMBRIDGE_DIARY_ELITE_COMPLETE}).
+     *
+     * @return false when the diary is complete; true when a staff is required (including when not logged in or the varbit cannot be read)
+     */
+    public static boolean needsDramenStaffForFairyRings(Client client) {
+        try {
+            if (client != null && client.getGameState() == GameState.LOGGED_IN) {
+                int diaryValue = client.getVarbitValue(Constants.VARBIT_LUMBRIDGE_DIARY_ELITE);
+                if (diaryValue >= 1) {
+                    return false;
+                }
+            }
+        } catch (Throwable t) {
+            // Varbit may not be available before login or API may differ — default to requiring Dramen staff
+        }
+        return true;
+    }
+
+    /**
      * Returns the item requirements for using a fairy ring teleport.
      * Checks the Lumbridge & Draynor Elite diary completion varbit to determine
      * whether a Dramen staff is needed. If the diary is complete, no staff is required.
@@ -60,15 +81,8 @@ public final class TeleportItemRequirements {
      * @return List of item requirements (Dramen staff if diary incomplete, empty if complete)
      */
     public static List<ItemRequirement> getFairyRingItemRequirements(EasyFarmingConfig config, Client client) {
-        try {
-            if (client != null && client.getGameState() == GameState.LOGGED_IN) {
-                int diaryValue = client.getVarbitValue(Constants.VARBIT_LUMBRIDGE_DIARY_ELITE);
-                if (diaryValue >= 1) {
-                    return Collections.emptyList();
-                }
-            }
-        } catch (Throwable t) {
-            // Varbit may not be available before login or API may differ — default to requiring Dramen staff
+        if (!needsDramenStaffForFairyRings(client)) {
+            return Collections.emptyList();
         }
         return Collections.singletonList(new ItemRequirement(ItemID.DRAMEN_STAFF, 1));
     }
