@@ -99,7 +99,7 @@ public class NavigationHandler {
                         break;
                     case SPELLBOOK:
                         // Highlight the "Teleport to House" spell using correct child ID from widget inspector
-                        widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, 31).render(graphics);
+                        widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, 32).render(graphics);
                         inHouseCheck();
                         break;
                 }

@@ -55,7 +55,7 @@ public class BrimhavenFruitTreeLocationData {
             0,
             "",
             218,
-            41,
+            42,
             10547,
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
             Arrays.asList(

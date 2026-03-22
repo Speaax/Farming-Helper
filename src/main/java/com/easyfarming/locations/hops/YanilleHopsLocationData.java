@@ -62,7 +62,7 @@ public class YanilleHopsLocationData {
             0,
             "",
             218,
-            47,
+            48,
             10288,
             YANILLE_HOPS_PATCH_POINT,
             Collections.singletonList(
@@ -78,7 +78,7 @@ public class YanilleHopsLocationData {
             0,
             "",
             218,
-            47,
+            48,
             10288,
             YANILLE_HOPS_PATCH_POINT,
             Collections.singletonList(

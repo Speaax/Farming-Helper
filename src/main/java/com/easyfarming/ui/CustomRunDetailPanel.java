@@ -32,9 +32,11 @@ public class CustomRunDetailPanel extends JPanel {
     private final EasyFarmingPlugin plugin;
     private final EasyFarmingPanel parentPanel;
     private final CustomRun customRun;
-    private final boolean isNewRun;
-    /** Name when the panel was opened; used when saving to find the run in the loaded list (in case user renamed). */
-    private final String originalRunName;
+    /**
+     * Name used to locate this run in storage on save (matches list entry until user renames and saves).
+     * Updated after each successful save so subsequent saves replace the correct entry.
+     */
+    private String originalRunName;
     private final net.runelite.client.game.ItemManager itemManager;
 
     private final CustomRunFilterBar filterBar;
@@ -52,12 +54,11 @@ public class CustomRunDetailPanel extends JPanel {
     private boolean hideEmptyLocations = false;
 
     public CustomRunDetailPanel(EasyFarmingPlugin plugin, EasyFarmingPanel parentPanel,
-                                CustomRun customRun, boolean isNewRun,
+                                CustomRun customRun,
                                 net.runelite.client.game.ItemManager itemManager) {
         this.plugin = plugin;
         this.parentPanel = parentPanel;
         this.customRun = customRun;
-        this.isNewRun = isNewRun;
         this.originalRunName = customRun.getName() != null ? customRun.getName() : "";
         this.itemManager = itemManager;
 
@@ -77,10 +78,7 @@ public class CustomRunDetailPanel extends JPanel {
         backButton.setPreferredSize(new Dimension(40, 30));
         backButton.setFocusable(false);
         backButton.setToolTipText("Back to Overview");
-        backButton.addActionListener(e -> {
-            saveRun();
-            parentPanel.showOverview();
-        });
+        backButton.addActionListener(e -> parentPanel.showOverview());
         headerPanel.add(backButton, BorderLayout.WEST);
 
         runNameField = new JTextField(customRun.getName() != null ? customRun.getName() : "New Run", 20);
@@ -430,20 +428,22 @@ public class CustomRunDetailPanel extends JPanel {
         // 3. Commit location order and ensure customRun.getLocations() matches current UI
         customRun.getLocations().clear();
         customRun.getLocations().addAll(runLocationsInOrder);
-        // 4. Persist: load current list and update or add this run
+        // 4. Persist: load current list and update or add this run (only explicit Save reaches here)
         CustomRunStorage storage = plugin.getCustomRunStorage();
         List<CustomRun> runs = storage.load();
-        if (isNewRun) {
-            runs.add(customRun);
-        } else {
-            // Find by original name so we still find the run if the user renamed it
-            for (int i = 0; i < runs.size(); i++) {
-                if (Objects.equals(originalRunName, runs.get(i).getName())) {
-                    runs.set(i, customRun);
-                    break;
-                }
+        int index = -1;
+        for (int i = 0; i < runs.size(); i++) {
+            if (Objects.equals(originalRunName, runs.get(i).getName())) {
+                index = i;
+                break;
             }
         }
+        if (index >= 0) {
+            runs.set(index, customRun);
+        } else {
+            runs.add(customRun);
+        }
         storage.save(runs);
+        originalRunName = customRun.getName() != null ? customRun.getName() : "";
     }
 }

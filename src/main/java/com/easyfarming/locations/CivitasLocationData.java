@@ -64,7 +64,7 @@ public class CivitasLocationData {
             0,
             "",
             218,
-            43,
+            44,
             6192,
             CIVITAS_HERB_PATCH_POINT,
             Arrays.asList(

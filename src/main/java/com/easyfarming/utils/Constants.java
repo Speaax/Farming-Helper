@@ -245,6 +245,35 @@ public class Constants {
     public static final List<Integer> HOPS_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
         ItemID.BARLEY_SEED, ItemID.JUTE_SEED, ItemID.HAMMERSTONE_HOP_SEED, ItemID.ASGARNIAN_HOP_SEED, ItemID.YANILLIAN_HOP_SEED, ItemID.FLAX_SEED, ItemID.KRANDORIAN_HOP_SEED, ItemID.WILDBLOOD_HOP_SEED, ItemID.HEMP_SEED, ItemID.COTTON_SEED
     ));
+
+    /** All flower-patch seeds (stack variants per item) — any count toward flower patch requirements. */
+    public static final List<Integer> FLOWER_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
+            ItemID.LIMPWURT_SEED,
+            ItemID.WHITE_LILY_SEED,
+            ItemID.WHITE_LILY_SEED_2,
+            ItemID.WHITE_LILY_SEED_3,
+            ItemID.WHITE_LILY_SEED_4,
+            ItemID.WHITE_LILY_SEED_5,
+            ItemID.MARIGOLD_SEED,
+            ItemID.MARIGOLD_SEED_2,
+            ItemID.MARIGOLD_SEED_3,
+            ItemID.MARIGOLD_SEED_4,
+            ItemID.MARIGOLD_SEED_5,
+            ItemID.ROSEMARY_SEED,
+            ItemID.ROSEMARY_SEED_2,
+            ItemID.ROSEMARY_SEED_3,
+            ItemID.ROSEMARY_SEED_4,
+            ItemID.ROSEMARY_SEED_5,
+            ItemID.NASTURTIUM_SEED,
+            ItemID.NASTURTIUM_SEED_2,
+            ItemID.NASTURTIUM_SEED_3,
+            ItemID.NASTURTIUM_SEED_4,
+            ItemID.NASTURTIUM_SEED_5,
+            ItemID.WOAD_SEED,
+            ItemID.WOAD_SEED_2,
+            ItemID.WOAD_SEED_3,
+            ItemID.WOAD_SEED_4,
+            ItemID.WOAD_SEED_5));
     
     // Watering can IDs: 5331-5340 = standard cans (1-10 charges); 13353 = Gricoller's can
     public static final List<Integer> WATERING_CAN_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -349,6 +378,10 @@ public class Constants {
     
     public static boolean isAllotmentSeed(int itemId) {
         return ALLOTMENT_SEED_IDS.contains(itemId);
+    }
+
+    public static boolean isFlowerSeed(int itemId) {
+        return FLOWER_SEED_IDS.contains(itemId);
     }
     
     public static boolean isQuetzalWhistle(int itemId) {

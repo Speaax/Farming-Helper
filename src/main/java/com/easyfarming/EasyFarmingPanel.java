@@ -78,7 +78,7 @@ public class EasyFarmingPanel extends PluginPanel {
         if (currentDetailPanel != null) {
             cardContainer.remove(currentDetailPanel);
         }
-        currentDetailPanel = new CustomRunDetailPanel(plugin, this, customRun, false, itemManager);
+        currentDetailPanel = new CustomRunDetailPanel(plugin, this, customRun, itemManager);
         cardContainer.add(currentDetailPanel, DETAIL_PANEL);
         cardLayout.show(cardContainer, DETAIL_PANEL);
     }

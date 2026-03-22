@@ -66,7 +66,7 @@ public class AldarinHopsLocationData {
             0,
             "",
             218, // Spellbook interface group ID
-            43,  // Civitas teleport interface child ID
+            44,  // Civitas teleport interface child ID
             6704, // Civitas region ID (teleport can land in 6704 or 6705)
             new WorldPoint(1586, 3099, 0), // Civitas/Hunter's Guild point
             Arrays.asList(

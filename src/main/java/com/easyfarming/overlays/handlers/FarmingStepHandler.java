@@ -460,7 +460,7 @@ public class FarmingStepHandler {
                             // Fully raked patch, ready to plant
                             plugin.addTextToInfoBox("Use Limwurt seed on the patch.");
                             patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
-                            itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
+                            itemHighlighter.highlightFlowerSeeds(graphics);
                         } else {
                             // Needs raking - always highlight when WEEDS state is detected
                             plugin.addTextToInfoBox("Rake the flower patch.");
@@ -474,7 +474,7 @@ public class FarmingStepHandler {
                     case PLANT:
                         plugin.addTextToInfoBox("Use Limwurt seed on the patch.");
                         patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
-                        itemHighlighter.itemHighlight(graphics, ItemID.LIMPWURT_SEED, useItemColor);
+                        itemHighlighter.highlightFlowerSeeds(graphics);
                         break;
                     case GROWING:
                         // Check persistent state FIRST - if already composted, mark as done and return

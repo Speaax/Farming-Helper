@@ -52,7 +52,7 @@ public class TaverleyTreeLocationData {
             "Teleport to Falador with spellbook and run to Taverley.",            0,
             "",
             218,
-            29,
+            30,
             11828,
             TAVERLEY_TREE_PATCH_POINT,
             Arrays.asList(

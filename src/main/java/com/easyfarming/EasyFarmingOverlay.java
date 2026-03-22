@@ -146,12 +146,20 @@ public class EasyFarmingOverlay extends Overlay {
         return Constants.HOPS_SEED_IDS;
     }
 
+    public List<Integer> getFlowerSeedIds() {
+        return Constants.FLOWER_SEED_IDS;
+    }
+
     private boolean isHerbSeed(int itemId) {
         return HERB_SEED_IDS.contains(itemId);
     }
 
     private boolean isHopsSeed(int itemId) {
         return Constants.HOPS_SEED_IDS.contains(itemId);
+    }
+
+    private boolean isFlowerSeed(int itemId) {
+        return Constants.isFlowerSeed(itemId);
     }
 
     public List<Integer> getFlowerPatchIds() {
@@ -665,6 +673,7 @@ public class EasyFarmingOverlay extends Overlay {
             int totalTreeSaplings = 0;
             int totalFruitTreeSaplings = 0;
             int totalHopsSeeds = 0;
+            int totalFlowerSeeds = 0;
             boolean customRun = plugin.getFarmingTeleportOverlay().isCustomRunMode();
             if (customRun) {
                 for (Item item : items) {
@@ -673,6 +682,9 @@ public class EasyFarmingOverlay extends Overlay {
                     }
                     if (isAllotmentSeed(item.getId())) {
                         totalAllotmentSeeds += item.getQuantity();
+                    }
+                    if (isFlowerSeed(item.getId())) {
+                        totalFlowerSeeds += item.getQuantity();
                     }
                 }
             }
@@ -808,6 +820,8 @@ public class EasyFarmingOverlay extends Overlay {
                 // Apply run-specific and item-specific overrides in order
                 if (customRun && itemId == BASE_SEED_ID) {
                     inventoryCount = totalSeeds;
+                } else if (customRun && itemId == ItemID.LIMPWURT_SEED) {
+                    inventoryCount = totalFlowerSeeds;
                 } else if (customRun && itemId == BASE_ALLOTMENT_SEED_ID) {
                     inventoryCount = totalAllotmentSeeds;
                 } else if (customRun && itemId == BASE_SAPLING_ID) {
@@ -932,7 +946,7 @@ public class EasyFarmingOverlay extends Overlay {
                             itemName = missingCount == 1 ? "fruit tree sapling" : "fruit tree saplings";
                         } else if (isHerbSeed(itemId)) {
                             itemName = missingCount == 1 ? "herb seed" : "herb seeds";
-                        } else if (itemId == ItemID.LIMPWURT_SEED) {
+                        } else if (isFlowerSeed(itemId)) {
                             itemName = missingCount == 1 ? "flower seed" : "flower seeds";
                         } else if (isAllotmentSeed(itemId)) {
                             itemName = missingCount == 1 ? "allotment seed" : "allotment seeds";
@@ -1055,7 +1069,7 @@ public class EasyFarmingOverlay extends Overlay {
                 isFruitTreeSapling(itemId) ||
                 isHopsSeed(itemId) ||
                 isAllotmentSeed(itemId) ||
-                itemId == ItemID.LIMPWURT_SEED) {
+                isFlowerSeed(itemId)) {
             return true;
         }
 

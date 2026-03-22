@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingPlugin;
 import net.runelite.api.Client;
 import net.runelite.api.DecorativeObject;
 import net.runelite.api.GameObject;
+import net.runelite.api.GroundObject;
 import net.runelite.api.ObjectComposition;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
@@ -31,6 +32,8 @@ public class GameObjectHighlighter {
     private final Map<Integer, List<GameObject>> objectCache = new HashMap<>();
     /** Cache of objectId -> list of decorative objects (some tree patches are decorative, not game objects). */
     private final Map<Integer, List<DecorativeObject>> decorativeObjectCache = new HashMap<>();
+    /** Cache of objectId -> list of ground objects (empty tree patch ready for sapling is often a ground object). */
+    private final Map<Integer, List<GroundObject>> groundObjectCache = new HashMap<>();
     /** Scene key when cache was built: regionId * 10 + plane. */
     private int lastSceneKey = -1;
 
@@ -60,6 +63,7 @@ public class GameObjectHighlighter {
         if (sceneKey != lastSceneKey) {
             objectCache.clear();
             decorativeObjectCache.clear();
+            groundObjectCache.clear();
             lastSceneKey = sceneKey;
         }
 
@@ -105,6 +109,7 @@ public class GameObjectHighlighter {
         if (sceneKey != lastSceneKey) {
             objectCache.clear();
             decorativeObjectCache.clear();
+            groundObjectCache.clear();
             lastSceneKey = sceneKey;
         }
 
@@ -129,6 +134,51 @@ public class GameObjectHighlighter {
         }
         decorativeObjectCache.put(objectID, decorativeObjects);
         return decorativeObjects;
+    }
+
+    /**
+     * Finds ground objects with the given ID (e.g. cleared tree patch soil — use sapling — is often a ground object).
+     */
+    public List<GroundObject> findGroundObjectsByID(int objectID) {
+        if (client.getLocalPlayer() == null) {
+            return new ArrayList<>();
+        }
+        WorldView wv = client.getTopLevelWorldView();
+        if (wv == null || wv.getScene() == null) {
+            return new ArrayList<>();
+        }
+        int plane = wv.getPlane();
+        int regionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        int sceneKey = regionId * 10 + plane;
+
+        if (sceneKey != lastSceneKey) {
+            objectCache.clear();
+            decorativeObjectCache.clear();
+            groundObjectCache.clear();
+            lastSceneKey = sceneKey;
+        }
+
+        List<GroundObject> cached = groundObjectCache.get(objectID);
+        if (cached != null) {
+            return cached;
+        }
+
+        List<GroundObject> groundObjects = new ArrayList<>();
+        Tile[][][] tiles = wv.getScene().getTiles();
+        for (int x = 0; x < Constants.SCENE_SIZE; x++) {
+            for (int y = 0; y < Constants.SCENE_SIZE; y++) {
+                Tile tile = tiles[plane][x][y];
+                if (tile == null) {
+                    continue;
+                }
+                GroundObject groundObject = tile.getGroundObject();
+                if (groundObject != null && objectIdMatches(groundObject.getId(), objectID)) {
+                    groundObjects.add(groundObject);
+                }
+            }
+        }
+        groundObjectCache.put(objectID, groundObjects);
+        return groundObjects;
     }
 
     /**
@@ -189,6 +239,8 @@ public class GameObjectHighlighter {
                     shape = ((GameObject) tileObject).getConvexHull();
                 } else if (tileObject instanceof DecorativeObject) {
                     shape = ((DecorativeObject) tileObject).getConvexHull();
+                } else if (tileObject instanceof GroundObject) {
+                    shape = ((GroundObject) tileObject).getConvexHull();
                 }
             }
             if (shape != null) {
@@ -217,6 +269,9 @@ public class GameObjectHighlighter {
                     }
                     for (DecorativeObject decorativeObject : findDecorativeObjectsByID(objectId)) {
                         drawTileObjectClickbox(graphics, decorativeObject, color);
+                    }
+                    for (GroundObject groundObject : findGroundObjectsByID(objectId)) {
+                        drawTileObjectClickbox(graphics, groundObject, color);
                     }
                 }
                 return null;

@@ -250,6 +250,14 @@ public class ItemHighlighter {
     }
 
     /**
+     * Highlights flower seeds in inventory (limpwurt, white lily, etc.).
+     */
+    public void highlightFlowerSeeds(Graphics2D graphics) {
+        Color color = colorProvider.getHighlightUseItemWithAlpha();
+        highlightInventorySlotsWithIds(graphics, farmingHelperOverlay.getFlowerSeedIds(), color);
+    }
+
+    /**
      * Highlights tree saplings in inventory.
      */
     public void highlightTreeSapling(Graphics2D graphics) {

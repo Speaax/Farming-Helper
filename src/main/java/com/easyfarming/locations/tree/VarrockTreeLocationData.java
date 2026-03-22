@@ -55,7 +55,7 @@ public class VarrockTreeLocationData {
             0,
             "",
             218,
-            23,
+            24,
             12853,
             VARROCK_TREE_PATCH_POINT,
             Arrays.asList(

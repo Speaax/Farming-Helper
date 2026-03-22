@@ -64,7 +64,7 @@ public class LumbridgeHopsLocationData {
             0,
             "",
             218,
-            26,
+            27,
             12851,
             LUMBRIDGE_HOPS_PATCH_POINT,
             Arrays.asList(
@@ -114,7 +114,7 @@ public class LumbridgeHopsLocationData {
             0,
             "",
             218,
-            23,
+            24,
             12853,
             LUMBRIDGE_HOPS_PATCH_POINT,
             Arrays.asList(

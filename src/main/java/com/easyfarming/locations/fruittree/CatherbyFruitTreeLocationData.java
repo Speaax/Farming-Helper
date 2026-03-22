@@ -69,7 +69,7 @@ public class CatherbyFruitTreeLocationData {
             0,
             "",
             218,
-            34,
+            35,
             11062,
             CATHERBY_FRUIT_TREE_PATCH_POINT,
             Arrays.asList(
