@@ -47,9 +47,9 @@ public class FaladorTreeLocationData {
             houseTeleportSupplier.get()
         ));
         
-        // Teleport (spellbook)
+        // Falador Teleport (spellbook) — same enum id as herb run so merged custom runs resolve correctly
         location.addTeleportOption(new Teleport(
-            "Teleport",
+            "Falador_Teleport",
             Teleport.Category.SPELLBOOK,
             "Teleport to Falador with Spellbook and run to Falador park.",
             0,

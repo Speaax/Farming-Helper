@@ -273,7 +273,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumFaladorTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Teleport,
+		/** Spellbook Falador Teleport (same string id as herb run). */
+		Falador_Teleport,
 		Falador_Tele_Tab
 	}
 	@ConfigItem(
@@ -283,7 +284,7 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Falador",
 			section = treeTeleportOptionList
 	)
-	default TreeOptionEnumFaladorTeleport enumTreeFaladorTeleport() { return TreeOptionEnumFaladorTeleport.Teleport; }
+	default TreeOptionEnumFaladorTeleport enumTreeFaladorTeleport() { return TreeOptionEnumFaladorTeleport.Falador_Teleport; }
 
 	enum TreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{

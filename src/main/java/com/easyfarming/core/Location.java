@@ -28,14 +28,28 @@ public class Location {
     }
 
     public Teleport getSelectedTeleport() {
+        String configEnumOption = selectedTeleportFunction != null && config != null
+                ? selectedTeleportFunction.apply(config).name()
+                : null;
         String selectedEnumOption = overrideTeleportEnumOption != null
                 ? overrideTeleportEnumOption
-                : (selectedTeleportFunction != null && config != null ? selectedTeleportFunction.apply(config).name() : null);
+                : configEnumOption;
         if (selectedEnumOption != null) {
             for (Teleport teleport : teleportOptions) {
                 String opt = teleport.getEnumOption();
                 if (opt != null && selectedEnumOption.equalsIgnoreCase(opt)) {
                     return teleport;
+                }
+            }
+            // Custom run may store a teleport id from another patch type at the same location (e.g. tree
+            // spellbook was "Teleport" while herb uses "Falador_Teleport"). If override does not match this
+            // Location's list, fall back to the configured default for this Location.
+            if (overrideTeleportEnumOption != null && configEnumOption != null) {
+                for (Teleport teleport : teleportOptions) {
+                    String opt = teleport.getEnumOption();
+                    if (opt != null && configEnumOption.equalsIgnoreCase(opt)) {
+                        return teleport;
+                    }
                 }
             }
         }

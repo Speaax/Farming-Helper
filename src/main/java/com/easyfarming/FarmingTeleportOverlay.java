@@ -339,6 +339,7 @@ public class FarmingTeleportOverlay extends Overlay {
             farmingStepHandler.fruitTreePatchDone = false;
             farmingStepHandler.hopsPatchDone = false;
             farmingStepHandler.resetCompostStates();
+            plugin.clearLastMessage();
             return;
         }
         moveToNextLocation();
@@ -364,6 +365,7 @@ public class FarmingTeleportOverlay extends Overlay {
         
         // Reset persistent compost states
         farmingStepHandler.resetCompostStates();
+        plugin.clearLastMessage();
         
         // Reset navigation handler state for the new location
         navigationHandler.currentTeleportCase = 1;
@@ -401,6 +403,7 @@ public class FarmingTeleportOverlay extends Overlay {
         
         // Reset persistent compost states
         farmingStepHandler.resetCompostStates();
+        plugin.clearLastMessage();
         
         navigationHandler.currentTeleportCase = 1;
         navigationHandler.isAtDestination = false;
@@ -431,6 +434,7 @@ public class FarmingTeleportOverlay extends Overlay {
         farmingStepHandler.hopsPatchDone = false;
         farmingStepHandler.clearHintArrow();
         farmingStepHandler.resetCompostStates();
+        plugin.clearLastMessage();
         customRunMode = true;
         activeCustomRunName = run.getName();
         customRunLocations = new ArrayList<>(run.getLocations());

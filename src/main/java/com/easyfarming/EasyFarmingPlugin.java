@@ -92,6 +92,14 @@ public class EasyFarmingPlugin extends Plugin
 		return lastMessage.trim().equalsIgnoreCase(targetMessage.trim());
 	}
 
+	/**
+	 * Clears the last game message used for compost/protection detection. Call when advancing to the
+	 * next patch at the same location so a compost line from the previous patch is not applied to the next.
+	 */
+	public void clearLastMessage() {
+		lastMessage = "";
+	}
+
 	@Inject
 	private EventBus eventBus;
 

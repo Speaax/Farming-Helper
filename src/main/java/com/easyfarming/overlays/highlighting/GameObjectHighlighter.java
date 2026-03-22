@@ -2,9 +2,11 @@ package com.easyfarming.overlays.highlighting;
 
 import com.easyfarming.EasyFarmingPlugin;
 import net.runelite.api.Client;
+import net.runelite.api.DecorativeObject;
 import net.runelite.api.GameObject;
 import net.runelite.api.ObjectComposition;
 import net.runelite.api.Tile;
+import net.runelite.api.TileObject;
 import net.runelite.api.WorldView;
 import net.runelite.client.ui.overlay.Overlay;
 import com.easyfarming.utils.Constants;
@@ -27,6 +29,8 @@ public class GameObjectHighlighter {
 
     /** Cache of objectId -> list of game objects in current scene. */
     private final Map<Integer, List<GameObject>> objectCache = new HashMap<>();
+    /** Cache of objectId -> list of decorative objects (some tree patches are decorative, not game objects). */
+    private final Map<Integer, List<DecorativeObject>> decorativeObjectCache = new HashMap<>();
     /** Scene key when cache was built: regionId * 10 + plane. */
     private int lastSceneKey = -1;
 
@@ -55,6 +59,7 @@ public class GameObjectHighlighter {
 
         if (sceneKey != lastSceneKey) {
             objectCache.clear();
+            decorativeObjectCache.clear();
             lastSceneKey = sceneKey;
         }
 
@@ -80,6 +85,50 @@ public class GameObjectHighlighter {
         }
         objectCache.put(objectID, gameObjects);
         return gameObjects;
+    }
+
+    /**
+     * Finds decorative objects with the given ID (same matching rules as {@link #findGameObjectsByID}).
+     */
+    public List<DecorativeObject> findDecorativeObjectsByID(int objectID) {
+        if (client.getLocalPlayer() == null) {
+            return new ArrayList<>();
+        }
+        WorldView wv = client.getTopLevelWorldView();
+        if (wv == null || wv.getScene() == null) {
+            return new ArrayList<>();
+        }
+        int plane = wv.getPlane();
+        int regionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        int sceneKey = regionId * 10 + plane;
+
+        if (sceneKey != lastSceneKey) {
+            objectCache.clear();
+            decorativeObjectCache.clear();
+            lastSceneKey = sceneKey;
+        }
+
+        List<DecorativeObject> cached = decorativeObjectCache.get(objectID);
+        if (cached != null) {
+            return cached;
+        }
+
+        List<DecorativeObject> decorativeObjects = new ArrayList<>();
+        Tile[][][] tiles = wv.getScene().getTiles();
+        for (int x = 0; x < Constants.SCENE_SIZE; x++) {
+            for (int y = 0; y < Constants.SCENE_SIZE; y++) {
+                Tile tile = tiles[plane][x][y];
+                if (tile == null) {
+                    continue;
+                }
+                DecorativeObject decorativeObject = tile.getDecorativeObject();
+                if (decorativeObject != null && objectIdMatches(decorativeObject.getId(), objectID)) {
+                    decorativeObjects.add(decorativeObject);
+                }
+            }
+        }
+        decorativeObjectCache.put(objectID, decorativeObjects);
+        return decorativeObjects;
     }
 
     /**
@@ -123,16 +172,30 @@ public class GameObjectHighlighter {
      * Handles null/invalid objects gracefully (e.g. when patch is transitioning).
      */
     public void drawGameObjectClickbox(Graphics2D graphics, GameObject gameObject, Color color) {
-        if (gameObject == null) {
+        drawTileObjectClickbox(graphics, gameObject, color);
+    }
+
+    /**
+     * Draws highlight for any tile object. Uses convex hull when clickbox is null (e.g. empty tree patch ready for sapling).
+     */
+    public void drawTileObjectClickbox(Graphics2D graphics, TileObject tileObject, Color color) {
+        if (tileObject == null) {
             return;
         }
         try {
-            Shape objectClickbox = gameObject.getClickbox();
-            if (objectClickbox != null) {
+            Shape shape = tileObject.getClickbox();
+            if (shape == null) {
+                if (tileObject instanceof GameObject) {
+                    shape = ((GameObject) tileObject).getConvexHull();
+                } else if (tileObject instanceof DecorativeObject) {
+                    shape = ((DecorativeObject) tileObject).getConvexHull();
+                }
+            }
+            if (shape != null) {
                 graphics.setColor(color);
-                graphics.draw(objectClickbox);
+                graphics.draw(shape);
                 graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() / 5));
-                graphics.fill(objectClickbox);
+                graphics.fill(shape);
             }
         } catch (Exception e) {
             // Ignore errors when object is transitioning (e.g. patch just cleared)
@@ -151,6 +214,9 @@ public class GameObjectHighlighter {
                     List<GameObject> gameObjects = findGameObjectsByID(objectId);
                     for (GameObject gameObject : gameObjects) {
                         drawGameObjectClickbox(graphics, gameObject, color);
+                    }
+                    for (DecorativeObject decorativeObject : findDecorativeObjectsByID(objectId)) {
+                        drawTileObjectClickbox(graphics, decorativeObject, color);
                     }
                 }
                 return null;

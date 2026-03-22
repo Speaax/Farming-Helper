@@ -19,20 +19,14 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
-import com.easyfarming.locations.hops.*;
-import com.easyfarming.locations.ArdougneLocationData;
-import com.easyfarming.locations.CatherbyLocationData;
-import com.easyfarming.locations.FaladorLocationData;
-import com.easyfarming.locations.FarmingGuildLocationData;
-import com.easyfarming.locations.KourendLocationData;
-import com.easyfarming.locations.MorytaniaLocationData;
-import com.easyfarming.locations.CivitasLocationData;
 
 /**
  * Handles farming step logic for herb, flower, tree, and fruit tree patches.
  */
 public class FarmingStepHandler {
+    /** Hint arrow toward the current patch tile when farther than this (tiles); does not gate instructions. */
+    private static final int PATCH_HINT_ARROW_RANGE_TILES = 15;
+
     private final Client client;
     private final EasyFarmingPlugin plugin;
     private final EasyFarmingConfig config;
@@ -66,7 +60,8 @@ public class FarmingStepHandler {
     
     @Inject
     public FarmingStepHandler(Client client, EasyFarmingPlugin plugin, EasyFarmingConfig config,
-                              AreaCheck areaCheck, PatchHighlighter patchHighlighter,
+                              AreaCheck areaCheck,
+                              PatchHighlighter patchHighlighter,
                               ItemHighlighter itemHighlighter, CompostHighlighter compostHighlighter,
                               FarmerHighlighter farmerHighlighter, PatchStateChecker patchStateChecker,
                               ColorProvider colorProvider, EasyFarmingOverlay farmingHelperOverlay,
@@ -129,26 +124,10 @@ public class FarmingStepHandler {
         }
         
         boolean useSpecificPatch = patchObjectId != null;
-        // Teleport WorldPoints (e.g. fairy ring) are often far from the patch; use actual patch proximity too (same idea as hopsSteps).
-        WorldPoint herbPatchPoint = getFlowerPatchPoint(locationName);
-        boolean nearHerbPatch = herbPatchPoint != null && areaCheck.isPlayerWithinArea(herbPatchPoint, 20);
-        boolean nearTeleport = teleport != null && areaCheck.isPlayerWithinArea(teleport.getPoint(), 15);
-        boolean showDetailedHerbSteps = teleport != null && (nearTeleport || nearHerbPatch);
-
-        if (teleport == null || !showDetailedHerbSteps) {
-            // Navigation handles hint arrows when far away - don't set here; skip if teleport is null (transitioning)
-            if (teleport != null) {
-                if (useSpecificPatch) {
-                    patchHighlighter.highlightSpecificHerbPatch(graphics, patchObjectId, leftColor);
-                } else {
-                    patchHighlighter.highlightHerbPatches(graphics, leftColor);
-                }
-            }
+        // Instructions follow the active run step whenever we have a teleport context — not player distance to the patch.
+        if (teleport == null) {
+            // Transitioning between locations; navigation overlay handles routing.
         } else {
-            // Clear hint arrow when near patch - it's distracting when you're already there
-            // Only use hint arrows for NPC interactions (e.g., Tool Leprechaun for compost)
-            clearHintArrow();
-            
             switch (plantState) {
                 case HARVESTABLE:
                     plugin.addTextToInfoBox("Harvest Herbs.");
@@ -219,7 +198,7 @@ public class FarmingStepHandler {
                         return;
                     }
                     // Check if compost was just applied (from chat message) - this sets herbPatchDone
-                    boolean isComposted = patchStateChecker.patchIsComposted();
+                    boolean isComposted = patchStateChecker.patchIsCompostedForHerbPatch();
                     if (isComposted) {
                         herbPatchComposted = true;  // Set persistent state
                         herbPatchDone = true;
@@ -249,6 +228,7 @@ public class FarmingStepHandler {
                     plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the herb patch to change its state.");
                     break;
             }
+            applyPatchDirectionHintArrow(getHerbPatchWorldPoint(locationName));
         }
     }
     
@@ -298,26 +278,13 @@ public class FarmingStepHandler {
             plantState = HopsPatchChecker.checkHopsPatch(client, varbitId);
         }
         
-        // Get patch location for this hops location
-        WorldPoint patchPoint = getHopsPatchPoint(locationName);
-        
-        // Check if player is near the patch location (not the teleport point)
-        // Use a larger range (20 tiles) to account for patches that may be spread out
-        boolean nearPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
-        
-        // If we have a valid plant state (not UNKNOWN), show instructions
-        // This ensures instructions show when player is at the patch, even if proximity/region checks fail
-        // The varbit detection is the most reliable indicator that we're at the correct patch
-        // Show instructions if: near patch OR (valid state detected AND we're in a hops region)
-        boolean isHopsRegion = locationName != null && !locationName.equals("Unknown");
-        boolean shouldShowInstructions = nearPatch || (plantState != HopsPatchChecker.PlantState.UNKNOWN && isHopsRegion);
+        // Instructions follow the active run step whenever we have a teleport context — not distance to the patch.
+        boolean shouldShowInstructions = teleport != null;
         
         if (!shouldShowInstructions) {
             // Highlight all hops patches when far from patch and no state detected
             patchHighlighter.highlightHopsPatches(graphics, leftColor);
         } else {
-            // Clear hint arrow when near patch
-            clearHintArrow();
             // Highlight specific patch for current location
             if (patchObjectId != null) {
                 switch (plantState) {
@@ -364,7 +331,7 @@ public class FarmingStepHandler {
                             return;
                         }
                         // Check if compost was just applied (from chat message)
-                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        boolean isComposted = patchStateChecker.patchIsCompostedForHopsPatch();
                         if (isComposted) {
                             hopsPatchComposted = true;  // Set persistent state
                             hopsPatchDone = true;
@@ -393,6 +360,7 @@ public class FarmingStepHandler {
                 // Fallback: highlight all patches if patchObjectId is null
                 patchHighlighter.highlightHopsPatches(graphics, leftColor);
             }
+            applyPatchDirectionHintArrow(getHopsPatchWorldPoint(locationName));
         }
     }
     
@@ -415,32 +383,6 @@ public class FarmingStepHandler {
                 return "Aldarin";
             default:
                 return "Unknown";
-        }
-    }
-    
-    /**
-     * Gets the WorldPoint for a hops patch location.
-     * @param locationName The name of the hops location
-     * @return WorldPoint of the patch, or null if location not found
-     */
-    private WorldPoint getHopsPatchPoint(String locationName) {
-        if (locationName == null) {
-            return null;
-        }
-        
-        switch (locationName) {
-            case "Lumbridge":
-                return LumbridgeHopsLocationData.getPatchPoint();
-            case "Seers Village":
-                return SeersVillageHopsLocationData.getPatchPoint();
-            case "Yanille":
-                return YanilleHopsLocationData.getPatchPoint();
-            case "Entrana":
-                return EntranaHopsLocationData.getPatchPoint();
-            case "Aldarin":
-                return AldarinHopsLocationData.getPatchPoint();
-            default:
-                return null;
         }
     }
     
@@ -499,18 +441,8 @@ public class FarmingStepHandler {
             if (varbitId != -1) {
                 plantState = FlowerPatchChecker.checkFlowerPatch(client, varbitId);
             }
-            // Get patch location for this flower location
-            WorldPoint patchPoint = getFlowerPatchPoint(locationName);
-            
-            // Check if player is near the patch location
-            boolean nearPatch = patchPoint != null && areaCheck.isPlayerWithinArea(patchPoint, 20);
-            
             // Always highlight specific patch if patchObjectId is available, similar to herb patches
             if (patchObjectId != null) {
-                // Clear hint arrow when near patch
-                if (nearPatch) {
-                    clearHintArrow();
-                }
                 switch (plantState) {
                     case HARVESTABLE:
                         plugin.addTextToInfoBox("Harvest Limwurt root.");
@@ -557,7 +489,7 @@ public class FarmingStepHandler {
                             return;
                         }
                         // Check if compost was just applied (from chat message)
-                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        boolean isComposted = patchStateChecker.patchIsCompostedForFlowerPatch();
                         if (isComposted) {
                             flowerPatchComposted = true;  // Set persistent state
                             flowerPatchDone = true;
@@ -570,16 +502,11 @@ public class FarmingStepHandler {
                         compostHighlighter.highlightCompost(graphics, false, false, false, 2);
                         break;
                     case UNKNOWN:
-                        // If near patch, highlight it even if state is unknown
-                        if (nearPatch) {
-                            plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the flower patch to change its state.");
-                            patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
-                        } else {
-                            // Far from patch and unknown state - highlight all patches
-                            patchHighlighter.highlightFlowerPatches(graphics, leftColor);
-                        }
+                        plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the flower patch to change its state.");
+                        patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, leftColor);
                         break;
                 }
+                applyPatchDirectionHintArrow(getFlowerPatchWorldPoint(locationName));
             } else {
                 // Fallback: highlight all flower patches if patch ID not found
                 patchHighlighter.highlightFlowerPatches(graphics, leftColor);
@@ -724,39 +651,6 @@ public class FarmingStepHandler {
     }
     
     /**
-     * Gets the WorldPoint for a flower patch at a given location.
-     * Flower patches are typically at the same location as herb patches.
-     * @param locationName The name of the location
-     * @return WorldPoint of the patch, or null if location not found
-     */
-    private WorldPoint getFlowerPatchPoint(String locationName) {
-        if (locationName == null) {
-            return null;
-        }
-        
-        // Flower patches are typically at the same location as herb patches
-        // Return the location's patch point (herb patch point)
-        switch (locationName) {
-            case "Ardougne":
-                return ArdougneLocationData.getPatchPoint();
-            case "Catherby":
-                return CatherbyLocationData.getPatchPoint();
-            case "Falador":
-                return FaladorLocationData.getPatchPoint();
-            case "Farming Guild":
-                return FarmingGuildLocationData.getPatchPoint();
-            case "Kourend":
-                return KourendLocationData.getPatchPoint();
-            case "Morytania":
-                return MorytaniaLocationData.getPatchPoint();
-            case "Civitas illa Fortis":
-                return CivitasLocationData.getPatchPoint();
-            default:
-                return null;
-        }
-    }
-    
-    /**
      * Gets the priority of a plant state for determining which patch to handle first.
      * Higher priority = handle first.
      */
@@ -801,6 +695,7 @@ public class FarmingStepHandler {
             // Only transition if north patch is actually completed (GROWING + composted)
             if (allotmentPatchState.isPatchCompleted(0) && allotmentPatchState.isPatchComposted(0)) {
                 allotmentPatchState.moveToNextPatch();
+                plugin.clearLastMessage();
                 // Don't process south patch in the same frame - let it happen on next frame
                 return;
             }
@@ -923,7 +818,7 @@ public class FarmingStepHandler {
                     break;
                 case GROWING:
                     // Check if compost was just applied (from chat message)
-                    if (patchStateChecker.patchIsComposted()) {
+                    if (patchStateChecker.patchIsCompostedForAllotmentPatch()) {
                         // Mark as composted (persistent)
                         allotmentPatchState.markComposted(0);
                         // Clear hint arrow when patch is composted
@@ -1075,7 +970,7 @@ public class FarmingStepHandler {
                     // This case should only be reached if the patch is GROWING and NOT already composted
                     // (the early return above should catch GROWING + composted cases)
                     // Check if compost was just applied (from chat message)
-                    boolean isComposted = patchStateChecker.patchIsComposted();
+                    boolean isComposted = patchStateChecker.patchIsCompostedForAllotmentPatch();
                     if (isComposted) {
                         // Mark as composted (persistent)
                         allotmentPatchState.markComposted(1);
@@ -1133,15 +1028,11 @@ public class FarmingStepHandler {
         } else {
             plantState = TreePatchChecker.checkTreePatch(client, Constants.VARBIT_TREE_PATCH_STANDARD);
         }
-        
-        if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
-            // Should be replaced with a pathing system, pointing arrow or something else eventually
-            if (teleport != null) {
-                patchHighlighter.highlightTreePatches(graphics, leftColor);
-            }
+
+        // Instructions follow the active run step whenever we have a teleport context — not player distance to the patch.
+        if (teleport == null) {
+            // Transitioning between locations.
         } else {
-            // Clear hint arrow when near patch
-            clearHintArrow();
             switch (plantState) {
                 case HEALTHY:
                     plugin.addTextToInfoBox("Check tree health.");
@@ -1200,7 +1091,7 @@ public class FarmingStepHandler {
                             return;
                         }
                         // Check if compost was just applied (from chat message)
-                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        boolean isComposted = patchStateChecker.patchIsCompostedForTreePatch();
                         if (isComposted) {
                             treePatchComposted = true;  // Set persistent state
                             treePatchDone = true;
@@ -1221,6 +1112,7 @@ public class FarmingStepHandler {
                     }
                     break;
             }
+            applyPatchDirectionHintArrow(getTreePatchWorldPoint(getTreeLocationNameFromRegionId(currentRegionId)));
         }
     }
     
@@ -1264,15 +1156,11 @@ public class FarmingStepHandler {
         if (varbitId != -1) {
             plantState = FruitTreePatchChecker.checkFruitTreePatch(client, varbitId);
         }
-        
-        if (teleport == null || !areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
-            // Should be replaced with a pathing system, point arrow or something else eventually
-            if (teleport != null) {
-                patchHighlighter.highlightFruitTreePatches(graphics, leftColor);
-            }
+
+        // Instructions follow the active run step whenever we have a teleport context — not player distance to the patch.
+        if (teleport == null) {
+            // Transitioning between locations.
         } else {
-            // Clear hint arrow when near patch
-            clearHintArrow();
             switch (plantState) {
                 case HEALTHY:
                     plugin.addTextToInfoBox("Check Fruit tree health.");
@@ -1341,7 +1229,7 @@ public class FarmingStepHandler {
                             return;
                         }
                         // Check if compost was just applied (from chat message)
-                        boolean isComposted = patchStateChecker.patchIsComposted();
+                        boolean isComposted = patchStateChecker.patchIsCompostedForFruitTreePatch();
                         if (isComposted) {
                             fruitTreePatchComposted = true;  // Set persistent state
                             fruitTreePatchDone = true;
@@ -1362,6 +1250,141 @@ public class FarmingStepHandler {
                     }
                     break;
             }
+            applyPatchDirectionHintArrow(getFruitTreePatchWorldPoint(locationName));
+        }
+    }
+
+    /**
+     * Points the hint arrow at the patch when the player is farther than {@link #PATCH_HINT_ARROW_RANGE_TILES}
+     * from the patch anchor. Does not change instruction text. NPC/farmer arrows set in the same frame may be
+     * replaced only while still outside that range (direction toward the patch).
+     */
+    private void applyPatchDirectionHintArrow(WorldPoint patchWorldPoint) {
+        if (patchWorldPoint == null || client.getLocalPlayer() == null) {
+            return;
+        }
+        if (areaCheck.isPlayerWithinArea(patchWorldPoint, PATCH_HINT_ARROW_RANGE_TILES)) {
+            return;
+        }
+        setHintArrow(patchWorldPoint);
+    }
+
+    /** Herb patch anchor (same tile basis as {@link com.easyfarming.FarmingTeleportOverlay#getHerbPatchPoint}). */
+    private static WorldPoint getHerbPatchWorldPoint(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        switch (locationName) {
+            case "Ardougne":
+                return new WorldPoint(2670, 3374, 0);
+            case "Catherby":
+                return new WorldPoint(2813, 3463, 0);
+            case "Falador":
+                return new WorldPoint(3058, 3307, 0);
+            case "Farming Guild":
+                return new WorldPoint(1238, 3726, 0);
+            case "Harmony Island":
+                return new WorldPoint(3789, 2837, 0);
+            case "Kourend":
+                return new WorldPoint(1738, 3550, 0);
+            case "Morytania":
+                return new WorldPoint(3601, 3525, 0);
+            case "Troll Stronghold":
+                return new WorldPoint(2824, 3696, 0);
+            case "Weiss":
+                return new WorldPoint(2847, 3931, 0);
+            case "Civitas illa Fortis":
+                return new WorldPoint(1586, 3099, 0);
+            default:
+                return null;
+        }
+    }
+
+    private static WorldPoint getFlowerPatchWorldPoint(String locationName) {
+        return getHerbPatchWorldPoint(locationName);
+    }
+
+    private static WorldPoint getTreePatchWorldPoint(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        switch (locationName) {
+            case "Falador":
+                return new WorldPoint(3000, 3373, 0);
+            case "Farming Guild":
+                return new WorldPoint(1232, 3736, 0);
+            case "Gnome Stronghold":
+                return new WorldPoint(2436, 3415, 0);
+            case "Lumbridge":
+                return new WorldPoint(3193, 3231, 0);
+            case "Taverley":
+                return new WorldPoint(2936, 3438, 0);
+            case "Varrock":
+                return new WorldPoint(3229, 3459, 0);
+            default:
+                return null;
+        }
+    }
+
+    private static String getTreeLocationNameFromRegionId(int regionId) {
+        switch (regionId) {
+            case Constants.REGION_FALADOR:
+                return "Falador";
+            case Constants.REGION_FARMING_GUILD:
+                return "Farming Guild";
+            case Constants.REGION_GNOME_STRONGHOLD:
+            case Constants.REGION_GNOME_STRONGHOLD_ALT:
+                return "Gnome Stronghold";
+            case 12850:
+                return "Lumbridge";
+            case 12853:
+                return "Varrock";
+            case 11828:
+                return "Taverley";
+            default:
+                return null;
+        }
+    }
+
+    private static WorldPoint getFruitTreePatchWorldPoint(String locationName) {
+        if (locationName == null) {
+            return null;
+        }
+        switch (locationName) {
+            case "Brimhaven":
+                return new WorldPoint(2764, 3212, 0);
+            case "Catherby":
+                return new WorldPoint(2860, 3433, 0);
+            case "Farming Guild":
+                return new WorldPoint(1243, 3759, 0);
+            case "Gnome Stronghold":
+                return new WorldPoint(2475, 3446, 0);
+            case "Lletya":
+                return new WorldPoint(2346, 3162, 0);
+            case "Tree Gnome Village":
+                return new WorldPoint(2490, 3180, 0);
+            default:
+                return null;
+        }
+    }
+
+    private static WorldPoint getHopsPatchWorldPoint(String locationName) {
+        if (locationName == null || "Unknown".equals(locationName)) {
+            return null;
+        }
+        switch (locationName) {
+            case "Aldarin":
+                return new WorldPoint(1365, 2939, 0);
+            case "Entrana":
+                return new WorldPoint(2811, 3337, 0);
+            case "Lumbridge":
+                return new WorldPoint(3229, 3315, 0);
+            case "Seers Village":
+                return new WorldPoint(2667, 3526, 0);
+            case "Yanille":
+                return new WorldPoint(2576, 3105, 0);
+            default:
+                return null;
         }
     }
     
