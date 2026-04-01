@@ -66,7 +66,7 @@ public class SeersVillageHopsLocationData {
             0,
             "",
             218,
-            35,
+            38,
             10551,
             SEERS_VILLAGE_HOPS_PATCH_POINT,
             Arrays.asList(
@@ -99,7 +99,7 @@ public class SeersVillageHopsLocationData {
             0,
             "",
             218,
-            35,
+            38,
             10551,
             SEERS_VILLAGE_HOPS_PATCH_POINT,
             Arrays.asList(

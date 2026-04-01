@@ -55,7 +55,7 @@ public class FaladorTreeLocationData {
             0,
             "",
             218,
-            30,
+            33,
             11828,
             FALADOR_TREE_PATCH_POINT,
             Arrays.asList(

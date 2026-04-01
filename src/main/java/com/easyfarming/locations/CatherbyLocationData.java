@@ -78,7 +78,7 @@ public class CatherbyLocationData {
             0,
             "",
             218,
-            35,
+            38,
             11062,
             CATHERBY_HERB_PATCH_POINT,
             Arrays.asList(

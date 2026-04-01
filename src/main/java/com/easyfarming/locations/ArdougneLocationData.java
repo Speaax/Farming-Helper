@@ -64,7 +64,7 @@ public class ArdougneLocationData {
             0,
             "",
             218,
-            42,
+            45,
             10547,
             ARDOUGNE_HERB_PATCH_POINT,
             Arrays.asList(

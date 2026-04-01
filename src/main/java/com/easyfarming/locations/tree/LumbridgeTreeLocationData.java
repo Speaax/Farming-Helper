@@ -55,7 +55,7 @@ public class LumbridgeTreeLocationData {
             0,
             "",
             218,
-            27,
+            30,
             12850,
             LUMBRIDGE_TREE_PATCH_POINT,
             Arrays.asList(

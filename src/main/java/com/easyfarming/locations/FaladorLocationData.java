@@ -80,7 +80,7 @@ public class FaladorLocationData {
             0,
             "",
             218,
-            30,
+            33,
             11828,
             FALADOR_HERB_PATCH_POINT,
             Arrays.asList(
