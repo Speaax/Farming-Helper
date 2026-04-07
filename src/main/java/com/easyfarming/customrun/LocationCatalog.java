@@ -19,6 +19,7 @@ import com.easyfarming.locations.fruittree.BrimhavenFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.CatherbyFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.FarmingGuildFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.GnomeStrongholdFruitTreeLocationData;
+import com.easyfarming.locations.fruittree.KastoriFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.LletyaFruitTreeLocationData;
 import com.easyfarming.locations.fruittree.TreeGnomeVillageFruitTreeLocationData;
 import com.easyfarming.locations.hops.AldarinHopsLocationData;
@@ -30,6 +31,7 @@ import com.easyfarming.locations.tree.FaladorTreeLocationData;
 import com.easyfarming.locations.tree.FarmingGuildTreeLocationData;
 import com.easyfarming.locations.tree.GnomeStrongholdTreeLocationData;
 import com.easyfarming.locations.tree.LumbridgeTreeLocationData;
+import com.easyfarming.locations.tree.NemusRetreatTreeLocationData;
 import com.easyfarming.locations.tree.TaverleyTreeLocationData;
 import com.easyfarming.locations.tree.VarrockTreeLocationData;
 import com.easyfarming.utils.TeleportItemRequirements;
@@ -154,7 +156,7 @@ public class LocationCatalog {
         addTeleports(civitas.getName(), civitas);
         addPatchTypes(civitas.getName(), Arrays.asList(PatchTypes.HERB, PatchTypes.FLOWER, PatchTypes.ALLOTMENT));
 
-        // Tree locations (order matches TreeRunItemAndLocation.setupLocations: Farming Guild, Falador, Taverley, Lumbridge, Varrock, Gnome Stronghold)
+        // Tree locations (order matches TreeRunItemAndLocation.setupLocations: Farming Guild, Falador, Taverley, Lumbridge, Varrock, Gnome Stronghold, Nemus Retreat)
         Location farmingGuildTree = FarmingGuildTreeLocationData.create(config, houseTeleportSupplier, fairyRingSupplier);
         seenNames.add(farmingGuildTree.getName());
         putLocationForPatch(farmingGuildTree.getName(), PatchTypes.TREE, farmingGuildTree);
@@ -191,7 +193,13 @@ public class LocationCatalog {
         addTeleports(gnomeStrongholdTree.getName(), gnomeStrongholdTree);
         addPatchTypes(gnomeStrongholdTree.getName(), singletonList(PatchTypes.TREE));
 
-        // Fruit tree locations (order matches FruitTreeRunItemAndLocation.setupLocations: Farming Guild, Brimhaven, Catherby, Lletya, Gnome Stronghold, Tree Gnome Village)
+        Location nemusRetreatTree = NemusRetreatTreeLocationData.create(config, fairyRingSupplier);
+        seenNames.add(nemusRetreatTree.getName());
+        putLocationForPatch(nemusRetreatTree.getName(), PatchTypes.TREE, nemusRetreatTree);
+        addTeleports(nemusRetreatTree.getName(), nemusRetreatTree);
+        addPatchTypes(nemusRetreatTree.getName(), singletonList(PatchTypes.TREE));
+
+        // Fruit tree locations (order matches FruitTreeRunItemAndLocation.setupLocations: Farming Guild, Brimhaven, Catherby, Lletya, Gnome Stronghold, Tree Gnome Village, Kastori)
         Location farmingGuildFruitTree = FarmingGuildFruitTreeLocationData.create(config, houseTeleportSupplier, fairyRingSupplier);
         seenNames.add(farmingGuildFruitTree.getName());
         putLocationForPatch(farmingGuildFruitTree.getName(), PatchTypes.FRUIT_TREE, farmingGuildFruitTree);
@@ -227,6 +235,12 @@ public class LocationCatalog {
         putLocationForPatch(treeGnomeVillageFruitTree.getName(), PatchTypes.FRUIT_TREE, treeGnomeVillageFruitTree);
         addTeleports(treeGnomeVillageFruitTree.getName(), treeGnomeVillageFruitTree);
         addPatchTypes(treeGnomeVillageFruitTree.getName(), singletonList(PatchTypes.FRUIT_TREE));
+
+        Location kastoriFruitTree = KastoriFruitTreeLocationData.create(config);
+        seenNames.add(kastoriFruitTree.getName());
+        putLocationForPatch(kastoriFruitTree.getName(), PatchTypes.FRUIT_TREE, kastoriFruitTree);
+        addTeleports(kastoriFruitTree.getName(), kastoriFruitTree);
+        addPatchTypes(kastoriFruitTree.getName(), singletonList(PatchTypes.FRUIT_TREE));
 
         // Hops locations (order matches HopsRunItemAndLocation.setupLocations: Lumbridge, Seers Village, Yanille, Entrana, Aldarin)
         Location lumbridgeHops = LumbridgeHopsLocationData.create(config, houseTeleportSupplier);

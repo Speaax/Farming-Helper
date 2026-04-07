@@ -53,6 +53,8 @@ public class EasyFarmingOverlay extends Overlay {
             ItemID.JEWL_NECKLACE_OF_SKILLS_2, ItemID.JEWL_NECKLACE_OF_SKILLS_3, ItemID.JEWL_NECKLACE_OF_SKILLS_4,
             ItemID.JEWL_NECKLACE_OF_SKILLS_5, ItemID.JEWL_NECKLACE_OF_SKILLS_6);
 
+    public static final List<Integer> NECKLACE_OF_PASSAGE_IDS = Constants.NECKLACE_OF_PASSAGE_IDS;
+
     // Bottomless compost bucket variants (empty and all filled states)
     // These IDs should match ItemID.java constants:
     // BOTTOMLESS_COMPOST_BUCKET (empty), and filled variants 22994-22998
@@ -71,6 +73,7 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
     private static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
+    private static final int BASE_NECKLACE_OF_PASSAGE_ID = Constants.BASE_NECKLACE_OF_PASSAGE_ID;
 
     public List<Integer> getSkillsNecklaceIds() {
         return SKILLS_NECKLACE_IDS;
@@ -78,6 +81,14 @@ public class EasyFarmingOverlay extends Overlay {
 
     public boolean isSkillsNecklace(int itemId) {
         return SKILLS_NECKLACE_IDS.contains(itemId);
+    }
+
+    public List<Integer> getNecklaceOfPassageIds() {
+        return NECKLACE_OF_PASSAGE_IDS;
+    }
+
+    public boolean isNecklaceOfPassage(int itemId) {
+        return Constants.isNecklaceOfPassage(itemId);
     }
 
     public static final List<Integer> EXPLORERS_RING_IDS = Arrays.asList(ItemID.LUMBRIDGE_RING_MEDIUM,
@@ -526,6 +537,23 @@ public class EasyFarmingOverlay extends Overlay {
         }
     }
 
+    private int getNecklaceOfPassageCharges(int itemId) {
+        switch (itemId) {
+            case ItemID.NECKLACE_OF_PASSAGE_1:
+                return 1;
+            case ItemID.NECKLACE_OF_PASSAGE_2:
+                return 2;
+            case ItemID.NECKLACE_OF_PASSAGE_3:
+                return 3;
+            case ItemID.NECKLACE_OF_PASSAGE_4:
+                return 4;
+            case ItemID.NECKLACE_OF_PASSAGE_5:
+                return 5;
+            default:
+                return 0;
+        }
+    }
+
     public boolean isQuetzalWhistle(int itemId) {
         return itemId == ItemID.HG_QUETZALWHISTLE_BASIC ||
                 itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED ||
@@ -647,6 +675,18 @@ public class EasyFarmingOverlay extends Overlay {
                 if (isSkillsNecklace(equippedItemId)) {
                     int charges = getSkillsNecklaceCharges(equippedItemId);
                     skillsNecklaceCharges += charges;
+                }
+            }
+            int necklaceOfPassageCharges = 0;
+            for (Item item : items) {
+                if (isNecklaceOfPassage(item.getId())) {
+                    necklaceOfPassageCharges += getNecklaceOfPassageCharges(item.getId()) * item.getQuantity();
+                }
+            }
+            for (Map.Entry<Integer, Integer> equippedEntry : equippedItems.entrySet()) {
+                int equippedItemId = equippedEntry.getKey();
+                if (isNecklaceOfPassage(equippedItemId)) {
+                    necklaceOfPassageCharges += getNecklaceOfPassageCharges(equippedItemId);
                 }
             }
             int quetzalWhistleCount = 0;
@@ -835,6 +875,8 @@ public class EasyFarmingOverlay extends Overlay {
                 } else if (itemId == BASE_SKILLS_NECKLACE_ID) {
                     // Skills necklace requirement is in charges, not number of items
                     inventoryCount = skillsNecklaceCharges;
+                } else if (itemId == BASE_NECKLACE_OF_PASSAGE_ID) {
+                    inventoryCount = necklaceOfPassageCharges;
                 } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC) {
                     inventoryCount = quetzalWhistleCount;
                 } else if (itemId == BASE_EXPLORERS_RING_ID) {
