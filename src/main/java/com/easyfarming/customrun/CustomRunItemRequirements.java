@@ -124,7 +124,9 @@ public final class CustomRunItemRequirements {
             allRequirements.merge(Constants.BASE_FRUIT_TREE_SAPLING_ID, fruitTreePatchCount, Integer::sum);
         }
         if (hopsPatchCount > 0) {
-            allRequirements.merge(ItemID.BARLEY_SEED, hopsPatchCount, Integer::sum);
+            // All hops-patch crops use 3 or 4 seeds in-game; we use 4 everywhere to err on the side of caution.
+            int seedsPerHopsPatch = 4;
+            allRequirements.merge(ItemID.BARLEY_SEED, hopsPatchCount * seedsPerHopsPatch, Integer::sum);
         }
 
         // Tree/fruit tree runs instruct paying farmer to chop down after check-health (200gp per patch)
