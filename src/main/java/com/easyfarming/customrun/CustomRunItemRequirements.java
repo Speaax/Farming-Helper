@@ -97,13 +97,16 @@ public final class CustomRunItemRequirements {
             }
         }
 
-        Integer selectedCompost = selectedCompostId(config);
-        int compostId = selectedCompost != null ? selectedCompost : -1;
-        if (compostId != -1 && compostId != 0) {
-            if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
-                allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
-            } else {
-                allRequirements.merge(compostId, compostPatchesTotal, Integer::sum);
+        boolean payForProtection = config != null && config.generalPayForProtection();
+        if (!payForProtection) {
+            Integer selectedCompost = selectedCompostId(config);
+            int compostId = selectedCompost != null ? selectedCompost : -1;
+            if (compostId != -1 && compostId != 0) {
+                if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                    allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
+                } else {
+                    allRequirements.merge(compostId, compostPatchesTotal, Integer::sum);
+                }
             }
         }
 

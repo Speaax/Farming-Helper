@@ -557,7 +557,8 @@ public class EasyFarmingOverlay extends Overlay {
     public boolean isQuetzalWhistle(int itemId) {
         return itemId == ItemID.HG_QUETZALWHISTLE_BASIC ||
                 itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED ||
-                itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED;
+                itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED ||
+                itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED_INFINITE;
     }
 
     public boolean isRoyalSeedPod(int itemId) {
