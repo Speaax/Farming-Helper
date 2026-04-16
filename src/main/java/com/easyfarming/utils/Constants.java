@@ -26,6 +26,8 @@ public class Constants {
     public static final int REGION_TROLL_STRONGHOLD = 11321;
     public static final int REGION_WEISS = 11325;
     public static final int REGION_CIVITAS = 6192;
+    public static final int REGION_CIVITAS_ALT = 6448;  // Region south of patches (fairy ring approach path)
+    public static final int REGION_CIVITAS_ALT2 = 6447; // Region near AJP fairy ring
     public static final int REGION_GNOME_STRONGHOLD = 9782;
     public static final int REGION_GNOME_STRONGHOLD_ALT = 9781;
     

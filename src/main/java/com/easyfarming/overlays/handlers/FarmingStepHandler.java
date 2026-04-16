@@ -586,6 +586,8 @@ public class FarmingStepHandler {
             case Constants.REGION_MORYTANIA_ALQ:
                 return "Morytania";
             case Constants.REGION_CIVITAS:
+            case Constants.REGION_CIVITAS_ALT:
+            case Constants.REGION_CIVITAS_ALT2:
                 return "Civitas illa Fortis";
             case Constants.REGION_HARMONY:
                 return "Harmony Island";
@@ -829,7 +831,7 @@ public class FarmingStepHandler {
         
         // Check state for north patch
         AllotmentPatchChecker.PlantState plantState = AllotmentPatchChecker.PlantState.UNKNOWN;
-        
+
         if (varbitId != -1) {
             plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
         }
@@ -839,7 +841,7 @@ public class FarmingStepHandler {
         // Only GROWING + composted is considered completed (nothing more to do)
         boolean completed = plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(0);
         allotmentPatchState.setPatchCompleted(0, completed);
-        
+
         // Handle early returns in a single place
         if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
             int debugValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
