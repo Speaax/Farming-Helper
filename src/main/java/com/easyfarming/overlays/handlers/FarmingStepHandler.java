@@ -764,7 +764,7 @@ public class FarmingStepHandler {
         
         // If this location has no allotment patches, mark as done immediately
         if (allotmentPatchIds == null || allotmentPatchIds.isEmpty()) {
-            plugin.addTextToInfoBox("No allotment patches found (region=" + currentRegionId + " loc=" + locationName + ")");
+            // No allotment patches at this location, skip
             this.allotmentPatchDone = true;
             allotmentPatchState.reset();
             return;
@@ -855,8 +855,7 @@ public class FarmingStepHandler {
 
         // Handle early returns in a single place
         if (plantState == AllotmentPatchChecker.PlantState.UNKNOWN) {
-            int debugValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
-            plugin.addTextToInfoBox("Allotment patch state unknown - north patch (obj=" + patchObjectId + " varbit=" + varbitId + " val=" + debugValue + ")");
+            plugin.addTextToInfoBox("Allotment patch state unknown - north patch");
             return;
         }
         
@@ -1107,8 +1106,7 @@ public class FarmingStepHandler {
                     }
                     break;
                 case UNKNOWN:
-                    int debugValue = varbitId != -1 ? client.getVarbitValue(varbitId) : -1;
-                    plugin.addTextToInfoBox("UNKNOWN state: south patch (obj=" + patchObjectId + " varbit=" + varbitId + " val=" + debugValue + ")");
+                    plugin.addTextToInfoBox("UNKNOWN state: Try to do something with the south allotment patch to change its state.");
                     break;
             }
         }
