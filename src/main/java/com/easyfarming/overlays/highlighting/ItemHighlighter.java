@@ -330,6 +330,9 @@ public class ItemHighlighter {
             if (checkItemId == itemId) {
                 return true;
             }
+            if (itemManager != null && itemManager.canonicalize(checkItemId) == itemId) {
+                return true;
+            }
             // Special handling for bottomless compost bucket - check filled variants
             if (itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                 // Check for all bottomless bucket variants (empty: BOTTOMLESS_COMPOST_BUCKET, 

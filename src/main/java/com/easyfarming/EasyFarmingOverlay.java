@@ -746,7 +746,9 @@ public class EasyFarmingOverlay extends Overlay {
                         }
                     } else {
                         // Handle regular items - sum quantities across slots (e.g. multiple compost)
-                        inventoryItemCounts.put(itemId, inventoryItemCounts.getOrDefault(itemId, 0) + itemQuantity);
+                        // Canonicalize to map noted items to their unnoted equivalents
+                        int canonicalId = itemManager.canonicalize(itemId);
+                        inventoryItemCounts.put(canonicalId, inventoryItemCounts.getOrDefault(canonicalId, 0) + itemQuantity);
                     }
                 }
             }

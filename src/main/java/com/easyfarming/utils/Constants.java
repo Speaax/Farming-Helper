@@ -22,6 +22,7 @@ public class Constants {
     public static final int REGION_HARMONY = 15148;
     public static final int REGION_KOUREND = 6967;
     public static final int REGION_MORYTANIA = 14391;
+    public static final int REGION_MORYTANIA_ALQ = 14390; // ALQ fairy ring landing area (south of patch region boundary)
     public static final int REGION_TROLL_STRONGHOLD = 11321;
     public static final int REGION_WEISS = 11325;
     public static final int REGION_CIVITAS = 6192;

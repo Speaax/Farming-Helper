@@ -102,6 +102,20 @@ public class YanilleHopsLocationData {
             )
         ));
 
+        // Castle Wars Minigame Teleport (Grouping tab) - free, no items required
+        location.addTeleportOption(new Teleport(
+            "Castle_Wars_Minigame",
+            Teleport.Category.ITEM,
+            "Use the Castle Wars minigame teleport from the Grouping tab, and run to Yanille hops patch.",
+            0,
+            "",
+            0,
+            0,
+            9520,
+            YANILLE_HOPS_PATCH_POINT,
+            Collections.emptyList()
+        ));
+
         // Normal POH Tele Tab
         location.addTeleportOption(new Teleport(
             "Normal_POH_Tele_Tab",
