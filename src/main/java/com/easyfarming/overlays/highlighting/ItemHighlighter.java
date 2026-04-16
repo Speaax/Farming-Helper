@@ -165,6 +165,7 @@ public class ItemHighlighter {
                 || isExplorersRingHighlight(itemId, targetId)
                 || isArdyCloakHighlight(itemId, targetId)
                 || isSkillsNecklaceHighlight(itemId, targetId)
+                || isNecklaceOfPassageHighlight(itemId, targetId)
                 || isBottomlessBucketHighlight(itemId, targetId)
                 || isCombatBraceletHighlight(itemId, targetId);
     }
@@ -202,6 +203,10 @@ public class ItemHighlighter {
      */
     private boolean isSkillsNecklaceHighlight(int itemId, int targetId) {
         return farmingHelperOverlay.isSkillsNecklace(itemId) && farmingHelperOverlay.isSkillsNecklace(targetId);
+    }
+
+    private boolean isNecklaceOfPassageHighlight(int itemId, int targetId) {
+        return farmingHelperOverlay.isNecklaceOfPassage(itemId) && farmingHelperOverlay.isNecklaceOfPassage(targetId);
     }
     
     /**

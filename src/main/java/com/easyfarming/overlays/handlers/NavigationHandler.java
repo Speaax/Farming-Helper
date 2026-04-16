@@ -209,6 +209,10 @@ public class NavigationHandler {
                 return areaCheck.isPlayerWithinArea(new WorldPoint(2811, 3337, 0), 10);
             case "Aldarin":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(1365, 2937, 0), 10);
+            case "Kastori":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(1350, 3057, 0), 10);
+            case "Nemus Retreat":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(1366, 3321, 0), 10);
             default:
                 return false;
         }
@@ -354,6 +358,19 @@ public class NavigationHandler {
                         Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
                         if (widget != null && !widget.isHidden()) {
                             widgetHighlighter.highlightDynamicComponent(graphics, widget, 5);
+                        }
+                    }
+                } else if (plugin.getEasyFarmingOverlay().isNecklaceOfPassage(teleport.getId())) {
+                    if (Objects.equals(location.getName(), "Gnome Stronghold")) {
+                        for (int id : Constants.NECKLACE_OF_PASSAGE_IDS) {
+                            itemHighlighter.itemHighlight(graphics, id, rightColor);
+                        }
+                        Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
+                        if (widget != null && !widget.isHidden()) {
+                            int outpostIndex = widgetHelper.getChildIndexSpiritTree("The Outpost");
+                            if (outpostIndex >= 0) {
+                                widgetHighlighter.highlightDynamicComponent(graphics, widget, outpostIndex);
+                            }
                         }
                     }
                 } else if (plugin.getEasyFarmingOverlay().isQuetzalWhistle(teleport.getId()) || 

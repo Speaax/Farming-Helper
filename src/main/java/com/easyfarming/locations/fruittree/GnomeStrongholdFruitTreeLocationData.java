@@ -75,6 +75,22 @@ public class GnomeStrongholdFruitTreeLocationData {
             )
         ));
 
+        // Necklace of passage (The Outpost, run to fruit tree patch)
+        location.addTeleportOption(new Teleport(
+            "Necklace_of_Passage",
+            Teleport.Category.ITEM,
+            "Teleport to The Outpost with Necklace of passage and run to the fruit tree patch.",
+            ItemID.NECKLACE_OF_PASSAGE_5,
+            "",
+            0,
+            0,
+            9781,
+            GNOME_STRONGHOLD_FRUIT_TREE_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.NECKLACE_OF_PASSAGE_5, 1)
+            )
+        ));
+
         return location;
     }
 }

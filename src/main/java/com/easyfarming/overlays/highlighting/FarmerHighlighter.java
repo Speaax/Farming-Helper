@@ -44,6 +44,7 @@ public class FarmerHighlighter {
     public void highlightTreeFarmers(Graphics2D graphics) {
         highlightFarmers(graphics, Arrays.asList(
             "Alain",         // taverley
+            "Aub",           // Nemus Retreat
             "Fayeth",        // Lumbridge
             "Heskel",        // Falador
             "Prissy Scilla", // Gnome Stronghold
@@ -59,6 +60,7 @@ public class FarmerHighlighter {
         highlightFarmers(graphics, Arrays.asList(
             "Bolongo", // Gnome Stronghold
             "Ellena",  // Catherby
+            "Ehecatl", // Kastori
             "Garth",   // Brimhaven
             "Gileth",  // Tree Gnome Village
             "Liliwen", // Lletya

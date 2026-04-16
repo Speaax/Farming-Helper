@@ -28,6 +28,14 @@ public class Constants {
     public static final int REGION_CIVITAS = 6192;
     public static final int REGION_CIVITAS_ALT = 6448;  // Region south of patches (fairy ring approach path)
     public static final int REGION_CIVITAS_ALT2 = 6447; // Region near AJP fairy ring
+    /** Kastori (fruit tree / calquat / flower); see RuneLite {@code FarmingWorld}. */
+    public static final int REGION_KASTORI = 5423;
+    public static final int REGION_KASTORI_ALT1 = 5167;
+    public static final int REGION_KASTORI_ALT2 = 5424;
+    /** Auburnvale (Nemus Retreat tree patch); see RuneLite {@code FarmingWorld}. */
+    public static final int REGION_AUBURNVALE = 5427;
+    public static final int REGION_AUBURNVALE_ALT1 = 5428;
+    public static final int REGION_AUBURNVALE_ALT2 = 5684;
     public static final int REGION_GNOME_STRONGHOLD = 9782;
     public static final int REGION_GNOME_STRONGHOLD_ALT = 9781;
     
@@ -100,6 +108,15 @@ public class Constants {
         ItemID.JEWL_NECKLACE_OF_SKILLS_6
     ));
 
+    /** Necklace of passage (1) through (5); teleports include The Outpost (near Gnome Stronghold). */
+    public static final List<Integer> NECKLACE_OF_PASSAGE_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.NECKLACE_OF_PASSAGE_1,
+        ItemID.NECKLACE_OF_PASSAGE_2,
+        ItemID.NECKLACE_OF_PASSAGE_3,
+        ItemID.NECKLACE_OF_PASSAGE_4,
+        ItemID.NECKLACE_OF_PASSAGE_5
+    ));
+
     /** Combat bracelet (1) - base/canonical ID. */
     public static final int BASE_COMBAT_BRACELET_ID = 11124;
     /** All charged Combat bracelet variants (1)=11124, (2)=11122, (3)=11120, (4)=11118, (5)=11974, (6)=11972 */
@@ -123,11 +140,15 @@ public class Constants {
     ));
     
     public static final List<Integer> TREE_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
-        8389, 33732, 19147, 8391, 8388, 8390
+        8389, 33732, 19147, 8391, 8388, 8390,
+        // Standard tree patch rake/weeds cycle (RuneLite {@code PatchImplementation} TREE)
+        8392, 8393, 8394, 8395
     ));
     
     public static final List<Integer> FRUIT_TREE_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
-        7964, 7965, 34007, 7962, 26579, 7963
+        7964, 7965, 34007, 7962, 26579, 7963,
+        // Fruit tree patch rake/weeds cycle (RuneLite {@code PatchImplementation} FRUIT_TREE)
+        8047, 8048, 8049, 8050
     ));
     
     public static final List<Integer> HOPS_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -213,6 +234,8 @@ public class Constants {
         patchMap.put("Gnome Stronghold", 7962);
         patchMap.put("Tree Gnome Village", 7963);
         patchMap.put("Lletya", 26579);
+        // Kastori uses transmit B; empty/weeded visuals follow global fruit tree patch ids (8050 etc.)
+        patchMap.put("Kastori", 8050);
         FRUIT_TREE_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
     }
     
@@ -322,6 +345,7 @@ public class Constants {
     // Base item IDs (for variant handling)
     public static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
     public static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
+    public static final int BASE_NECKLACE_OF_PASSAGE_ID = ItemID.NECKLACE_OF_PASSAGE_5;
     public static final int BASE_HERB_SEED_ID = ItemID.GUAM_SEED;
     public static final int BASE_TREE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
     public static final int BASE_FRUIT_TREE_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
@@ -348,6 +372,10 @@ public class Constants {
     
     public static boolean isSkillsNecklace(int itemId) {
         return SKILLS_NECKLACE_IDS.contains(itemId);
+    }
+
+    public static boolean isNecklaceOfPassage(int itemId) {
+        return NECKLACE_OF_PASSAGE_IDS.contains(itemId);
     }
 
     public static boolean isCombatBracelet(int itemId) {

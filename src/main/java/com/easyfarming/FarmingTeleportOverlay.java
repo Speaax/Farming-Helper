@@ -125,6 +125,7 @@ public class FarmingTeleportOverlay extends Overlay {
             case "Lumbridge": return new WorldPoint(3193, 3231, 0);
             case "Taverley": return new WorldPoint(2936, 3438, 0);
             case "Varrock": return new WorldPoint(3229, 3459, 0);
+            case "Nemus Retreat": return new WorldPoint(1366, 3321, 0);
             default: return null;
         }
     }
@@ -137,6 +138,7 @@ public class FarmingTeleportOverlay extends Overlay {
             case "Gnome Stronghold": return new WorldPoint(2475, 3446, 0);
             case "Lletya": return new WorldPoint(2346, 3162, 0);
             case "Tree Gnome Village": return new WorldPoint(2490, 3180, 0);
+            case "Kastori": return new WorldPoint(1350, 3057, 0);
             default: return null;
         }
     }

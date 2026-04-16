@@ -13,6 +13,7 @@ import net.runelite.api.Tile;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.VarbitID;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -652,9 +653,19 @@ public class FarmingStepHandler {
                     return "Tree Gnome Village";
                 }
                 return "Gnome Stronghold";
+            case Constants.REGION_KASTORI:
+            case Constants.REGION_KASTORI_ALT1:
+            case Constants.REGION_KASTORI_ALT2:
+                return "Kastori";
             default:
                 return null;
         }
+    }
+
+    private static boolean isKastoriFruitTreeRegion(int regionId) {
+        return regionId == Constants.REGION_KASTORI
+                || regionId == Constants.REGION_KASTORI_ALT1
+                || regionId == Constants.REGION_KASTORI_ALT2;
     }
     
     /**
@@ -1114,6 +1125,21 @@ public class FarmingStepHandler {
         TreePatchChecker.PlantState plantState;
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color useItemColor = colorProvider.getHighlightUseItemWithAlpha();
+
+        if (teleport != null) {
+            if ("Quetzal_Transport".equals(teleport.getEnumOption())) {
+                if (currentRegionId == 6704) {
+                    plugin.addTextToInfoBox("Fly Renu to Auburnvale.");
+                    gameObjectHighlighter.highlightGameObject(52815, useItemColor).render(graphics);
+                    return;
+                }
+                if (currentRegionId == 6705) {
+                    plugin.addTextToInfoBox("Fly Renu to Auburnvale.");
+                    gameObjectHighlighter.highlightGameObject(52815, useItemColor).render(graphics);
+                    return;
+                }
+            }
+        }
         
         // 4771 falador, gnome stronghold, lumbridge, taverley, Varrock
         // 7905 farming guild
@@ -1154,7 +1180,7 @@ public class FarmingStepHandler {
                     farmerHighlighter.highlightTreeFarmers(graphics);
                     // Set hint arrow to first available tree farmer
                     setHintArrowToFirstAvailableNPC(Arrays.asList(
-                        "Alain", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
+                        "Alain", "Aub", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
                     ));
                     break;
                 case UNKNOWN:
@@ -1166,7 +1192,7 @@ public class FarmingStepHandler {
                         farmerHighlighter.highlightTreeFarmers(graphics);
                         // Set hint arrow to first available tree farmer
                         setHintArrowToFirstAvailableNPC(Arrays.asList(
-                            "Alain", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
+                            "Alain", "Aub", "Fayeth", "Heskel", "Prissy Scilla", "Rosie", "Treznor"
                         ));
                         if (patchStateChecker.patchIsProtected()) {
                             treePatchDone = true;
@@ -1225,17 +1251,17 @@ public class FarmingStepHandler {
         // Get location name from region ID
         String locationName = getFruitTreeLocationNameFromRegionId(currentRegionId);
         
-        // Get patch object ID for this location
         Integer patchObjectId = locationName != null ? farmingHelperOverlay.getFruitTreePatchIdForLocation(locationName) : null;
         
         int varbitId = -1;
         
-        // Try to get varbit from object composition
-        if (patchObjectId != null) {
+        // Kastori: fruit tree is on FARMING_TRANSMIT_B (RuneLite FarmingWorld); object composition from 8050 would resolve to transmit A.
+        if (isKastoriFruitTreeRegion(currentRegionId)) {
+            varbitId = VarbitID.FARMING_TRANSMIT_B;
+        } else if (patchObjectId != null) {
             varbitId = getFruitTreePatchVarbitId(patchObjectId);
         }
         
-        // Fallback: If object composition fails, use location-specific varbits
         if (varbitId == -1) {
             if (currentRegionId == Constants.REGION_FARMING_GUILD) {
                 varbitId = Constants.VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD;
@@ -1292,7 +1318,7 @@ public class FarmingStepHandler {
                     farmerHighlighter.highlightFruitTreeFarmers(graphics);
                     // Set hint arrow to first available fruit tree farmer
                     setHintArrowToFirstAvailableNPC(Arrays.asList(
-                        "Bolongo", "Ellena", "Garth", "Gileth", "Liliwen", "Nikkie"
+                        "Bolongo", "Ellena", "Ehecatl", "Garth", "Gileth", "Liliwen", "Nikkie"
                     ));
                     break;
                 case UNKNOWN:
@@ -1304,7 +1330,7 @@ public class FarmingStepHandler {
                         farmerHighlighter.highlightFruitTreeFarmers(graphics);
                         // Set hint arrow to first available fruit tree farmer
                         setHintArrowToFirstAvailableNPC(Arrays.asList(
-                            "Bolongo", "Ellena", "Garth", "Gileth", "Liliwen", "Nikkie"
+                            "Bolongo", "Ellena", "Ehecatl", "Garth", "Gileth", "Liliwen", "Nikkie"
                         ));
                         if (patchStateChecker.patchIsProtected()) {
                             fruitTreePatchDone = true;
@@ -1415,6 +1441,8 @@ public class FarmingStepHandler {
                 return new WorldPoint(2936, 3438, 0);
             case "Varrock":
                 return new WorldPoint(3229, 3459, 0);
+            case "Nemus Retreat":
+                return new WorldPoint(1366, 3321, 0);
             default:
                 return null;
         }
@@ -1435,6 +1463,10 @@ public class FarmingStepHandler {
                 return "Varrock";
             case 11828:
                 return "Taverley";
+            case Constants.REGION_AUBURNVALE:
+            case Constants.REGION_AUBURNVALE_ALT1:
+            case Constants.REGION_AUBURNVALE_ALT2:
+                return "Nemus Retreat";
             default:
                 return null;
         }
@@ -1457,6 +1489,8 @@ public class FarmingStepHandler {
                 return new WorldPoint(2346, 3162, 0);
             case "Tree Gnome Village":
                 return new WorldPoint(2490, 3180, 0);
+            case "Kastori":
+                return new WorldPoint(1350, 3057, 0);
             default:
                 return null;
         }

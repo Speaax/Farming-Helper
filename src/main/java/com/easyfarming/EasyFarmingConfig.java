@@ -306,7 +306,8 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumGnomeStrongholdTeleport implements OptionEnumTeleport
 	{
 		Royal_seed_pod,
-		Spirit_Tree
+		Spirit_Tree,
+		Necklace_of_Passage
 	}
 	@ConfigItem(
 			position = 2,
@@ -361,6 +362,22 @@ public interface EasyFarmingConfig extends Config
 			section = treeTeleportOptionList
 	)
 	default TreeOptionEnumVarrockTeleport enumTreeVarrockTeleport() { return TreeOptionEnumVarrockTeleport.Teleport; }
+
+	enum TreeOptionEnumNemusRetreatTeleport implements OptionEnumTeleport
+	{
+		Quetzal_whistle,
+		Quetzal_Transport,
+		Pendant_of_Ates,
+		Fairy_Ring
+	}
+	@ConfigItem(
+			position = 6,
+			keyName = "enumTreeNemusRetreatTeleport",
+			name = "Nemus Retreat",
+			description = "Desired way to teleport to Nemus Retreat (Auburn Valley tree patch)",
+			section = treeTeleportOptionList
+	)
+	default TreeOptionEnumNemusRetreatTeleport enumTreeNemusRetreatTeleport() { return TreeOptionEnumNemusRetreatTeleport.Pendant_of_Ates; }
 
 	@ConfigSection(
 			name = "Fruit tree teleport defaults",
@@ -426,7 +443,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Royal_seed_pod,
 		Spirit_Tree,
-		Slayer_Ring
+		Slayer_Ring,
+		Necklace_of_Passage
 	}
 	@ConfigItem(
 			position = 1,
@@ -462,6 +480,20 @@ public interface EasyFarmingConfig extends Config
 			section = fruitTreeTeleportOptionList
 	)
 	default FruitTreeOptionEnumTreeGnomeVillageTeleport enumFruitTreeTreeGnomeVillageTeleport() { return FruitTreeOptionEnumTreeGnomeVillageTeleport.Spirit_Tree; }
+
+	enum FruitTreeOptionEnumKastoriTeleport implements OptionEnumTeleport
+	{
+		Quetzal_Transport,
+		Pendant_of_Ates
+	}
+	@ConfigItem(
+			position = 6,
+			keyName = "enumFruitTreeKastoriTeleport",
+			name = "Kastori",
+			description = "Desired way to teleport to Kastori (fruit tree patch)",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumKastoriTeleport enumFruitTreeKastoriTeleport() { return FruitTreeOptionEnumKastoriTeleport.Pendant_of_Ates; }
 
 	@ConfigSection(
 			name = "Hops teleport defaults",

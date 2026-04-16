@@ -163,13 +163,15 @@ public class PatchHighlighter {
     private static boolean isTreeLocation(String locationName) {
         return locationName.equals("Falador") || locationName.equals("Farming Guild")
                 || locationName.equals("Gnome Stronghold") || locationName.equals("Lumbridge")
-                || locationName.equals("Taverley") || locationName.equals("Varrock");
+                || locationName.equals("Nemus Retreat") || locationName.equals("Taverley")
+                || locationName.equals("Varrock");
     }
 
     private static boolean isFruitTreeLocation(String locationName) {
         return locationName.equals("Brimhaven") || locationName.equals("Catherby")
                 || locationName.equals("Farming Guild") || locationName.equals("Gnome Stronghold")
-                || locationName.equals("Lletya") || locationName.equals("Tree Gnome Village");
+                || locationName.equals("Kastori") || locationName.equals("Lletya")
+                || locationName.equals("Tree Gnome Village");
     }
 
     private static boolean isHopsLocation(String locationName) {
