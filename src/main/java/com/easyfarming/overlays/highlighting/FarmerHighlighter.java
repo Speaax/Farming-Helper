@@ -67,6 +67,34 @@ public class FarmerHighlighter {
             "Nikkie"   // Farming Guild
         ));
     }
+
+    /**
+     * Highlights allotment/herb/flower farmers.
+     * These patch types share the same farmer NPC at each location.
+     */
+    public void highlightAllotmentFarmers(Graphics2D graphics) {
+        highlightFarmers(graphics, Arrays.asList(
+            "Elstan",   // Falador
+            "Dantaera", // Catherby
+            "Kragen",   // Ardougne
+            "Marisi",   // Kourend
+            "Lyra",     // Morytania
+            "Alan"      // Farming Guild
+        ));
+    }
+
+    /**
+     * Highlights hops farmers.
+     */
+    public void highlightHopsFarmers(Graphics2D graphics) {
+        highlightFarmers(graphics, Arrays.asList(
+            "Vasquen",         // Lumbridge
+            "Rhonen",          // Seers Village
+            "Selena",          // Yanille
+            "Brother Althric", // Entrana
+            "Ercos"            // Aldarin
+        ));
+    }
     
     private boolean isInterfaceOpen(int groupId, int childId) {
         Widget widget = client.getWidget(groupId, childId);

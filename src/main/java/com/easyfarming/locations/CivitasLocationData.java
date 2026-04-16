@@ -34,7 +34,8 @@ public class CivitasLocationData {
      *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
      * @return A Location instance for Civitas illa Fortis
      */
-    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
+    public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                  Supplier<List<ItemRequirement>> fairyRingSupplier) {
         Location location = new Location(
             EasyFarmingConfig::enumOptionEnumCivitasTeleport,
             config,
@@ -121,7 +122,21 @@ public class CivitasLocationData {
                 new ItemRequirement(ItemID.SKILLCAPE_HUNTING, 1)
             )
         ));
-        
+
+        // Fairy Ring AJP
+        location.addTeleportOption(new Teleport(
+            "Fairy_Ring",
+            Teleport.Category.FAIRY_RING,
+            "Use a Fairy Ring (AJP) to teleport near Civitas illa Fortis, and run to the patch.",
+            0,
+            "",
+            0,
+            0,
+            6192,
+            CIVITAS_HERB_PATCH_POINT,
+            fairyRingSupplier.get()
+        ));
+
         return location;
     }
 }

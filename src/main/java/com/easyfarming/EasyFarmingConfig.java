@@ -252,7 +252,8 @@ public interface EasyFarmingConfig extends Config
 		Civitas_Teleport,
 		Civitas_Tele_Tab,
 		Quetzal_whistle,
-		Hunter_Skillcape
+		Hunter_Skillcape,
+		Fairy_Ring
 	}
 	@ConfigItem(
 		position = 11,
@@ -545,7 +546,8 @@ public interface EasyFarmingConfig extends Config
 		Watchtower_Teleport,
 		Yanille,
 		Yanille_Tele_Tab,
-		Normal_POH_Tele_Tab
+		Normal_POH_Tele_Tab,
+		Castle_Wars_Minigame
 	}
 	@ConfigItem(
 			position = 3,

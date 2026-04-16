@@ -198,6 +198,8 @@ public class NavigationHandler {
                 return areaCheck.isPlayerWithinArea(new WorldPoint(2936, 3438, 0), 10);
             case "Varrock":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(3229, 3459, 0), 10);
+            case "Morytania":
+                return areaCheck.isPlayerWithinArea(new WorldPoint(3601, 3525, 0), 10);
             // Hops locations
             case "Seers Village":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(2667, 3526, 0), 10);

@@ -148,7 +148,7 @@ public class LocationCatalog {
         addTeleports(weiss.getName(), weiss);
         addPatchTypes(weiss.getName(), Arrays.asList(PatchTypes.HERB, PatchTypes.FLOWER, PatchTypes.ALLOTMENT));
 
-        Location civitas = CivitasLocationData.create(config, houseTeleportSupplier);
+        Location civitas = CivitasLocationData.create(config, houseTeleportSupplier, fairyRingSupplier);
         seenNames.add(civitas.getName());
         putLocationForPatch(civitas.getName(), PatchTypes.HERB, civitas);
         putLocationForPatch(civitas.getName(), PatchTypes.FLOWER, civitas);
