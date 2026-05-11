@@ -70,7 +70,10 @@ public class WeissLocationData {
             WEISS_HERB_PATCH_POINT,
             houseTeleportSupplier.get()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Weiss", 11325, WEISS_HERB_PATCH_POINT));
+
         return location;
     }
 }

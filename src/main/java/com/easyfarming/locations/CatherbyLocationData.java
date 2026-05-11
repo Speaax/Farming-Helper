@@ -118,7 +118,10 @@ public class CatherbyLocationData {
                 new ItemRequirement(ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Catherby", 11061, CATHERBY_HERB_PATCH_POINT));
+
         return location;
     }
 }

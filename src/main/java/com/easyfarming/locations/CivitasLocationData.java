@@ -121,7 +121,10 @@ public class CivitasLocationData {
                 new ItemRequirement(ItemID.SKILLCAPE_HUNTING, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Civitas illa Fortis", 6192, CIVITAS_HERB_PATCH_POINT));
+
         return location;
     }
 }

@@ -120,6 +120,9 @@ public class TeleportHighlighter {
             case MOUNTED_XERICS:
                 // Mounted Xeric's talisman handling is done in NavigationHandler
                 break;
+            case NONE:
+                // Travel-manually option: no highlighting needed.
+                break;
         }
     }
 }

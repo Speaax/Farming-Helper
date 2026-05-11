@@ -45,6 +45,9 @@ public class LletyaFruitTreeLocationData {
             )
         ));
 
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Lletya", 9265, LLETYA_FRUIT_TREE_PATCH_POINT));
+
         return location;
     }
 }

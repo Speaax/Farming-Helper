@@ -155,7 +155,10 @@ public class LumbridgeHopsLocationData {
                 new ItemRequirement(Constants.BASE_COMBAT_BRACELET_ID, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Lumbridge hops patch", 12851, LUMBRIDGE_HOPS_PATCH_POINT));
+
         return location;
     }
 }

@@ -109,7 +109,10 @@ public class CatherbyFruitTreeLocationData {
                 new ItemRequirement(ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Catherby fruit tree patch", 11061, CATHERBY_FRUIT_TREE_PATCH_POINT));
+
         return location;
     }
 }

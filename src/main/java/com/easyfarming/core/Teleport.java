@@ -2,6 +2,7 @@ package com.easyfarming.core;
 
 import com.easyfarming.ItemRequirement;
 import net.runelite.api.coords.WorldPoint;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,9 @@ public class Teleport {
         FAIRY_RING,
         JEWELLERY_BOX,
         MOUNTED_XERICS,
-        SPELLBOOK
+        SPELLBOOK,
+        /** No teleport - the player travels to the patch manually. */
+        NONE
     }
     
     private final String enumOption;
@@ -41,6 +44,26 @@ public class Teleport {
         this.regionId = regionId;
         this.point = point;
         this.itemRequirements = itemRequirements;
+    }
+
+    /**
+     * Creates the standard "None" teleport option for a location: no teleport items, no highlighting,
+     * the player travels to the patch on their own. The patch point and region let the plugin detect
+     * arrival the same way as any teleport.
+     */
+    public static Teleport none(String locationLabel, int regionId, WorldPoint patchPoint) {
+        return new Teleport(
+            "None",
+            Category.NONE,
+            "No teleport - travel to " + locationLabel + " on your own.",
+            0,
+            "",
+            0,
+            0,
+            regionId,
+            patchPoint,
+            Collections.emptyList()
+        );
     }
     
     public Map<Integer, Integer> getItemRequirements() {

@@ -151,7 +151,10 @@ public class FaladorLocationData {
             FALADOR_HERB_PATCH_POINT,
             Collections.emptyList()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Falador", 11828, FALADOR_HERB_PATCH_POINT));
+
         return location;
     }
 }

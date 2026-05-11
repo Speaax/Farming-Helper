@@ -38,8 +38,6 @@ public class EasyFarmingOverlay extends Overlay {
             ItemID.MOURNING_TELEPORT_CRYSTAL_2, ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4,
             ItemID.MOURNING_TELEPORT_CRYSTAL_5, ItemID.PRIF_TELEPORT_CRYSTAL);
     private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
-    /** Lunar staff item ID (satisfies dramen staff for fairy rings); may not be in ItemID in all API versions. */
-    private static final int LUNAR_STAFF_ITEM_ID = 9084;
 
     public List<Integer> getTeleportCrystalIds() {
         return TELEPORT_CRYSTAL_IDS;
@@ -55,21 +53,9 @@ public class EasyFarmingOverlay extends Overlay {
 
     public static final List<Integer> NECKLACE_OF_PASSAGE_IDS = Constants.NECKLACE_OF_PASSAGE_IDS;
 
-    // Bottomless compost bucket variants (empty and all filled states)
-    // These IDs should match ItemID.java constants:
-    // BOTTOMLESS_COMPOST_BUCKET (empty), and filled variants 22994-22998
-    private static final List<Integer> BOTTOMLESS_COMPOST_BUCKET_IDS = Arrays.asList(
-            ItemID.BOTTOMLESS_COMPOST_BUCKET, // Empty
-            22994, // Filled variant 1
-            22995, // Filled variant 2
-            22996, // Filled variant 3
-            22997, // Filled variant 4
-            22998 // Filled variant 5
-    );
-
     /** All item IDs that represent a bottomless compost bucket (empty or any filled tier). */
     public List<Integer> getBottomlessCompostBucketIds() {
-        return BOTTOMLESS_COMPOST_BUCKET_IDS;
+        return Constants.BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS;
     }
 
     private static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
@@ -355,11 +341,10 @@ public class EasyFarmingOverlay extends Overlay {
         staffMap.put(ItemID.MYSTIC_MUD_STAFF, Arrays.asList(ItemID.WATERRUNE, ItemID.EARTHRUNE));
 
         // Twinflame Staff (Fire + Water)
-        staffMap.put(30634, Arrays.asList(ItemID.FIRERUNE, ItemID.WATERRUNE));
+        staffMap.put(ItemID.TWINFLAME_STAFF, Arrays.asList(ItemID.FIRERUNE, ItemID.WATERRUNE));
 
-        // Tome of Earth (Earth) - Charged
-        // We use the charged ID (30064) to ensure it provides runes
-        staffMap.put(30064, Arrays.asList(ItemID.EARTHRUNE));
+        // Tome of Earth (Earth) — charged variant provides runes in this mapping
+        staffMap.put(ItemID.TOME_OF_EARTH, Arrays.asList(ItemID.EARTHRUNE));
 
         STAFF_RUNES_MAP = Collections.unmodifiableMap(staffMap);
     }
@@ -813,8 +798,7 @@ public class EasyFarmingOverlay extends Overlay {
                     // Handle staffs - add their runes with large amount
                     List<Integer> staffRunes = STAFF_RUNES_MAP.get(equippedItemId);
                     for (int rune : staffRunes) {
-                        // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to
-                        // avoid overflow
+                        // Use max to ensure we always have enough, but cap at STAFF_RUNE_AMOUNT to avoid overflow
                         inventoryItemCounts.put(rune,
                                 Math.max(inventoryItemCounts.getOrDefault(rune, 0), STAFF_RUNE_AMOUNT));
                     }
@@ -836,16 +820,15 @@ public class EasyFarmingOverlay extends Overlay {
 
                 // Lunar staff (9084) satisfies dramen staff requirement for fairy rings
                 if (itemId == ItemID.DRAMEN_STAFF) {
-                    int lunarCount = inventoryItemCounts.getOrDefault(LUNAR_STAFF_ITEM_ID, 0);
+                    int lunarCount = inventoryItemCounts.getOrDefault(ItemID.LUNAR_MOONCLAN_LIMINAL_STAFF, 0);
                     inventoryCount += lunarCount;
                 }
 
-                // Special handling for bottomless compost bucket - check for filled variants in
-                // inventory
+                // Special handling for bottomless compost bucket - check for filled variants in inventory
                 if (itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                     // Check inventory for any bottomless bucket variant (empty or filled)
                     for (Item item : items) {
-                        if (item != null && BOTTOMLESS_COMPOST_BUCKET_IDS.contains(item.getId())) {
+                        if (item != null && Constants.BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS.contains(item.getId())) {
                             inventoryCount = 1;
                             break;
                         }
@@ -923,6 +906,9 @@ public class EasyFarmingOverlay extends Overlay {
                 } else if (itemId == BASE_COMBAT_BRACELET_ID) {
                     // Requirement is CHARGES, not number of bracelets. Sum charges from all bracelets.
                     inventoryCount = combatBraceletCharges;
+                } else if (itemId == ItemID.PENDANT_OF_ATES) {
+                    boolean hasPendant = inventoryItemCounts.getOrDefault(ItemID.PENDANT_OF_ATES, 0) > 0;
+                    inventoryCount = hasPendant ? count : 0;
                 }
 
                 // Rune pouch contents are already included in inventoryItemCounts
@@ -1120,8 +1106,7 @@ public class EasyFarmingOverlay extends Overlay {
         if (itemId == ItemID.BUCKET_COMPOST ||
                 itemId == ItemID.BUCKET_SUPERCOMPOST ||
                 itemId == ItemID.BUCKET_ULTRACOMPOST ||
-                itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET ||
-                BOTTOMLESS_COMPOST_BUCKET_IDS.contains(itemId)) {
+                Constants.BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS.contains(itemId)) {
             return true;
         }
 

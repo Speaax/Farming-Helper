@@ -70,7 +70,10 @@ public class HarmonyLocationData {
                 new ItemRequirement(ItemID.TELETAB_HARMONY, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Harmony Island", 15148, HARMONY_HERB_PATCH_POINT));
+
         return location;
     }
 }

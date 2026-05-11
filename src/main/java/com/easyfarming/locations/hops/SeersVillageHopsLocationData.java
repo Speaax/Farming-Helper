@@ -137,7 +137,10 @@ public class SeersVillageHopsLocationData {
                 new ItemRequirement(Constants.BASE_COMBAT_BRACELET_ID, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Seers Village hops patch", 10551, SEERS_VILLAGE_HOPS_PATCH_POINT));
+
         return location;
     }
 }

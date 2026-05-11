@@ -100,7 +100,10 @@ public class KourendLocationData {
             KOUREND_HERB_PATCH_POINT,
             houseTeleportSupplier.get()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Kourend", 6967, KOUREND_HERB_PATCH_POINT));
+
         return location;
     }
 }

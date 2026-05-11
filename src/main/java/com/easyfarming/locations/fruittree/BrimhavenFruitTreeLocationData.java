@@ -99,9 +99,9 @@ public class BrimhavenFruitTreeLocationData {
             )
         ));
 
-        // Brimhaven POH Tabet (redirected house tab to Brimhaven)
+        // Brimhaven POH Tablet (redirected house tab to Brimhaven)
         location.addTeleportOption(new Teleport(
-            "Brimhaven_POH_Tabet",
+            "Brimhaven_POH_Tablet",
             Teleport.Category.ITEM,
             "Teleport to Brimhaven with redirected house tab.",
             ItemID.NZONE_TELETAB_BRIMHAVEN,
@@ -128,6 +128,9 @@ public class BrimhavenFruitTreeLocationData {
             BRIMHAVEN_FRUIT_TREE_PATCH_POINT,
             Collections.emptyList()
         ));
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Brimhaven", 10547, BRIMHAVEN_FRUIT_TREE_PATCH_POINT));
 
         return location;
     }

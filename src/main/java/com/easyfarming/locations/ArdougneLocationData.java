@@ -136,7 +136,10 @@ public class ArdougneLocationData {
                 new ItemRequirement(ItemID.SKILLCAPE_FISHING, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Ardougne", 10547, ARDOUGNE_HERB_PATCH_POINT));
+
         return location;
     }
 }

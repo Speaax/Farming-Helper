@@ -80,7 +80,10 @@ public class VarrockTreeLocationData {
                 new ItemRequirement(ItemID.POH_TABLET_VARROCKTELEPORT, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Varrock tree patch", 12853, VARROCK_TREE_PATCH_POINT));
+
         return location;
     }
 }

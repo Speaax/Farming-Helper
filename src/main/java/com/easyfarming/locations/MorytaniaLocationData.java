@@ -103,7 +103,10 @@ public class MorytaniaLocationData {
             MORYTANIA_HERB_PATCH_POINT,
             houseTeleportSupplier.get()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Morytania", 14647, MORYTANIA_HERB_PATCH_POINT));
+
         return location;
     }
 }

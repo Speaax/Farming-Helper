@@ -80,7 +80,10 @@ public class FaladorTreeLocationData {
                 new ItemRequirement(ItemID.POH_TABLET_FALADORTELEPORT, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Falador tree patch", 11828, FALADOR_TREE_PATCH_POINT));
+
         return location;
     }
 }

@@ -108,6 +108,9 @@ public class FarmingGuildTreeLocationData {
             )
         ));
 
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Farming Guild tree patch", 4922, FARMING_GUILD_TREE_PATCH_POINT));
+
         return location;
     }
 }

@@ -117,7 +117,10 @@ public class YanilleHopsLocationData {
                 new ItemRequirement(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Yanille hops patch", 10288, YANILLE_HOPS_PATCH_POINT));
+
         return location;
     }
 }

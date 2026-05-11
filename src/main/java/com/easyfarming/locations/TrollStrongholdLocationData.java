@@ -70,7 +70,10 @@ public class TrollStrongholdLocationData {
             TROLL_STRONGHOLD_HERB_PATCH_POINT,
             houseTeleportSupplier.get()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Troll Stronghold", 11321, TROLL_STRONGHOLD_HERB_PATCH_POINT));
+
         return location;
     }
 }

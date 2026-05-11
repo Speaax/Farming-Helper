@@ -68,7 +68,10 @@ public class EntranaHopsLocationData {
             ENTRANA_HOPS_PATCH_POINT,
             Collections.emptyList()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Entrana", 11060, ENTRANA_HOPS_PATCH_POINT));
+
         return location;
     }
 }

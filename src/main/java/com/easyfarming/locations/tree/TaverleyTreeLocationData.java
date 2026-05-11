@@ -110,6 +110,9 @@ public class TaverleyTreeLocationData {
             )
         ));
 
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Taverley tree patch", 11828, TAVERLEY_TREE_PATCH_POINT));
+
         return location;
     }
 }

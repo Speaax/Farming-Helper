@@ -88,6 +88,9 @@ public class NemusRetreatTreeLocationData {
                 fairyRingSupplier.get()
         ));
 
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Nemus Retreat", 5427, NEMUS_RETREAT_TREE_PATCH_POINT));
+
         return location;
     }
 }

@@ -304,6 +304,12 @@ public class NavigationHandler {
                 case SPELLBOOK:
                     handleSpellbookTeleport(graphics, teleport, currentRegionId);
                     break;
+                case NONE:
+                    if (currentRegionId == teleport.getRegionId()) {
+                        this.currentTeleportCase = 1;
+                        isAtDestination = true;
+                    }
+                    break;
             }
         }
     }

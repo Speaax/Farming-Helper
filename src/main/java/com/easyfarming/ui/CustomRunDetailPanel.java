@@ -75,11 +75,10 @@ public class CustomRunDetailPanel extends JPanel {
         headerPanel.setBorder(new EmptyBorder(5, 5, 10, 5));
 
         JButton backButton = new JButton("<");
-        backButton.setPreferredSize(new Dimension(40, 30));
+        backButton.setPreferredSize(new Dimension(40, 22));
         backButton.setFocusable(false);
         backButton.setToolTipText("Back to Overview");
         backButton.addActionListener(e -> parentPanel.showOverview());
-        headerPanel.add(backButton, BorderLayout.WEST);
 
         runNameField = new JTextField(customRun.getName() != null ? customRun.getName() : "New Run", 20);
         runNameField.setForeground(Color.WHITE);
@@ -94,12 +93,16 @@ public class CustomRunDetailPanel extends JPanel {
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        // BorderLayout so the name field stretches to fill the available row width
+        // (FlowLayout would keep it at the column-20 preferred width, which gets
+        // clipped in the narrow RuneLite plugin panel and renders as an empty box).
+        JPanel titleRow = new JPanel(new BorderLayout());
         titleRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        titleRow.add(runNameField);
+        titleRow.add(runNameField, BorderLayout.CENTER);
         titlePanel.add(titleRow);
-        JPanel saveRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
+        JPanel saveRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         saveRow.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        saveRow.add(backButton);
         saveRow.add(saveButton);
         titlePanel.add(saveRow);
         headerPanel.add(titlePanel, BorderLayout.CENTER);

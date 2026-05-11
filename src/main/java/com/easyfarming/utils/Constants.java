@@ -1,6 +1,7 @@
 package com.easyfarming.utils;
 
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.ObjectID;
 import net.runelite.api.gameval.VarbitID;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,19 +37,20 @@ public class Constants {
     public static final int REGION_GNOME_STRONGHOLD = 9782;
     public static final int REGION_GNOME_STRONGHOLD_ALT = 9781;
     
-    // Varbit IDs for patch checking
-    public static final int VARBIT_HERB_PATCH_STANDARD = 4774;
-    public static final int VARBIT_HERB_PATCH_FARMING_GUILD = 4775;
-    public static final int VARBIT_HERB_PATCH_HARMONY = 4772;
-    public static final int VARBIT_HERB_PATCH_TROLL_WEISS = 4771;
-    public static final int VARBIT_FLOWER_PATCH_STANDARD = 4773;
-    public static final int VARBIT_FLOWER_PATCH_FARMING_GUILD = 7906;
-    public static final int VARBIT_TREE_PATCH_STANDARD = 4771;
-    public static final int VARBIT_TREE_PATCH_FARMING_GUILD = 7905;
-    public static final int VARBIT_FRUIT_TREE_PATCH_STANDARD = 4771;
-    public static final int VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD = 7909;
-    public static final int VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD = 4772;
-    public static final int VARBIT_HOPS_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_A; // 4771
+    // Patch state varbits. RuneLite names them generically (FARMING_TRANSMIT_*) - each transmit
+    // letter is reused by multiple patches depending on the location/patch type.
+    public static final int VARBIT_HERB_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_D;             // 4774
+    public static final int VARBIT_HERB_PATCH_FARMING_GUILD = VarbitID.FARMING_TRANSMIT_E;        // 4775
+    public static final int VARBIT_HERB_PATCH_HARMONY = VarbitID.FARMING_TRANSMIT_B;              // 4772
+    public static final int VARBIT_HERB_PATCH_TROLL_WEISS = VarbitID.FARMING_TRANSMIT_A;          // 4771
+    public static final int VARBIT_FLOWER_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_C;           // 4773
+    public static final int VARBIT_FLOWER_PATCH_FARMING_GUILD = VarbitID.FARMING_TRANSMIT_H;      // 7906
+    public static final int VARBIT_TREE_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_A;             // 4771
+    public static final int VARBIT_TREE_PATCH_FARMING_GUILD = VarbitID.FARMING_TRANSMIT_G;        // 7905
+    public static final int VARBIT_FRUIT_TREE_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_A;       // 4771
+    public static final int VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD = VarbitID.FARMING_TRANSMIT_K;  // 7909
+    public static final int VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD = VarbitID.FARMING_TRANSMIT_B; // 4772
+    public static final int VARBIT_HOPS_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_A;             // 4771
     // Allotment patch varbits - fallback only (object composition is preferred)
     // These are only used if object composition doesn't provide a varbit ID
     // Different locations use different transmit varbits:
@@ -57,12 +59,12 @@ public class Constants {
     public static final int VARBIT_ALLOTMENT_PATCH_SOUTH_B1 = VarbitID.FARMING_TRANSMIT_B1;  // South patch fallback (Catherby)
     public static final int VARBIT_ALLOTMENT_PATCH_NORTH_A2 = VarbitID.FARMING_TRANSMIT_A2;  // North patch fallback (Ardougne)
     public static final int VARBIT_ALLOTMENT_PATCH_SOUTH_B2 = VarbitID.FARMING_TRANSMIT_B2;  // South patch fallback (Ardougne)
-    
-    // Tool Leprechaun varbits
-    public static final int VARBIT_COMPOST_STORED = 1442;
-    public static final int VARBIT_SUPERCOMPOST_STORED = 1443;
-    public static final int VARBIT_ULTRACOMPOST_STORED = 5732;
-    public static final int VARBIT_BOTTOMLESS_COMPOST = 7915;
+
+    // Tool Leprechaun varbits (compost amounts stored at the leprechaun).
+    public static final int VARBIT_COMPOST_STORED = VarbitID.FARMING_TOOLS_COMPOST;                       // 1442
+    public static final int VARBIT_SUPERCOMPOST_STORED = VarbitID.FARMING_TOOLS_SUPERCOMPOST;             // 1443
+    public static final int VARBIT_ULTRACOMPOST_STORED = VarbitID.FARMING_TOOLS_ULTRACOMPOST;             // 5732
+    public static final int VARBIT_BOTTOMLESS_COMPOST = VarbitID.FARMING_TOOLS_BOTTOMLESS_BUCKET_TYPE;    // 7915
     
     // Interface IDs
     public static final int INTERFACE_SPELLBOOK_RESIZABLE = 161;
@@ -114,16 +116,28 @@ public class Constants {
         ItemID.NECKLACE_OF_PASSAGE_5
     ));
 
-    /** Combat bracelet (1) - base/canonical ID. */
-    public static final int BASE_COMBAT_BRACELET_ID = 11124;
-    /** All charged Combat bracelet variants (1)=11124, (2)=11122, (3)=11120, (4)=11118, (5)=11974, (6)=11972 */
+    /** Combat bracelet (1) — canonical ID for teleports that list "combat bracelet". */
+    public static final int BASE_COMBAT_BRACELET_ID = ItemID.JEWL_BRACELET_OF_COMBAT_1;
+    /** All charged Combat bracelet variants (1) through (6). */
     public static final List<Integer> COMBAT_BRACELET_IDS = Collections.unmodifiableList(Arrays.asList(
-        11124,  // Combat bracelet (1)
-        11122,  // Combat bracelet (2)
-        11120,  // Combat bracelet (3)
-        11118,  // Combat bracelet (4)
-        11974,  // Combat bracelet (5)
-        11972   // Combat bracelet (6)
+        ItemID.JEWL_BRACELET_OF_COMBAT_1,
+        ItemID.JEWL_BRACELET_OF_COMBAT_2,
+        ItemID.JEWL_BRACELET_OF_COMBAT_3,
+        ItemID.JEWL_BRACELET_OF_COMBAT_4,
+        ItemID.JEWL_BRACELET_OF_COMBAT_5,
+        ItemID.JEWL_BRACELET_OF_COMBAT_6
+    ));
+
+    /**
+     * Bottomless compost bucket inventory variants (empty + filled tiers).
+     * Gameval splits some IDs across {@link ItemID.Cert} and {@link ItemID.Placeholder}.
+     */
+    public static final List<Integer> BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.BOTTOMLESS_COMPOST_BUCKET,
+        ItemID.Cert.BOTTOMLESS_COMPOST_BUCKET,
+        ItemID.Placeholder.BOTTOMLESS_COMPOST_BUCKET,
+        ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,
+        ItemID.Placeholder.BOTTOMLESS_COMPOST_BUCKET_FILLED
     ));
     
     public static final List<Integer> HERB_PATCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -298,10 +312,18 @@ public class Constants {
             ItemID.WOAD_SEED_4,
             ItemID.WOAD_SEED_5));
     
-    // Watering can IDs: 5331-5340 = standard cans (1-10 charges); 13353 = Gricoller's can
+    /** Standard watering cans (charges 1–10) plus Gricoller's ({@link ItemID#ZEAH_WATERINGCAN}). */
     public static final List<Integer> WATERING_CAN_IDS = Collections.unmodifiableList(Arrays.asList(
-        5331, 5333, 5334, 5335, 5336, 5337, 5338, 5339, 5340,
-        13353
+        ItemID.WATERING_CAN_0,
+        ItemID.WATERING_CAN_1,
+        ItemID.WATERING_CAN_2,
+        ItemID.WATERING_CAN_3,
+        ItemID.WATERING_CAN_4,
+        ItemID.WATERING_CAN_5,
+        ItemID.WATERING_CAN_6,
+        ItemID.WATERING_CAN_7,
+        ItemID.WATERING_CAN_8,
+        ItemID.ZEAH_WATERINGCAN
     ));
     
     public static final List<Integer> RUNE_POUCH_IDS = Collections.unmodifiableList(Arrays.asList(
@@ -332,13 +354,19 @@ public class Constants {
         29154, 29155, 29156
     ));
     
+    /**
+     * Decorative object IDs for mounted Xeric's talisman in the POH (used with
+     * {@code highlightDecorativeObject}). Defined in {@code gameval.ObjectID1} but inherited
+     * by the public {@link ObjectID} class.
+     */
     public static final List<Integer> XERICS_TALISMAN_IDS = Collections.unmodifiableList(Arrays.asList(
-        33411, 33412, 33413, 33414, 33415
+        ObjectID.POH_AMULET_XERIC_LOOKOUT,
+        ObjectID.POH_AMULET_XERIC_GLADE,
+        ObjectID.POH_AMULET_XERIC_INFERNO,
+        ObjectID.POH_AMULET_XERIC_HEART,
+        ObjectID.POH_AMULET_XERIC_HONOUR
     ));
-    
-    /** Xeric's Lookout teletab (Kourend / Hosidius area). */
-    public static final int NZONE_TELETAB_KOUREND = 19651;
-    
+
     // Base item IDs (for variant handling)
     public static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
     public static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
@@ -382,13 +410,20 @@ public class Constants {
     /** Returns the number of charges for a Combat bracelet item ID, or 0 if not a charged bracelet. */
     public static int getCombatBraceletCharges(int itemId) {
         switch (itemId) {
-            case 11124: return 1;  // Combat bracelet (1)
-            case 11122: return 2;  // Combat bracelet (2)
-            case 11120: return 3;  // Combat bracelet (3)
-            case 11118: return 4;  // Combat bracelet (4)
-            case 11974: return 5;  // Combat bracelet (5)
-            case 11972: return 6;  // Combat bracelet (6)
-            default: return 0;
+            case ItemID.JEWL_BRACELET_OF_COMBAT_1:
+                return 1;
+            case ItemID.JEWL_BRACELET_OF_COMBAT_2:
+                return 2;
+            case ItemID.JEWL_BRACELET_OF_COMBAT_3:
+                return 3;
+            case ItemID.JEWL_BRACELET_OF_COMBAT_4:
+                return 4;
+            case ItemID.JEWL_BRACELET_OF_COMBAT_5:
+                return 5;
+            case ItemID.JEWL_BRACELET_OF_COMBAT_6:
+                return 6;
+            default:
+                return 0;
         }
     }
     

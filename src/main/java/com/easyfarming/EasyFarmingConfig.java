@@ -109,7 +109,8 @@ public interface EasyFarmingConfig extends Config
 		Ardougne_tele_tab,
 		Ardy_cloak,
 		Skills_Necklace,
-		Fishing_Skillcape
+		Fishing_Skillcape,
+		None
 	}
 	@ConfigItem(
 			position = 2,
@@ -125,7 +126,8 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus_Camelot,
 		Camelot_Teleport,
 		Camelot_Tele_Tab,
-		Catherby_Tele_Tab
+		Catherby_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 3,
@@ -144,7 +146,8 @@ public interface EasyFarmingConfig extends Config
 		Falador_Tele_Tab,
 		Draynor_Tele_Tab,
 		Amulet_of_Glory,
-		Spirit_Tree_Port_Sarim
+		Spirit_Tree_Port_Sarim,
+		None
 	}
 	@ConfigItem(
 			position = 4,
@@ -161,7 +164,8 @@ public interface EasyFarmingConfig extends Config
 		Skills_Necklace,
 		Spirit_Tree,
 		Fairy_Ring,
-		Farming_Skillcape
+		Farming_Skillcape,
+		None
 	}
 	@ConfigItem(
 			position = 5,
@@ -175,7 +179,8 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumHarmonyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Harmony_Tele_tab
+		Harmony_Tele_tab,
+		None
 	}
 	@ConfigItem(
 			position = 6,
@@ -191,7 +196,8 @@ public interface EasyFarmingConfig extends Config
 		Xerics_Talisman,
 		Mounted_Xerics,
 		Hosidius_POH_Tab,
-		Normal_POH_Tab
+		Normal_POH_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 7,
@@ -207,7 +213,8 @@ public interface EasyFarmingConfig extends Config
 		Ectophial,
 		Fairy_Ring,
 		Portal_Nexus_Fenkenstrain,
-		Portal_Nexus_Canifis
+		Portal_Nexus_Canifis,
+		None
 	}
 	@ConfigItem(
 			position = 8,
@@ -221,7 +228,8 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumTrollStrongholdTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Stony_Basalt
+		Stony_Basalt,
+		None
 	}
 	@ConfigItem(
 			position = 9,
@@ -235,7 +243,8 @@ public interface EasyFarmingConfig extends Config
 	enum OptionEnumWeissTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Icy_basalt
+		Icy_basalt,
+		None
 	}
 	@ConfigItem(
 			position = 10,
@@ -252,7 +261,8 @@ public interface EasyFarmingConfig extends Config
 		Civitas_Teleport,
 		Civitas_Tele_Tab,
 		Quetzal_whistle,
-		Hunter_Skillcape
+		Hunter_Skillcape,
+		None
 	}
 	@ConfigItem(
 		position = 11,
@@ -275,7 +285,8 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus,
 		/** Spellbook Falador Teleport (same string id as herb run). */
 		Falador_Teleport,
-		Falador_Tele_Tab
+		Falador_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -291,7 +302,8 @@ public interface EasyFarmingConfig extends Config
 		Jewellery_box,
 		Skills_Necklace,
 		Spirit_Tree,
-		Fairy_Ring
+		Fairy_Ring,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -306,7 +318,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Royal_seed_pod,
 		Spirit_Tree,
-		Necklace_of_Passage
+		Necklace_of_Passage,
+		None
 	}
 	@ConfigItem(
 			position = 2,
@@ -321,7 +334,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Teleport,
-		Lumbridge_Tele_Tab
+		Lumbridge_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 3,
@@ -336,7 +350,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Teleport,
-		Falador_Tele_Tab
+		Falador_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 4,
@@ -351,7 +366,8 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Teleport,
-		Varrock_Tele_Tab
+		Varrock_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 5,
@@ -367,7 +383,8 @@ public interface EasyFarmingConfig extends Config
 		Quetzal_whistle,
 		Quetzal_Transport,
 		Pendant_of_Ates,
-		Fairy_Ring
+		Fairy_Ring,
+		None
 	}
 	@ConfigItem(
 			position = 6,
@@ -393,7 +410,8 @@ public interface EasyFarmingConfig extends Config
 		Ardougne_Tele_Tab,
 		POH_Tele_Tab,
 		Brimhaven_POH_Tabet,
-		Spirit_Tree_Brimhaven
+		Spirit_Tree_Brimhaven,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -410,7 +428,8 @@ public interface EasyFarmingConfig extends Config
 		Portal_Nexus_Camelot,
 		Camelot_Teleport,
 		Camelot_Tele_Tab,
-		Catherby_Tele_Tab
+		Catherby_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -427,7 +446,8 @@ public interface EasyFarmingConfig extends Config
 		Skills_Necklace,
 		Spirit_Tree,
 		Fairy_Ring,
-		Farming_Skillcape
+		Farming_Skillcape,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -443,7 +463,8 @@ public interface EasyFarmingConfig extends Config
 		Royal_seed_pod,
 		Spirit_Tree,
 		Slayer_Ring,
-		Necklace_of_Passage
+		Necklace_of_Passage,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -456,7 +477,8 @@ public interface EasyFarmingConfig extends Config
 
 	enum FruitTreeOptionEnumLletyaTeleport implements OptionEnumTeleport
 	{
-		Teleport_crystal
+		Teleport_crystal,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -469,7 +491,8 @@ public interface EasyFarmingConfig extends Config
 
 	enum FruitTreeOptionEnumTreeGnomeVillageTeleport implements OptionEnumTeleport
 	{
-		Spirit_Tree
+		Spirit_Tree,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -483,7 +506,8 @@ public interface EasyFarmingConfig extends Config
 	enum FruitTreeOptionEnumKastoriTeleport implements OptionEnumTeleport
 	{
 		Quetzal_Transport,
-		Pendant_of_Ates
+		Pendant_of_Ates,
+		None
 	}
 	@ConfigItem(
 			position = 6,
@@ -510,7 +534,8 @@ public interface EasyFarmingConfig extends Config
 		Chronicle,
 		Varrock_Teleport,
 		Varrock_Tele_Tab,
-		Combat_Bracelet
+		Combat_Bracelet,
+		None
 	}
 	@ConfigItem(
 			position = 1,
@@ -528,7 +553,8 @@ public interface EasyFarmingConfig extends Config
 		Camelot_Tele_Tab,
 		Seers_Village,
 		Fairy_Ring,
-		Combat_Bracelet
+		Combat_Bracelet,
+		None
 	}
 	@ConfigItem(
 			position = 2,
@@ -545,7 +571,8 @@ public interface EasyFarmingConfig extends Config
 		Watchtower_Teleport,
 		Yanille,
 		Yanille_Tele_Tab,
-		Normal_POH_Tele_Tab
+		Normal_POH_Tele_Tab,
+		None
 	}
 	@ConfigItem(
 			position = 3,
@@ -559,7 +586,8 @@ public interface EasyFarmingConfig extends Config
 	enum HopsOptionEnumEntranaTeleport implements OptionEnumTeleport
 	{
 		Explorers_Ring,
-		Spirit_Tree_Port_Sarim
+		Spirit_Tree_Port_Sarim,
+		None
 	}
 	@ConfigItem(
 			position = 4,
@@ -577,7 +605,8 @@ public interface EasyFarmingConfig extends Config
 		Fairy_Ring,
 		Aldarin_Tele_Tab,
 		Normal_POH_Tele_Tab,
-		Pendant_of_Ates
+		Pendant_of_Ates,
+		None
 	}
 	@ConfigItem(
 			position = 5,

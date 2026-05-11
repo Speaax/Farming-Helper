@@ -117,7 +117,10 @@ public class FarmingGuildLocationData {
                 new ItemRequirement(ItemID.SKILLCAPE_FARMING, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Farming Guild", 4922, FARMING_GUILD_HERB_PATCH_POINT));
+
         return location;
     }
 }

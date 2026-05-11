@@ -137,7 +137,10 @@ public class AldarinHopsLocationData {
                 new ItemRequirement(ItemID.PENDANT_OF_ATES, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Aldarin", 5421, ALDARIN_HOPS_PATCH_POINT));
+
         return location;
     }
 }

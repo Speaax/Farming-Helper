@@ -3,6 +3,7 @@ package com.easyfarming.overlays.highlighting;
 import com.easyfarming.EasyFarmingOverlay;
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.overlays.utils.ColorProvider;
+import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.gameval.InventoryID;
@@ -210,16 +211,13 @@ public class ItemHighlighter {
     }
     
     /**
-     * Checks if an item ID matches a bottomless compost bucket highlight pattern.
-     * Handles both empty bucket and all filled variants (22994-22998).
+     * Checks if an item ID matches a bottomless compost bucket highlight pattern (empty or filled tiers).
      */
     private boolean isBottomlessBucketHighlight(int itemId, int targetId) {
-        if (targetId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
-            // Check if itemId is the base bucket or any filled variant
-            return itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET ||
-                   (itemId >= 22994 && itemId <= 22998);
+        if (targetId != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+            return false;
         }
-        return false;
+        return Constants.BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS.contains(itemId);
     }
 
     /**
@@ -335,12 +333,9 @@ public class ItemHighlighter {
             if (checkItemId == itemId) {
                 return true;
             }
-            // Special handling for bottomless compost bucket - check filled variants
+            // Bottomless compost bucket: treat every inventory variant as satisfying the requirement icon.
             if (itemId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
-                // Check for all bottomless bucket variants (empty: BOTTOMLESS_COMPOST_BUCKET, 
-                // filled: 22994-22998 for various compost types)
-                if (checkItemId == ItemID.BOTTOMLESS_COMPOST_BUCKET ||
-                    (checkItemId >= 22994 && checkItemId <= 22998)) {
+                if (Constants.BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS.contains(checkItemId)) {
                     return true;
                 }
             }

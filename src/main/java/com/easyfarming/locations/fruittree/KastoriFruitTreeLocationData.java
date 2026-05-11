@@ -61,6 +61,9 @@ public class KastoriFruitTreeLocationData {
                 )
         ));
 
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Kastori", 5423, KASTORI_FRUIT_TREE_PATCH_POINT));
+
         return location;
     }
 }

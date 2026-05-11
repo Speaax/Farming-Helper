@@ -80,7 +80,10 @@ public class LumbridgeTreeLocationData {
                 new ItemRequirement(ItemID.POH_TABLET_LUMBRIDGETELEPORT, 1)
             )
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Lumbridge tree patch", 12850, LUMBRIDGE_TREE_PATCH_POINT));
+
         return location;
     }
 }

@@ -40,7 +40,10 @@ public class TreeGnomeVillageFruitTreeLocationData {
             TREE_GNOME_VILLAGE_FRUIT_TREE_PATCH_POINT,
             Collections.emptyList()
         ));
-        
+
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Tree Gnome Village", 10033, TREE_GNOME_VILLAGE_FRUIT_TREE_PATCH_POINT));
+
         return location;
     }
 }

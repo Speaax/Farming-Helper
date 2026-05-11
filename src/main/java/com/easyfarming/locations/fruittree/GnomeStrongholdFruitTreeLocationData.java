@@ -91,6 +91,9 @@ public class GnomeStrongholdFruitTreeLocationData {
             )
         ));
 
+        // No teleport - travel manually.
+        location.addTeleportOption(Teleport.none("Gnome Stronghold fruit tree patch", 9781, GNOME_STRONGHOLD_FRUIT_TREE_PATCH_POINT));
+
         return location;
     }
 }
