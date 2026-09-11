@@ -15,6 +15,7 @@ public class Teleport {
         FAIRY_RING,
         JEWELLERY_BOX,
         MOUNTED_XERICS,
+        MOUNTED_POH,
         SPELLBOOK,
         /** No teleport - the player travels to the patch manually. */
         NONE

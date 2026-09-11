@@ -1,8 +1,10 @@
 package com.easyfarming.utils;
 
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.NpcID;
 import net.runelite.api.gameval.ObjectID;
 import net.runelite.api.gameval.VarbitID;
+import net.runelite.api.coords.WorldPoint;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,12 +37,41 @@ public class Constants {
     public static final int REGION_CIVITAS_QUETZAL_ALT = 6705;
     /** Quetzal Transport System object at Civitas (Renu and other birds). */
     public static final int QUETZAL_TRANSPORT_OBJECT_ID = 52815;
+    public static final String QUETZAL_RENU_NPC_NAME = "Renu";
     /** Auburnvale (Nemus Retreat tree patch); see RuneLite {@code FarmingWorld}. */
     public static final int REGION_AUBURNVALE = 5427;
     public static final int REGION_AUBURNVALE_ALT1 = 5428;
     public static final int REGION_AUBURNVALE_ALT2 = 5684;
     public static final int REGION_GNOME_STRONGHOLD = 9782;
     public static final int REGION_GNOME_STRONGHOLD_ALT = 9781;
+
+    // Special tree patch regions
+    public static final List<Integer> FOSSIL_ISLAND_HARDWOOD_REGION_IDS = Collections.unmodifiableList(Arrays.asList(
+            14651, 14907, 14908, 15164, 14652, 14906, 14650, 15162, 15163));
+    public static final List<Integer> LOCUS_OASIS_HARDWOOD_REGION_IDS = Collections.unmodifiableList(Arrays.asList(6702, 6446));
+    public static final int REGION_ANGLERS_RETREAT_HARDWOOD = 9770;
+    public static final int REGION_TAI_BWO_WANNAI_CALQUAT = 11056;
+    public static final List<Integer> KASTORI_CALQUAT_REGION_IDS = Collections.unmodifiableList(Arrays.asList(
+            REGION_KASTORI, REGION_KASTORI_ALT1, REGION_KASTORI_ALT2));
+    public static final List<Integer> GREAT_CONCH_CALQUAT_REGION_IDS = Collections.unmodifiableList(Arrays.asList(
+            12325, 12326, 12327, 12580, 12581, 12582, 12583, 12836, 12837, 12838, 12839, 13092, 13093, 13194));
+    public static final List<Integer> FARMING_GUILD_SPECIAL_TREE_REGION_IDS = Collections.unmodifiableList(Arrays.asList(
+            4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667));
+    public static final List<Integer> PRIFDDINAS_CRYSTAL_TREE_REGION_IDS = Collections.unmodifiableList(Arrays.asList(
+            13151, 12895, 12894, 13150, 12994, 12993, 12737, 12738, 12126, 12127, 13250));
+
+    // Special tree physical patch points
+    public static final WorldPoint FOSSIL_ISLAND_HARDWOOD_EAST_PATCH_POINT = new WorldPoint(3715, 3835, 0);
+    public static final WorldPoint FOSSIL_ISLAND_HARDWOOD_MIDDLE_PATCH_POINT = new WorldPoint(3708, 3833, 0);
+    public static final WorldPoint FOSSIL_ISLAND_HARDWOOD_WEST_PATCH_POINT = new WorldPoint(3702, 3837, 0);
+    public static final WorldPoint LOCUS_OASIS_HARDWOOD_PATCH_POINT = new WorldPoint(1687, 2972, 0);
+    public static final WorldPoint ANGLERS_RETREAT_HARDWOOD_PATCH_POINT = new WorldPoint(2470, 2704, 0);
+    public static final WorldPoint TAI_BWO_WANNAI_CALQUAT_PATCH_POINT = new WorldPoint(2795, 3102, 0);
+    public static final WorldPoint KASTORI_CALQUAT_PATCH_POINT = new WorldPoint(1366, 3033, 0);
+    public static final WorldPoint GREAT_CONCH_CALQUAT_PATCH_POINT = new WorldPoint(3129, 2406, 0);
+    public static final WorldPoint FARMING_GUILD_CELASTRUS_PATCH_POINT = new WorldPoint(1242, 3755, 0);
+    public static final WorldPoint FARMING_GUILD_REDWOOD_PATCH_POINT = new WorldPoint(1233, 3754, 0);
+    public static final WorldPoint PRIFDDINAS_CRYSTAL_TREE_PATCH_POINT = new WorldPoint(3292, 6120, 0);
     
     // Patch state varbits. RuneLite names them generically (FARMING_TRANSMIT_*) - each transmit
     // letter is reused by multiple patches depending on the location/patch type.
@@ -56,6 +87,46 @@ public class Constants {
     public static final int VARBIT_FRUIT_TREE_PATCH_FARMING_GUILD = VarbitID.FARMING_TRANSMIT_K;  // 7909
     public static final int VARBIT_FRUIT_TREE_PATCH_GNOME_STRONGHOLD = VarbitID.FARMING_TRANSMIT_B; // 4772
     public static final int VARBIT_HOPS_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_A;             // 4771
+    public static final int VARBIT_FOSSIL_ISLAND_HARDWOOD_EAST_PATCH = VarbitID.FARMING_TRANSMIT_A;
+    public static final int VARBIT_FOSSIL_ISLAND_HARDWOOD_MIDDLE_PATCH = VarbitID.FARMING_TRANSMIT_B;
+    public static final int VARBIT_FOSSIL_ISLAND_HARDWOOD_WEST_PATCH = VarbitID.FARMING_TRANSMIT_C;
+    public static final int VARBIT_LOCUS_OASIS_HARDWOOD_PATCH = VarbitID.FARMING_TRANSMIT_A;
+    public static final int VARBIT_ANGLERS_RETREAT_HARDWOOD_PATCH = VarbitID.FARMING_TRANSMIT_A;
+    public static final int VARBIT_TAI_BWO_WANNAI_CALQUAT_PATCH = VarbitID.FARMING_TRANSMIT_A;
+    public static final int VARBIT_KASTORI_CALQUAT_PATCH = VarbitID.FARMING_TRANSMIT_A;
+    public static final int VARBIT_GREAT_CONCH_CALQUAT_PATCH = VarbitID.FARMING_TRANSMIT_C;
+    public static final int VARBIT_FARMING_GUILD_CELASTRUS_PATCH = VarbitID.FARMING_TRANSMIT_L;
+    public static final int VARBIT_FARMING_GUILD_REDWOOD_PATCH = VarbitID.FARMING_TRANSMIT_I;
+    public static final int VARBIT_PRIFDDINAS_CRYSTAL_TREE_PATCH = VarbitID.FARMING_TRANSMIT_E;
+
+    // Special tree root patch objects and protection gardeners
+    public static final int FOSSIL_ISLAND_HARDWOOD_EAST_ROOT_OBJECT_ID = ObjectID.FARMING_HARDWOOD_TREE_PATCH_1;
+    public static final int FOSSIL_ISLAND_HARDWOOD_MIDDLE_ROOT_OBJECT_ID = ObjectID.FARMING_HARDWOOD_TREE_PATCH_2;
+    public static final int FOSSIL_ISLAND_HARDWOOD_WEST_ROOT_OBJECT_ID = ObjectID.FARMING_HARDWOOD_TREE_PATCH_3;
+    public static final int LOCUS_OASIS_HARDWOOD_ROOT_OBJECT_ID = ObjectID.FARMING_HARDWOOD_TREE_PATCH_4;
+    public static final int ANGLERS_RETREAT_HARDWOOD_ROOT_OBJECT_ID = ObjectID.FARMING_HARDWOOD_TREE_PATCH_5;
+    public static final int TAI_BWO_WANNAI_CALQUAT_ROOT_OBJECT_ID = ObjectID.FARMING_CALQUAT_TREE_PATCH;
+    public static final int KASTORI_CALQUAT_ROOT_OBJECT_ID = ObjectID.FARMING_CALQUAT_TREE_PATCH_2;
+    public static final int GREAT_CONCH_CALQUAT_ROOT_OBJECT_ID = ObjectID.FARMING_CALQUAT_TREE_PATCH_3;
+    public static final int FARMING_GUILD_CELASTRUS_ROOT_OBJECT_ID = ObjectID.FARMING_CELASTRUS_PATCH_1;
+    public static final int PRIFDDINAS_CRYSTAL_TREE_ROOT_OBJECT_ID = ObjectID.FARMING_CRYSTAL_TREE_PATCH_1;
+    public static final int FARMING_GUILD_REDWOOD_ROOT_OBJECT_ID = ObjectID.FARMING_REDWOOD_TREE_PATCH_0_1;
+    public static final List<Integer> MOUNTED_DIGSITE_PENDANT_OBJECT_IDS = Collections.unmodifiableList(Arrays.asList(
+            ObjectID.POH_AMULET_DIG_DIGSITE,
+            ObjectID.POH_AMULET_DIG_FOSSIL,
+            ObjectID.POH_AMULET_DIG_LITHKREN,
+            ObjectID.POH_AMULET_DIGSITE));
+    public static final int MOUNTED_MYTHICAL_CAPE_OBJECT_ID = ObjectID.POH_MOUNTED_MYTHICALCAPE;
+    public static final int FOSSIL_ISLAND_HARDWOOD_EAST_GARDENER_NPC_ID = NpcID.FOSSIL_SQUIRREL_GARDENER1;
+    public static final int FOSSIL_ISLAND_HARDWOOD_MIDDLE_GARDENER_NPC_ID = NpcID.FOSSIL_SQUIRREL_GARDENER2;
+    public static final int FOSSIL_ISLAND_HARDWOOD_WEST_GARDENER_NPC_ID = NpcID.FOSSIL_SQUIRREL_GARDENER3;
+    public static final int LOCUS_OASIS_HARDWOOD_GARDENER_NPC_ID = NpcID.FROG_QUEST_MARCELLUS;
+    public static final int ANGLERS_RETREAT_HARDWOOD_GARDENER_NPC_ID = NpcID.FARMING_GARDENER_HARDWOOD_TREE_5;
+    public static final int TAI_BWO_WANNAI_CALQUAT_GARDENER_NPC_ID = NpcID.FARMING_GARDENER_CALQUAT;
+    public static final int KASTORI_CALQUAT_GARDENER_NPC_ID = NpcID.FARMING_GARDENER_CALQUAT_2;
+    public static final int GREAT_CONCH_CALQUAT_GARDENER_NPC_ID = NpcID.FARMING_GARDENER_CALQUAT_3;
+    public static final int FARMING_GUILD_CELASTRUS_GARDENER_NPC_ID = NpcID.FARMING_GARDENER_FARMGUILD_CELASTRUS;
+    public static final int FARMING_GUILD_REDWOOD_GARDENER_NPC_ID = NpcID.FARMING_GARDENER_FARMGUILD_REDWOOD;
     // Allotment patch varbits - fallback only (object composition is preferred)
     // These are only used if object composition doesn't provide a varbit ID
     // Different locations use different transmit varbits:
@@ -86,11 +157,16 @@ public class Constants {
     public static final int INTERFACE_FARMER = 219;
     public static final int INTERFACE_INVENTORY = 149;
     public static final int INTERFACE_MAGIC_SPELLBOOK = 218;
+    public static final int INTERFACE_GROUPING = 76;
+    public static final int GROUPING_DROPDOWN_CHILD = 6;
+    public static final int GROUPING_TELEPORT_CHILD = 32;
+    public static final int GROUPING_FISHING_TRAWLER_GAME_ID = 8;
 
     /**
      * Standard spellbook teleport widget child ids (interface 218).
      * Values match RuneLite {@code InterfaceID} spellbook children after the minigame teleport spell was added.
      */
+    public static final int SPELL_CHILD_MINIGAME_TELEPORT = 7;
     public static final int SPELL_CHILD_VARROCK_TELEPORT = 26;
     public static final int SPELL_CHILD_LUMBRIDGE_TELEPORT = 29;
     public static final int SPELL_CHILD_FALADOR_TELEPORT = 32;
@@ -314,6 +390,26 @@ public class Constants {
         ItemID.PLANTPOT_CURRY_SAPLING, ItemID.PLANTPOT_PINEAPPLE_SAPLING, ItemID.PLANTPOT_PAPAYA_SAPLING,
         ItemID.PLANTPOT_PALM_SAPLING, ItemID.PLANTPOT_DRAGONFRUIT_SAPLING
     ));
+
+    public static final List<Integer> HARDWOOD_SAPLING_IDS = Collections.unmodifiableList(Arrays.asList(
+            ItemID.PLANTPOT_TEAK_SAPLING,
+            ItemID.PLANTPOT_MAHOGANY_SAPLING,
+            ItemID.PLANTPOT_CAMPHOR_SAPLING,
+            ItemID.PLANTPOT_IRONWOOD_SAPLING,
+            ItemID.PLANTPOT_ROSEWOOD_SAPLING
+    ));
+    public static final int CALQUAT_SAPLING_ID = ItemID.PLANTPOT_CALQUAT_SAPLING;
+    public static final int CELASTRUS_SAPLING_ID = ItemID.PLANTPOT_CELASTRUS_TREE_SAPLING;
+    public static final int CRYSTAL_TREE_SAPLING_ID = ItemID.PLANTPOT_CRYSTAL_TREE_SAPLING;
+    public static final int REDWOOD_SAPLING_ID = ItemID.PLANTPOT_REDWOOD_TREE_SAPLING;
+
+    public static final List<Integer> DIGSITE_PENDANT_IDS = Collections.unmodifiableList(Arrays.asList(
+            ItemID.NECKLACE_OF_DIGSITE_1,
+            ItemID.NECKLACE_OF_DIGSITE_2,
+            ItemID.NECKLACE_OF_DIGSITE_3,
+            ItemID.NECKLACE_OF_DIGSITE_4,
+            ItemID.NECKLACE_OF_DIGSITE_5
+    ));
     
     public static final List<Integer> ALLOTMENT_SEED_IDS = Collections.unmodifiableList(Arrays.asList(
         ItemID.POTATO_SEED, ItemID.ONION_SEED, ItemID.CABBAGE_SEED, ItemID.TOMATO_SEED,
@@ -421,6 +517,8 @@ public class Constants {
     public static final int BASE_HERB_SEED_ID = ItemID.GUAM_SEED;
     public static final int BASE_TREE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
     public static final int BASE_FRUIT_TREE_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
+    public static final int BASE_HARDWOOD_SAPLING_ID = ItemID.PLANTPOT_TEAK_SAPLING;
+    public static final int BASE_DIGSITE_PENDANT_ID = ItemID.NECKLACE_OF_DIGSITE_1;
     public static final int BASE_ALLOTMENT_SEED_ID = ItemID.SNAPE_GRASS_SEED;
     
     // Combination rune mapping
@@ -501,7 +599,8 @@ public class Constants {
     public static boolean isQuetzalWhistle(int itemId) {
         return itemId == ItemID.HG_QUETZALWHISTLE_BASIC ||
                itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED ||
-               itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED;
+               itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED ||
+               itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED_INFINITE;
     }
 }
 

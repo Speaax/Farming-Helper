@@ -40,6 +40,7 @@ public class NavigationHandler {
     private final GameObjectHelper gameObjectHelper;
     private final ColorProvider colorProvider;
     private final FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
+    private final NPCHighlighter npcHighlighter;
     
     // State tracking
     public int currentTeleportCase = 1;
@@ -52,7 +53,8 @@ public class NavigationHandler {
                             WidgetHighlighter widgetHighlighter, GameObjectHighlighter gameObjectHighlighter,
                             DecorativeObjectHighlighter decorativeObjectHighlighter, MenuHighlighter menuHighlighter,
                             WidgetHelper widgetHelper, GameObjectHelper gameObjectHelper,
-                            ColorProvider colorProvider, FarmingTeleportSceneOverlay farmingTeleportSceneOverlay) {
+                            ColorProvider colorProvider, FarmingTeleportSceneOverlay farmingTeleportSceneOverlay,
+                            NPCHighlighter npcHighlighter) {
         this.client = client;
         this.plugin = plugin;
         this.config = config;
@@ -68,6 +70,7 @@ public class NavigationHandler {
         this.gameObjectHelper = gameObjectHelper;
         this.colorProvider = colorProvider;
         this.farmingTeleportSceneOverlay = farmingTeleportSceneOverlay;
+        this.npcHighlighter = npcHighlighter;
     }
     
     /**
@@ -178,7 +181,8 @@ public class NavigationHandler {
     private static boolean requiresQuetzalFromCivitas(String locationName) {
         return "Kastori".equals(locationName)
                 || "Nemus Retreat".equals(locationName)
-                || "Aldarin".equals(locationName);
+                || "Aldarin".equals(locationName)
+                || "Locus Oasis".equals(locationName);
     }
 
     private static boolean isInTeleportRegion(String locationName, int teleportRegionId, int currentRegionId) {
@@ -186,6 +190,27 @@ public class NavigationHandler {
             return true;
         }
         if ("Kastori".equals(locationName) && Constants.isKastoriRegion(currentRegionId)) {
+            return true;
+        }
+        if ("Fossil Island".equals(locationName) && Constants.FOSSIL_ISLAND_HARDWOOD_REGION_IDS.contains(currentRegionId)) {
+            return true;
+        }
+        if ("Locus Oasis".equals(locationName) && Constants.LOCUS_OASIS_HARDWOOD_REGION_IDS.contains(currentRegionId)) {
+            return true;
+        }
+        if ("Anglers' Retreat".equals(locationName) && currentRegionId == Constants.REGION_ANGLERS_RETREAT_HARDWOOD) {
+            return true;
+        }
+        if ("Tai Bwo Wannai".equals(locationName) && currentRegionId == Constants.REGION_TAI_BWO_WANNAI_CALQUAT) {
+            return true;
+        }
+        if ("Great Conch".equals(locationName) && Constants.GREAT_CONCH_CALQUAT_REGION_IDS.contains(currentRegionId)) {
+            return true;
+        }
+        if ("Farming Guild".equals(locationName) && Constants.FARMING_GUILD_SPECIAL_TREE_REGION_IDS.contains(currentRegionId)) {
+            return true;
+        }
+        if ("Prifddinas".equals(locationName) && Constants.PRIFDDINAS_CRYSTAL_TREE_REGION_IDS.contains(currentRegionId)) {
             return true;
         }
         return false;
@@ -212,7 +237,9 @@ public class NavigationHandler {
             case "Farming Guild":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(1238, 3726, 0), 15) ||
                        areaCheck.isPlayerWithinArea(new WorldPoint(1232, 3736, 0), 15) ||
-                       areaCheck.isPlayerWithinArea(new WorldPoint(1243, 3759, 0), 15);
+                       areaCheck.isPlayerWithinArea(new WorldPoint(1243, 3759, 0), 15) ||
+                       areaCheck.isPlayerWithinArea(Constants.FARMING_GUILD_CELASTRUS_PATCH_POINT, 15) ||
+                       areaCheck.isPlayerWithinArea(Constants.FARMING_GUILD_REDWOOD_PATCH_POINT, 15);
             case "Brimhaven":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(2764, 3212, 0), 10);
             case "Gnome Stronghold":
@@ -234,9 +261,24 @@ public class NavigationHandler {
             case "Aldarin":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(1365, 2937, 0), 10);
             case "Kastori":
-                return areaCheck.isPlayerWithinArea(new WorldPoint(1350, 3057, 0), 10);
+                return areaCheck.isPlayerWithinArea(new WorldPoint(1350, 3057, 0), 10) ||
+                       areaCheck.isPlayerWithinArea(Constants.KASTORI_CALQUAT_PATCH_POINT, 10);
             case "Nemus Retreat":
                 return areaCheck.isPlayerWithinArea(new WorldPoint(1366, 3321, 0), 10);
+            case "Fossil Island":
+                return areaCheck.isPlayerWithinArea(Constants.FOSSIL_ISLAND_HARDWOOD_EAST_PATCH_POINT, 10) ||
+                       areaCheck.isPlayerWithinArea(Constants.FOSSIL_ISLAND_HARDWOOD_MIDDLE_PATCH_POINT, 10) ||
+                       areaCheck.isPlayerWithinArea(Constants.FOSSIL_ISLAND_HARDWOOD_WEST_PATCH_POINT, 10);
+            case "Locus Oasis":
+                return areaCheck.isPlayerWithinArea(Constants.LOCUS_OASIS_HARDWOOD_PATCH_POINT, 10);
+            case "Anglers' Retreat":
+                return areaCheck.isPlayerWithinArea(Constants.ANGLERS_RETREAT_HARDWOOD_PATCH_POINT, 10);
+            case "Tai Bwo Wannai":
+                return areaCheck.isPlayerWithinArea(Constants.TAI_BWO_WANNAI_CALQUAT_PATCH_POINT, 10);
+            case "Great Conch":
+                return areaCheck.isPlayerWithinArea(Constants.GREAT_CONCH_CALQUAT_PATCH_POINT, 10);
+            case "Prifddinas":
+                return areaCheck.isPlayerWithinArea(Constants.PRIFDDINAS_CRYSTAL_TREE_PATCH_POINT, 10);
             default:
                 return false;
         }
@@ -264,10 +306,19 @@ public class NavigationHandler {
             return;
         }
 
+        if (teleport.getCategory() == Teleport.Category.MOUNTED_POH) {
+            handleMountedPohTeleport(graphics, teleport, location, currentRegionId);
+            return;
+        }
+
         if (teleport != null && "Quetzal_Transport".equals(teleport.getEnumOption())
                 && Constants.isCivitasQuetzalRegion(currentRegionId)
                 && requiresQuetzalFromCivitas(location.getName())) {
-            gameObjectHighlighter.renderGameObjectHighlight(graphics, Constants.QUETZAL_TRANSPORT_OBJECT_ID, leftColor);
+            if ("Locus Oasis".equals(location.getName())) {
+                npcHighlighter.highlightNpc(graphics, Constants.QUETZAL_RENU_NPC_NAME);
+            } else {
+                gameObjectHighlighter.renderGameObjectHighlight(graphics, Constants.QUETZAL_TRANSPORT_OBJECT_ID, leftColor);
+            }
             return;
         }
         
@@ -333,6 +384,9 @@ public class NavigationHandler {
                     break;
                 case MOUNTED_XERICS:
                     handleMountedXericsTeleport(graphics, teleport, location, currentRegionId);
+                    break;
+                case MOUNTED_POH:
+                    handleMountedPohTeleport(graphics, teleport, location, currentRegionId);
                     break;
                 case SPELLBOOK:
                     handleSpellbookTeleport(graphics, teleport, currentRegionId);
@@ -478,6 +532,12 @@ public class NavigationHandler {
                 case "Farming Guild":
                     widgetHighlighter.highlightDynamicComponent(graphics, widget, widgetHelper.getChildIndexSpiritTree("Farming Guild"));
                     break;
+                case "Prifddinas":
+                    widgetHighlighter.highlightDynamicComponent(graphics, widget, widgetHelper.getChildIndexSpiritTree("Prifddinas"));
+                    break;
+                case "Anglers' Retreat":
+                    widgetHighlighter.highlightDynamicComponent(graphics, widget, widgetHelper.getChildIndexSpiritTree("Feldip Hills"));
+                    break;
             }
         }
         if (currentRegionId == teleport.getRegionId()) {
@@ -540,6 +600,35 @@ public class NavigationHandler {
                     }
                 }
                 break;
+        }
+    }
+
+    private void handleMountedPohTeleport(Graphics2D graphics, Teleport teleport, Location location, int currentRegionId) {
+        inHouseCheck();
+        if (currentTeleportCase == 1) {
+            gettingToHouse(graphics);
+            return;
+        }
+
+        Color leftColor = colorProvider.getLeftClickColorWithAlpha();
+        if ("Mounted_Digsite_pendant".equals(teleport.getEnumOption())) {
+            if (!widgetHelper.isInterfaceOpen(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD)) {
+                Color rightColor = colorProvider.getRightClickColorWithAlpha();
+                gameObjectHighlighter.renderGameObjectHighlights(graphics, Constants.MOUNTED_DIGSITE_PENDANT_OBJECT_IDS, rightColor);
+                menuHighlighter.highlightRightClickOption(graphics, teleport.getRightClickOption());
+            } else {
+                Widget widget = client.getWidget(Constants.INTERFACE_SPIRIT_TREE, Constants.INTERFACE_SPIRIT_TREE_CHILD);
+                widgetHighlighter.highlightDynamicComponent(graphics, widget, 1);
+            }
+        } else if ("Mounted_Mythical_cape".equals(teleport.getEnumOption())) {
+            gameObjectHighlighter.renderGameObjectHighlight(graphics, Constants.MOUNTED_MYTHICAL_CAPE_OBJECT_ID, leftColor);
+        } else if ("Rimmington_POH".equals(teleport.getEnumOption())) {
+            gameObjectHighlighter.renderGameObjectHighlight(graphics, teleport.getId(), leftColor);
+        }
+
+        if (hasReachedItemTeleportDestination(location.getName(), teleport.getRegionId(), currentRegionId)) {
+            currentTeleportCase = 1;
+            isAtDestination = true;
         }
     }
     

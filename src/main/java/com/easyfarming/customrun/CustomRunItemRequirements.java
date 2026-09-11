@@ -44,6 +44,11 @@ public final class CustomRunItemRequirements {
         int treePatchCount = 0;
         int fruitTreePatchCount = 0;
         int hopsPatchCount = 0;
+        int hardwoodPatchCount = 0;
+        int calquatPatchCount = 0;
+        int celastrusPatchCount = 0;
+        int crystalTreePatchCount = 0;
+        int redwoodPatchCount = 0;
         int compostPatchesTotal = 0;
 
         for (RunLocation rl : runLocations) {
@@ -94,18 +99,40 @@ public final class CustomRunItemRequirements {
                     hopsPatchCount++;
                     compostPatchesTotal++;
                 }
+                if (PatchTypes.HARDWOOD.equals(patchType)) {
+                    int physicalPatchCount = "Fossil Island".equals(name) ? 3 : 1;
+                    hardwoodPatchCount += physicalPatchCount;
+                    compostPatchesTotal += physicalPatchCount;
+                }
+                if (PatchTypes.CALQUAT.equals(patchType)) {
+                    calquatPatchCount++;
+                    compostPatchesTotal++;
+                }
+                if (PatchTypes.CELASTRUS.equals(patchType)) {
+                    celastrusPatchCount++;
+                    compostPatchesTotal++;
+                }
+                if (PatchTypes.CRYSTAL_TREE.equals(patchType)) {
+                    crystalTreePatchCount++;
+                    compostPatchesTotal++;
+                }
+                if (PatchTypes.REDWOOD.equals(patchType)) {
+                    redwoodPatchCount++;
+                    compostPatchesTotal++;
+                }
             }
         }
 
         boolean payForProtection = config != null && config.generalPayForProtection();
-        if (!payForProtection) {
+        int compostPatchCount = payForProtection ? crystalTreePatchCount : compostPatchesTotal;
+        if (compostPatchCount > 0) {
             Integer selectedCompost = selectedCompostId(config);
             int compostId = selectedCompost != null ? selectedCompost : -1;
             if (compostId != -1 && compostId != 0) {
                 if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                     allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
                 } else {
-                    allRequirements.merge(compostId, compostPatchesTotal, Integer::sum);
+                    allRequirements.merge(compostId, compostPatchCount, Integer::sum);
                 }
             }
         }
@@ -131,11 +158,32 @@ public final class CustomRunItemRequirements {
             int seedsPerHopsPatch = 4;
             allRequirements.merge(ItemID.BARLEY_SEED, hopsPatchCount * seedsPerHopsPatch, Integer::sum);
         }
+        if (hardwoodPatchCount > 0) {
+            allRequirements.merge(Constants.BASE_HARDWOOD_SAPLING_ID, hardwoodPatchCount, Integer::sum);
+        }
+        if (calquatPatchCount > 0) {
+            allRequirements.merge(Constants.CALQUAT_SAPLING_ID, calquatPatchCount, Integer::sum);
+        }
+        if (celastrusPatchCount > 0) {
+            allRequirements.merge(Constants.CELASTRUS_SAPLING_ID, celastrusPatchCount, Integer::sum);
+        }
+        if (crystalTreePatchCount > 0) {
+            allRequirements.merge(Constants.CRYSTAL_TREE_SAPLING_ID, crystalTreePatchCount, Integer::sum);
+        }
+        if (redwoodPatchCount > 0) {
+            allRequirements.merge(Constants.REDWOOD_SAPLING_ID, redwoodPatchCount, Integer::sum);
+        }
 
         // Tree/fruit tree runs instruct paying farmer to chop down after check-health (200gp per patch)
         int treeAndFruitCount = treePatchCount + fruitTreePatchCount;
         if (treeAndFruitCount > 0) {
             allRequirements.merge(ItemID.COINS, 200 * treeAndFruitCount, Integer::sum);
+        }
+        if (hardwoodPatchCount > 0) {
+            allRequirements.merge(ItemID.COINS, 200 * hardwoodPatchCount, Integer::sum);
+        }
+        if (redwoodPatchCount > 0) {
+            allRequirements.merge(ItemID.COINS, 2000 * redwoodPatchCount, Integer::sum);
         }
 
         allRequirements.merge(ItemID.SPADE, 1, Integer::sum);
@@ -186,7 +234,8 @@ public final class CustomRunItemRequirements {
             int quantity = entry.getValue();
             if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX) {
                 into.merge(itemId, quantity, (a, b) -> Math.min(1, a + b));
-            } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC || itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED || itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED) {
+            } else if (itemId == ItemID.HG_QUETZALWHISTLE_BASIC || itemId == ItemID.HG_QUETZALWHISTLE_ENHANCED
+                    || itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED || itemId == ItemID.HG_QUETZALWHISTLE_PERFECTED_INFINITE) {
                 into.merge(ItemID.HG_QUETZALWHISTLE_BASIC, quantity, (a, b) -> Math.min(1, a + b));
             } else if (itemId == ItemID.SKILLCAPE_HUNTING || itemId == ItemID.SKILLCAPE_HUNTING_TRIMMED) {
                 into.merge(ItemID.SKILLCAPE_HUNTING, quantity, (a, b) -> Math.min(1, a + b));
@@ -196,6 +245,8 @@ public final class CustomRunItemRequirements {
                 into.merge(ItemID.ARDY_CAPE_MEDIUM, quantity, (a, b) -> Math.min(1, a + b));
             } else if (itemId == ItemID.DRAMEN_STAFF) {
                 into.merge(ItemID.DRAMEN_STAFF, quantity, (a, b) -> Math.min(1, a + b));
+            } else if (Constants.DIGSITE_PENDANT_IDS.contains(itemId)) {
+                into.merge(Constants.BASE_DIGSITE_PENDANT_ID, quantity, (a, b) -> Math.min(1, a + b));
             } else if (itemId == ItemID.SKILLCAPE_FARMING || itemId == ItemID.SKILLCAPE_FARMING_TRIMMED || itemId == ItemID.SKILLCAPE_MAX){
                 into.merge(itemId, quantity, (a, b) -> Math.min(1, a + b));
             } else {

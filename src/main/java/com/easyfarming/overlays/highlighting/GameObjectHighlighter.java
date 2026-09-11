@@ -16,8 +16,10 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Handles highlighting of game objects in the world.
@@ -73,6 +75,7 @@ public class GameObjectHighlighter {
         }
 
         List<GameObject> gameObjects = new ArrayList<>();
+        Set<Long> seenHashes = new HashSet<>();
         Tile[][][] tiles = wv.getScene().getTiles();
         for (int x = 0; x < Constants.SCENE_SIZE; x++) {
             for (int y = 0; y < Constants.SCENE_SIZE; y++) {
@@ -81,7 +84,8 @@ public class GameObjectHighlighter {
                     continue;
                 }
                 for (GameObject gameObject : tile.getGameObjects()) {
-                    if (gameObject != null && objectIdMatches(gameObject.getId(), objectID)) {
+                    if (gameObject != null && objectIdMatches(gameObject.getId(), objectID)
+                            && seenHashes.add(gameObject.getHash())) {
                         gameObjects.add(gameObject);
                     }
                 }

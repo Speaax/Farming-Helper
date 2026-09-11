@@ -47,7 +47,29 @@ public class NPCHighlighter {
             }
         }
     }
-    
+
+    /**
+     * Highlights an NPC by ID using their convex hull.
+     */
+    public void highlightNpc(Graphics2D graphics, int npcId) {
+        IndexedObjectSet<? extends NPC> npcs = client.getTopLevelWorldView().npcs();
+
+        if (npcs != null) {
+            Color color = colorProvider.getLeftClickColorWithAlpha();
+            for (NPC npc : npcs) {
+                if (npc != null && npc.getId() == npcId) {
+                    Shape convexHull = npc.getConvexHull();
+                    if (convexHull != null) {
+                        graphics.setColor(color);
+                        graphics.draw(convexHull);
+                        graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() / 5));
+                        graphics.fill(convexHull);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Highlights multiple NPCs by name.
      */

@@ -16,6 +16,7 @@ import com.easyfarming.customrun.CustomRun;
 import com.easyfarming.customrun.RunLocation;
 import com.easyfarming.overlays.handlers.NavigationHandler;
 import com.easyfarming.overlays.handlers.FarmingStepHandler;
+import com.easyfarming.utils.Constants;
 
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
@@ -92,6 +93,12 @@ public class FarmingTeleportOverlay extends Overlay {
                 return getFruitTreePatchPoint(locationName);
             case PatchTypes.HOPS:
                 return getHopsPatchPoint(locationName);
+            case PatchTypes.HARDWOOD:
+            case PatchTypes.CALQUAT:
+            case PatchTypes.CELASTRUS:
+            case PatchTypes.CRYSTAL_TREE:
+            case PatchTypes.REDWOOD:
+                return getSpecialTreePatchPoint(locationName, patchType);
             default:
                 return null;
         }
@@ -150,6 +157,23 @@ public class FarmingTeleportOverlay extends Overlay {
             case "Lumbridge": return new WorldPoint(3229, 3315, 0);
             case "Seers Village": return new WorldPoint(2667, 3526, 0);
             case "Yanille": return new WorldPoint(2576, 3105, 0);
+            default: return null;
+        }
+    }
+
+    private WorldPoint getSpecialTreePatchPoint(String locationName, String patchType) {
+        switch (locationName) {
+            case "Fossil Island": return farmingStepHandler.getCurrentFossilIslandPatchPoint();
+            case "Locus Oasis": return Constants.LOCUS_OASIS_HARDWOOD_PATCH_POINT;
+            case "Anglers' Retreat": return Constants.ANGLERS_RETREAT_HARDWOOD_PATCH_POINT;
+            case "Tai Bwo Wannai": return Constants.TAI_BWO_WANNAI_CALQUAT_PATCH_POINT;
+            case "Kastori": return Constants.KASTORI_CALQUAT_PATCH_POINT;
+            case "Great Conch": return Constants.GREAT_CONCH_CALQUAT_PATCH_POINT;
+            case "Farming Guild":
+                return PatchTypes.REDWOOD.equals(patchType)
+                        ? Constants.FARMING_GUILD_REDWOOD_PATCH_POINT
+                        : Constants.FARMING_GUILD_CELASTRUS_PATCH_POINT;
+            case "Prifddinas": return Constants.PRIFDDINAS_CRYSTAL_TREE_PATCH_POINT;
             default: return null;
         }
     }
@@ -325,6 +349,17 @@ public class FarmingTeleportOverlay extends Overlay {
                     moveToNextPatchOrLocation();
                 }
                 break;
+            case PatchTypes.HARDWOOD:
+            case PatchTypes.CALQUAT:
+            case PatchTypes.CELASTRUS:
+            case PatchTypes.CRYSTAL_TREE:
+            case PatchTypes.REDWOOD:
+                farmingStepHandler.specialTreeSteps(graphics, teleport, patchType, location.getName());
+                if (farmingStepHandler.specialTreePatchDone) {
+                    farmingStepHandler.resetSpecialTreeStates();
+                    moveToNextPatchOrLocation();
+                }
+                break;
             default:
                 moveToNextPatchOrLocation();
         }
@@ -346,6 +381,7 @@ public class FarmingTeleportOverlay extends Overlay {
             farmingStepHandler.fruitTreePatchDone = false;
             farmingStepHandler.hopsPatchDone = false;
             farmingStepHandler.resetCompostStates();
+            farmingStepHandler.resetSpecialTreeStates();
             plugin.clearLastMessage();
             return;
         }
@@ -369,6 +405,7 @@ public class FarmingTeleportOverlay extends Overlay {
         farmingStepHandler.treePatchDone = false;
         farmingStepHandler.fruitTreePatchDone = false;
         farmingStepHandler.hopsPatchDone = false;
+        farmingStepHandler.resetSpecialTreeStates();
         
         // Reset persistent compost states
         farmingStepHandler.resetCompostStates();
@@ -439,6 +476,7 @@ public class FarmingTeleportOverlay extends Overlay {
         farmingStepHandler.treePatchDone = false;
         farmingStepHandler.fruitTreePatchDone = false;
         farmingStepHandler.hopsPatchDone = false;
+        farmingStepHandler.resetSpecialTreeStates();
         farmingStepHandler.clearHintArrow();
         
         // Reset persistent compost states
@@ -472,6 +510,7 @@ public class FarmingTeleportOverlay extends Overlay {
         farmingStepHandler.treePatchDone = false;
         farmingStepHandler.fruitTreePatchDone = false;
         farmingStepHandler.hopsPatchDone = false;
+        farmingStepHandler.resetSpecialTreeStates();
         farmingStepHandler.clearHintArrow();
         farmingStepHandler.resetCompostStates();
         plugin.clearLastMessage();

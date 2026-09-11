@@ -59,7 +59,7 @@ public class CustomRunFilterBar extends JPanel {
         add(divider);
         add(Box.createRigidArea(new Dimension(0, 4)));
 
-        JPanel patchGrid = new JPanel(new GridLayout(2, 3, 6, 6));
+        JPanel patchGrid = new JPanel(new GridLayout(0, 3, 6, 6));
         patchGrid.setBackground(ColorScheme.DARK_GRAY_COLOR);
         List<String> all = PatchTypes.ALL;
         for (int i = 0; i < all.size(); i++) {
@@ -260,6 +260,11 @@ public class CustomRunFilterBar extends JPanel {
             case PatchTypes.TREE: return net.runelite.api.gameval.ItemID.YEW_LOGS;
             case PatchTypes.FRUIT_TREE: return net.runelite.api.gameval.ItemID.PINEAPPLE;
             case PatchTypes.HOPS: return net.runelite.api.gameval.ItemID.BARLEY;
+            case PatchTypes.HARDWOOD: return ItemID.MAHOGANY_LOGS;
+            case PatchTypes.CALQUAT: return ItemID.CALQUAT_FRUIT;
+            case PatchTypes.CELASTRUS: return ItemID.CELASTRUS_WOOD;
+            case PatchTypes.CRYSTAL_TREE: return ItemID.PRIF_CRYSTAL_SHARD_25;
+            case PatchTypes.REDWOOD: return ItemID.REDWOOD_LOGS;
             default: return GRIMY_RANARR_WEED;
         }
     }
@@ -272,6 +277,11 @@ public class CustomRunFilterBar extends JPanel {
             case PatchTypes.TREE: return "Tree";
             case PatchTypes.FRUIT_TREE: return "Fruit tree";
             case PatchTypes.HOPS: return "Hops";
+            case PatchTypes.HARDWOOD: return "Hardwood";
+            case PatchTypes.CALQUAT: return "Calquat";
+            case PatchTypes.CELASTRUS: return "Celastrus";
+            case PatchTypes.CRYSTAL_TREE: return "Crystal tree";
+            case PatchTypes.REDWOOD: return "Redwood";
             default: return patchType.replace("_", " ");
         }
     }

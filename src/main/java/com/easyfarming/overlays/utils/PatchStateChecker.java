@@ -1,6 +1,7 @@
 package com.easyfarming.overlays.utils;
 
 import com.easyfarming.EasyFarmingPlugin;
+import com.easyfarming.customrun.PatchTypes;
 
 import javax.inject.Inject;
 import java.util.regex.Pattern;
@@ -9,8 +10,10 @@ import java.util.regex.Pattern;
  * Utility class for checking patch states (composted, protected, etc.).
  */
 public class PatchStateChecker {
-    private static final String REGEX_COMPOST1 = "You treat the (herb patch|flower patch|allotment|tree patch|fruit tree patch|hops patch) with (compost|supercompost|ultracompost)\\.";
-    private static final String REGEX_COMPOST2 = "This (herb patch|flower patch|allotment|tree patch|fruit tree patch|hops patch) has already been treated with (compost|supercompost|ultracompost)\\.";
+    private static final String PATCH_NAMES = "herb patch|flower patch|allotment|tree patch|fruit tree patch|hops patch"
+            + "|hardwood tree patch|calquat tree patch|celastrus patch|crystal tree patch|redwood tree patch";
+    private static final String REGEX_COMPOST1 = "You treat the (" + PATCH_NAMES + ") with (compost|supercompost|ultracompost)\\.";
+    private static final String REGEX_COMPOST2 = "This (" + PATCH_NAMES + ") has already been treated with (compost|supercompost|ultracompost)\\.";
     private static final String REGEX_COMPOST3 = "You treat the patch with (compost|supercompost|ultracompost)\\.";
     private static final String REGEX_COMPOST4 = "This patch has already been treated with (compost|supercompost|ultracompost)\\.";
     private static final Pattern COMPOST_PATTERN = Pattern.compile(REGEX_COMPOST1 + "|" + REGEX_COMPOST2 + "|" + REGEX_COMPOST3 + "|" + REGEX_COMPOST4);
@@ -48,6 +51,9 @@ public class PatchStateChecker {
             return false;
         }
         if (!COMPOST_PATTERN.matcher(lastMessage).matches()) {
+            return false;
+        }
+        if (isNamedSpecialTreeCompostMessage(lastMessage)) {
             return false;
         }
         if (lastMessage.contains("fruit tree patch")) {
@@ -89,6 +95,50 @@ public class PatchStateChecker {
 
     private static boolean isGenericPatchCompostMessage(String lastMessage) {
         return lastMessage.contains("treat the patch with") || lastMessage.contains("This patch has already");
+    }
+
+    public boolean patchIsCompostedForSpecialTreePatch(String patchType) {
+        String lastMessage = plugin.getLastMessage();
+        if (lastMessage == null || lastMessage.isEmpty() || !COMPOST_PATTERN.matcher(lastMessage).matches()) {
+            return false;
+        }
+
+        String patchName;
+        switch (patchType) {
+            case PatchTypes.HARDWOOD:
+                patchName = "hardwood tree patch";
+                break;
+            case PatchTypes.CALQUAT:
+                patchName = "calquat tree patch";
+                break;
+            case PatchTypes.CELASTRUS:
+                patchName = "celastrus patch";
+                break;
+            case PatchTypes.CRYSTAL_TREE:
+                patchName = "crystal tree patch";
+                break;
+            case PatchTypes.REDWOOD:
+                patchName = "redwood tree patch";
+                break;
+            default:
+                return false;
+        }
+
+        if (lastMessage.contains(patchName)) {
+            return true;
+        }
+        if (lastMessage.contains("herb patch") || lastMessage.contains("flower patch")
+                || lastMessage.contains("allotment") || lastMessage.contains("hops patch")
+                || lastMessage.contains("tree patch") || lastMessage.contains("celastrus patch")) {
+            return false;
+        }
+        return isGenericPatchCompostMessage(lastMessage);
+    }
+
+    private static boolean isNamedSpecialTreeCompostMessage(String lastMessage) {
+        return lastMessage.contains("hardwood tree patch") || lastMessage.contains("calquat tree patch")
+                || lastMessage.contains("celastrus patch") || lastMessage.contains("crystal tree patch")
+                || lastMessage.contains("redwood tree patch");
     }
 
     /**

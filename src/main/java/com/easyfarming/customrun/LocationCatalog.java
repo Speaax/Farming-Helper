@@ -27,6 +27,12 @@ import com.easyfarming.locations.hops.EntranaHopsLocationData;
 import com.easyfarming.locations.hops.LumbridgeHopsLocationData;
 import com.easyfarming.locations.hops.SeersVillageHopsLocationData;
 import com.easyfarming.locations.hops.YanilleHopsLocationData;
+import com.easyfarming.locations.special.AnglersRetreatHardwoodLocationData;
+import com.easyfarming.locations.special.FossilIslandHardwoodLocationData;
+import com.easyfarming.locations.special.GreatConchCalquatLocationData;
+import com.easyfarming.locations.special.LocusOasisHardwoodLocationData;
+import com.easyfarming.locations.special.PrifddinasCrystalTreeLocationData;
+import com.easyfarming.locations.special.TaiBwoWannaiCalquatLocationData;
 import com.easyfarming.locations.tree.FaladorTreeLocationData;
 import com.easyfarming.locations.tree.FarmingGuildTreeLocationData;
 import com.easyfarming.locations.tree.GnomeStrongholdTreeLocationData;
@@ -241,6 +247,61 @@ public class LocationCatalog {
         putLocationForPatch(kastoriFruitTree.getName(), PatchTypes.FRUIT_TREE, kastoriFruitTree);
         addTeleports(kastoriFruitTree.getName(), kastoriFruitTree);
         addPatchTypes(kastoriFruitTree.getName(), singletonList(PatchTypes.FRUIT_TREE));
+
+        // Special tree locations (stable order follows normal tree and fruit tree entries).
+        Location fossilIslandHardwood = FossilIslandHardwoodLocationData.create(config, houseTeleportSupplier);
+        seenNames.add(fossilIslandHardwood.getName());
+        putLocationForPatch(fossilIslandHardwood.getName(), PatchTypes.HARDWOOD, fossilIslandHardwood);
+        addTeleports(fossilIslandHardwood.getName(), fossilIslandHardwood);
+        addPatchTypes(fossilIslandHardwood.getName(), singletonList(PatchTypes.HARDWOOD));
+
+        Location locusOasisHardwood = LocusOasisHardwoodLocationData.create(config, fairyRingSupplier);
+        seenNames.add(locusOasisHardwood.getName());
+        putLocationForPatch(locusOasisHardwood.getName(), PatchTypes.HARDWOOD, locusOasisHardwood);
+        addTeleports(locusOasisHardwood.getName(), locusOasisHardwood);
+        addPatchTypes(locusOasisHardwood.getName(), singletonList(PatchTypes.HARDWOOD));
+
+        Location anglersRetreatHardwood = AnglersRetreatHardwoodLocationData.create(config, houseTeleportSupplier);
+        seenNames.add(anglersRetreatHardwood.getName());
+        putLocationForPatch(anglersRetreatHardwood.getName(), PatchTypes.HARDWOOD, anglersRetreatHardwood);
+        addTeleports(anglersRetreatHardwood.getName(), anglersRetreatHardwood);
+        addPatchTypes(anglersRetreatHardwood.getName(), singletonList(PatchTypes.HARDWOOD));
+
+        Location taiBwoWannaiCalquat = TaiBwoWannaiCalquatLocationData.create(config, fairyRingSupplier);
+        seenNames.add(taiBwoWannaiCalquat.getName());
+        putLocationForPatch(taiBwoWannaiCalquat.getName(), PatchTypes.CALQUAT, taiBwoWannaiCalquat);
+        addTeleports(taiBwoWannaiCalquat.getName(), taiBwoWannaiCalquat);
+        addPatchTypes(taiBwoWannaiCalquat.getName(), singletonList(PatchTypes.CALQUAT));
+
+        Location kastoriCalquat = KastoriFruitTreeLocationData.createCalquat(config);
+        seenNames.add(kastoriCalquat.getName());
+        putLocationForPatch(kastoriCalquat.getName(), PatchTypes.CALQUAT, kastoriCalquat);
+        addTeleports(kastoriCalquat.getName(), kastoriCalquat);
+        addPatchTypes(kastoriCalquat.getName(), singletonList(PatchTypes.CALQUAT));
+
+        Location greatConchCalquat = GreatConchCalquatLocationData.create(config, fairyRingSupplier);
+        seenNames.add(greatConchCalquat.getName());
+        putLocationForPatch(greatConchCalquat.getName(), PatchTypes.CALQUAT, greatConchCalquat);
+        addTeleports(greatConchCalquat.getName(), greatConchCalquat);
+        addPatchTypes(greatConchCalquat.getName(), singletonList(PatchTypes.CALQUAT));
+
+        Location farmingGuildCelastrus = FarmingGuildTreeLocationData.createCelastrus(config, houseTeleportSupplier, fairyRingSupplier);
+        seenNames.add(farmingGuildCelastrus.getName());
+        putLocationForPatch(farmingGuildCelastrus.getName(), PatchTypes.CELASTRUS, farmingGuildCelastrus);
+        addTeleports(farmingGuildCelastrus.getName(), farmingGuildCelastrus);
+        addPatchTypes(farmingGuildCelastrus.getName(), singletonList(PatchTypes.CELASTRUS));
+
+        Location prifddinasCrystalTree = PrifddinasCrystalTreeLocationData.create(config);
+        seenNames.add(prifddinasCrystalTree.getName());
+        putLocationForPatch(prifddinasCrystalTree.getName(), PatchTypes.CRYSTAL_TREE, prifddinasCrystalTree);
+        addTeleports(prifddinasCrystalTree.getName(), prifddinasCrystalTree);
+        addPatchTypes(prifddinasCrystalTree.getName(), singletonList(PatchTypes.CRYSTAL_TREE));
+
+        Location farmingGuildRedwood = FarmingGuildTreeLocationData.createRedwood(config, houseTeleportSupplier, fairyRingSupplier);
+        seenNames.add(farmingGuildRedwood.getName());
+        putLocationForPatch(farmingGuildRedwood.getName(), PatchTypes.REDWOOD, farmingGuildRedwood);
+        addTeleports(farmingGuildRedwood.getName(), farmingGuildRedwood);
+        addPatchTypes(farmingGuildRedwood.getName(), singletonList(PatchTypes.REDWOOD));
 
         // Hops locations (order matches HopsRunItemAndLocation.setupLocations: Lumbridge, Seers Village, Yanille, Entrana, Aldarin)
         Location lumbridgeHops = LumbridgeHopsLocationData.create(config, houseTeleportSupplier);

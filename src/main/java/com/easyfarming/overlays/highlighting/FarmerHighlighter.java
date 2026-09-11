@@ -37,6 +37,18 @@ public class FarmerHighlighter {
             widgetHighlighter.highlightDynamicComponent(graphics, widget, 1);
         }
     }
+
+    /**
+     * Highlights a specific farmer by NPC ID and the standard farmer interface when open.
+     */
+    public void highlightFarmer(Graphics2D graphics, int npcId) {
+        if (!isInterfaceOpen(Constants.INTERFACE_FARMER, 1)) {
+            npcHighlighter.highlightNpc(graphics, npcId);
+        } else {
+            Widget widget = client.getWidget(Constants.INTERFACE_FARMER, 1);
+            widgetHighlighter.highlightDynamicComponent(graphics, widget, 1);
+        }
+    }
     
     /**
      * Highlights tree farmers.

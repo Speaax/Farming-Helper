@@ -4,6 +4,8 @@ import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.customrun.RunLocation;
+import com.easyfarming.ui.components.WrapLayout;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.game.ItemManager;
@@ -30,7 +32,7 @@ public class CustomRunLocationSubPanel extends JPanel {
     private final Runnable onChanged;
 
     private final JComboBox<String> teleportCombo;
-    private final JPanel patchIconsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+    private final JPanel patchIconsPanel;
     private final JPanel contentPanel = new JPanel(new BorderLayout());
     private boolean expanded = false;
     private final JLabel expandCollapseLabel = new JLabel("\u25B6");
@@ -50,6 +52,13 @@ public class CustomRunLocationSubPanel extends JPanel {
         this.locationName = locationName;
         this.runLocation = runLocation;
         this.onChanged = onChanged;
+        boolean farmingGuild = "Farming Guild".equals(locationName);
+        patchIconsPanel = new JPanel(farmingGuild
+                ? new GridLayout(0, 5, 6, 4)
+                : new WrapLayout(FlowLayout.LEFT, 6, 4));
+        if (farmingGuild) {
+            patchIconsPanel.setBorder(new EmptyBorder(4, 6, 4, 6));
+        }
 
         runLocation.setLocationName(locationName);
 
@@ -105,7 +114,14 @@ public class CustomRunLocationSubPanel extends JPanel {
 
         contentPanel.setOpaque(false);
         patchIconsPanel.setOpaque(false);
-        contentPanel.add(patchIconsPanel, BorderLayout.CENTER);
+        if (farmingGuild) {
+            JPanel patchIconsWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            patchIconsWrapper.setOpaque(false);
+            patchIconsWrapper.add(patchIconsPanel);
+            contentPanel.add(patchIconsWrapper, BorderLayout.CENTER);
+        } else {
+            contentPanel.add(patchIconsPanel, BorderLayout.CENTER);
+        }
 
         JPanel teleportRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
         teleportRow.setOpaque(false);
@@ -135,6 +151,12 @@ public class CustomRunLocationSubPanel extends JPanel {
 
         contentPanel.setVisible(expanded);
         refreshPatchIcons();
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        Dimension preferred = getPreferredSize();
+        return new Dimension(Integer.MAX_VALUE, preferred.height);
     }
 
     private void toggleExpanded() {
@@ -228,6 +250,11 @@ public class CustomRunLocationSubPanel extends JPanel {
             case PatchTypes.TREE: return net.runelite.api.gameval.ItemID.YEW_LOGS;
             case PatchTypes.FRUIT_TREE: return net.runelite.api.gameval.ItemID.PINEAPPLE;
             case PatchTypes.HOPS: return net.runelite.api.gameval.ItemID.BARLEY;
+            case PatchTypes.HARDWOOD: return ItemID.MAHOGANY_LOGS;
+            case PatchTypes.CALQUAT: return ItemID.CALQUAT_FRUIT;
+            case PatchTypes.CELASTRUS: return ItemID.CELASTRUS_WOOD;
+            case PatchTypes.CRYSTAL_TREE: return ItemID.PRIF_CRYSTAL_SHARD_25;
+            case PatchTypes.REDWOOD: return ItemID.REDWOOD_LOGS;
             default: return GRIMY_RANARR_WEED;
         }
     }
@@ -240,6 +267,11 @@ public class CustomRunLocationSubPanel extends JPanel {
             case PatchTypes.TREE: return "Tree";
             case PatchTypes.FRUIT_TREE: return "Fruit tree";
             case PatchTypes.HOPS: return "Hops";
+            case PatchTypes.HARDWOOD: return "Hardwood";
+            case PatchTypes.CALQUAT: return "Calquat";
+            case PatchTypes.CELASTRUS: return "Celastrus";
+            case PatchTypes.CRYSTAL_TREE: return "Crystal tree";
+            case PatchTypes.REDWOOD: return "Redwood";
             default: return patchType.replace("_", " ");
         }
     }

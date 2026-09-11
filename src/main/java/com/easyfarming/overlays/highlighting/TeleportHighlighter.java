@@ -72,6 +72,13 @@ public class TeleportHighlighter {
                 }
                 break;
             case SPELLBOOK:
+                if ("Fishing_Trawler".equals(teleport.getEnumOption())
+                        && widgetHelper.isInterfaceOpen(Constants.INTERFACE_GROUPING, Constants.GROUPING_DROPDOWN_CHILD)) {
+                    int selectedGame = client.getVarcIntValue(VarClientID.GROUPING_GAMEID);
+                    widgetHighlighter.interfaceOverlay(Constants.INTERFACE_GROUPING,
+                            getFishingTrawlerGroupingChild(selectedGame)).render(graphics);
+                    break;
+                }
                 InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, VarClientID.TOPLEVEL_PANEL);
                 if (tabState == InventoryTabChecker.TabState.SPELLBOOK) {
                     widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
@@ -114,10 +121,19 @@ public class TeleportHighlighter {
             case MOUNTED_XERICS:
                 // Mounted Xeric's talisman handling is done in NavigationHandler
                 break;
+            case MOUNTED_POH:
+                // Mounted POH teleport handling is done in NavigationHandler.
+                break;
             case NONE:
                 // Travel-manually option: no highlighting needed.
                 break;
         }
+    }
+
+    static int getFishingTrawlerGroupingChild(int selectedGame) {
+        return selectedGame == Constants.GROUPING_FISHING_TRAWLER_GAME_ID
+                ? Constants.GROUPING_TELEPORT_CHILD
+                : Constants.GROUPING_DROPDOWN_CHILD;
     }
 }
 

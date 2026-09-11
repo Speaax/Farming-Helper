@@ -33,7 +33,29 @@ public class FarmingGuildTreeLocationData {
             "Farming Guild",
             false // farmLimps
         );
-        
+
+        addTeleportOptions(location, houseTeleportSupplier, fairyRingSupplier, FARMING_GUILD_TREE_PATCH_POINT);
+        return location;
+    }
+
+    public static Location createCelastrus(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                           Supplier<List<ItemRequirement>> fairyRingSupplier) {
+        Location location = new Location(null, config, "Farming Guild", false);
+        addTeleportOptions(location, houseTeleportSupplier, fairyRingSupplier,
+                com.easyfarming.utils.Constants.FARMING_GUILD_CELASTRUS_PATCH_POINT);
+        return location;
+    }
+
+    public static Location createRedwood(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                         Supplier<List<ItemRequirement>> fairyRingSupplier) {
+        Location location = new Location(null, config, "Farming Guild", false);
+        addTeleportOptions(location, houseTeleportSupplier, fairyRingSupplier,
+                com.easyfarming.utils.Constants.FARMING_GUILD_REDWOOD_PATCH_POINT);
+        return location;
+    }
+
+    private static void addTeleportOptions(Location location, Supplier<List<ItemRequirement>> houseTeleportSupplier,
+                                           Supplier<List<ItemRequirement>> fairyRingSupplier, WorldPoint patchPoint) {
         // Jewellery box
         location.addTeleportOption(new Teleport(
             "Jewellery_box",
@@ -44,7 +66,7 @@ public class FarmingGuildTreeLocationData {
             0,
             0,
             4922,
-            FARMING_GUILD_TREE_PATCH_POINT,
+            patchPoint,
             houseTeleportSupplier.get()
         ));
         
@@ -58,7 +80,7 @@ public class FarmingGuildTreeLocationData {
             0,
             0,
             4922,
-            FARMING_GUILD_TREE_PATCH_POINT,
+            patchPoint,
             Collections.singletonList(
                 new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1)
             )
@@ -74,7 +96,7 @@ public class FarmingGuildTreeLocationData {
             187,
             3,
             4922,
-            FARMING_GUILD_TREE_PATCH_POINT,
+            patchPoint,
             Collections.emptyList()
         ));
         
@@ -88,7 +110,7 @@ public class FarmingGuildTreeLocationData {
             0,
             0,
             4922,
-            FARMING_GUILD_TREE_PATCH_POINT,
+            patchPoint,
             fairyRingSupplier.get()
         ));
 
@@ -102,16 +124,14 @@ public class FarmingGuildTreeLocationData {
             0,
             0,
             4922,
-            FARMING_GUILD_TREE_PATCH_POINT,
+            patchPoint,
             Collections.singletonList(
                 new ItemRequirement(ItemID.SKILLCAPE_FARMING, 1)
             )
         ));
 
         // No teleport - travel manually.
-        location.addTeleportOption(Teleport.none("Farming Guild tree patch", 4922, FARMING_GUILD_TREE_PATCH_POINT));
-
-        return location;
+        location.addTeleportOption(Teleport.none("Farming Guild tree patch", patchPoint.getRegionID(), patchPoint));
     }
 }
 
