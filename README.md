@@ -36,7 +36,8 @@ Highlights and Overlays to make farming runs easier.
 
 ### Extensive Configuration
 - **Location toggles** - Enable/disable specific patches based on your requirements
-- **Compost selection** - Choose between regular, super, ultra, or bottomless compost
+- **Compost selection** - Choose between regular, super, ultra, bottomless, or Fertile Soil composting
+- **Fertile Soil routing** - Avoid standard spellbook teleports automatically, or opt into Spellbook Swap support
 - **Tool preferences** - Optional rake and seed dibber inclusion
 - **Limpwurt support** - Include limpwurt seeds in herb runs where applicable
 

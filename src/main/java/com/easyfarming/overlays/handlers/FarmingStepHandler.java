@@ -7,6 +7,7 @@ import com.easyfarming.overlays.highlighting.*;
 import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.PatchStateChecker;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.ObjectComposition;
@@ -55,6 +56,12 @@ public class FarmingStepHandler {
     private boolean treePatchComposted = false;
     private boolean fruitTreePatchComposted = false;
     private boolean hopsPatchComposted = false;
+
+    private boolean herbPatchNeedsCompost = false;
+    private boolean flowerPatchNeedsCompost = false;
+    private boolean treePatchNeedsCompost = false;
+    private boolean fruitTreePatchNeedsCompost = false;
+    private boolean hopsPatchNeedsCompost = false;
     
     // Allotment patch tracking - which patch we're currently working on (0 = first patch, 1 = second patch)
     private final AllotmentPatchState allotmentPatchState = new AllotmentPatchState();
@@ -80,6 +87,21 @@ public class FarmingStepHandler {
         this.colorProvider = colorProvider;
         this.farmingHelperOverlay = farmingHelperOverlay;
         this.gameObjectHighlighter = gameObjectHighlighter;
+    }
+
+    private String compostInstruction(String patchDescription) {
+        if (FertileSoilHelper.usesFertileSoil(config)) {
+            if (FertileSoilHelper.needsLunarSpellbook(client, config)) {
+                return FertileSoilHelper.SWITCH_TO_LUNAR_SPELLBOOK_INSTRUCTION;
+            }
+            return "Cast Fertile Soil on " + patchDescription + ".";
+        }
+        return "Use Compost on " + patchDescription + ".";
+    }
+
+    private boolean fertileSoilIsBlockedForHerbPatch(String locationName) {
+        return FertileSoilHelper.usesFertileSoil(config)
+                && "Troll Stronghold".equals(locationName);
     }
     
     /**
@@ -130,6 +152,11 @@ public class FarmingStepHandler {
         if (teleport == null) {
             // Transitioning between locations; navigation overlay handles routing.
         } else {
+            if (plantState != HerbPatchChecker.PlantState.GROWING
+                    && plantState != HerbPatchChecker.PlantState.UNKNOWN) {
+                herbPatchNeedsCompost = true;
+            }
+
             switch (plantState) {
                 case HARVESTABLE:
                     plugin.addTextToInfoBox("Harvest Herbs.");
@@ -209,8 +236,20 @@ public class FarmingStepHandler {
                         // Don't show anything - transition will happen on next frame
                         return;
                     }
+                    if (!herbPatchNeedsCompost) {
+                        herbPatchComposted = true;
+                        herbPatchDone = true;
+                        clearHintArrow();
+                        return;
+                    }
+                    if (fertileSoilIsBlockedForHerbPatch(locationName)) {
+                        herbPatchComposted = true;
+                        herbPatchDone = true;
+                        clearHintArrow();
+                        return;
+                    }
                     // Patch is GROWING but not composted yet - show compost instruction
-                    plugin.addTextToInfoBox("Use Compost on patch.");
+                    plugin.addTextToInfoBox(compostInstruction("patch"));
                     Integer compostId = itemHighlighter.selectedCompostID();
                     // If compost is not in inventory, set hint arrow to Tool Leprechaun
                     if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
@@ -287,6 +326,11 @@ public class FarmingStepHandler {
             // Highlight all hops patches when far from patch and no state detected
             patchHighlighter.highlightHopsPatches(graphics, leftColor);
         } else {
+            if (plantState != HopsPatchChecker.PlantState.GROWING
+                    && plantState != HopsPatchChecker.PlantState.UNKNOWN) {
+                hopsPatchNeedsCompost = true;
+            }
+
             // Highlight specific patch for current location
             if (patchObjectId != null) {
                 switch (plantState) {
@@ -340,8 +384,14 @@ public class FarmingStepHandler {
                             clearHintArrow();
                             return;
                         }
+                        if (!hopsPatchNeedsCompost) {
+                            hopsPatchComposted = true;
+                            hopsPatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
                         // Patch is GROWING but not composted yet - show compost instruction
-                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        plugin.addTextToInfoBox(compostInstruction("patch"));
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
                         Integer compostId = itemHighlighter.selectedCompostID();
                         // If compost is not in inventory, set hint arrow to Tool Leprechaun
@@ -443,6 +493,12 @@ public class FarmingStepHandler {
             if (varbitId != -1) {
                 plantState = FlowerPatchChecker.checkFlowerPatch(client, varbitId);
             }
+
+            if (plantState != FlowerPatchChecker.PlantState.GROWING
+                    && plantState != FlowerPatchChecker.PlantState.UNKNOWN) {
+                flowerPatchNeedsCompost = true;
+            }
+
             // Always highlight specific patch if patchObjectId is available, similar to herb patches
             if (patchObjectId != null) {
                 switch (plantState) {
@@ -498,8 +554,14 @@ public class FarmingStepHandler {
                             clearHintArrow();
                             return;
                         }
+                        if (!flowerPatchNeedsCompost) {
+                            flowerPatchComposted = true;
+                            flowerPatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
                         // Patch is GROWING but not composted yet - show compost instruction
-                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        plugin.addTextToInfoBox(compostInstruction("patch"));
                         patchHighlighter.highlightSpecificFlowerPatch(graphics, patchObjectId, useItemColor);
                         compostHighlighter.highlightCompost(graphics, false, false, false, 2);
                         break;
@@ -792,9 +854,18 @@ public class FarmingStepHandler {
             plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
         }
 
+        if (plantState != AllotmentPatchChecker.PlantState.GROWING
+                && plantState != AllotmentPatchChecker.PlantState.UNKNOWN) {
+            allotmentPatchState.markNeedsCompost(0);
+        }
+
         // Check completion status for north patch
         // HARVESTABLE is NOT completed - user still needs to harvest
         // Only GROWING + composted is considered completed (nothing more to do)
+        if (plantState == AllotmentPatchChecker.PlantState.GROWING
+                && !allotmentPatchState.patchNeedsCompost(0)) {
+            allotmentPatchState.markComposted(0);
+        }
         boolean completed = plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(0);
         allotmentPatchState.setPatchCompleted(0, completed);
         
@@ -853,8 +924,13 @@ public class FarmingStepHandler {
                         clearHintArrow();
                         return;
                     }
+                    if (!allotmentPatchState.patchNeedsCompost(0)) {
+                        allotmentPatchState.markComposted(0);
+                        clearHintArrow();
+                        return;
+                    }
                     // Patch is GROWING but not composted yet - show compost instruction
-                    plugin.addTextToInfoBox("Use Compost on north patch.");
+                    plugin.addTextToInfoBox(compostInstruction("north patch"));
                     patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
                     Integer compostId = itemHighlighter.selectedCompostID();
                     if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
@@ -925,11 +1001,20 @@ public class FarmingStepHandler {
             plantState = AllotmentPatchChecker.checkAllotmentPatch(client, varbitId);
         }
 
+        if (plantState != AllotmentPatchChecker.PlantState.GROWING
+                && plantState != AllotmentPatchChecker.PlantState.UNKNOWN) {
+            allotmentPatchState.markNeedsCompost(1);
+        }
+
         // Check completion status for south patch
         // HARVESTABLE is NOT completed - user still needs to harvest
         // Only GROWING + composted is considered completed (nothing more to do)
         // Don't mark as completed if it's GROWING but not composted yet
         if (!allotmentPatchState.isPatchCompleted(1)) {
+            if (plantState == AllotmentPatchChecker.PlantState.GROWING
+                    && !allotmentPatchState.patchNeedsCompost(1)) {
+                allotmentPatchState.markComposted(1);
+            }
             if (plantState == AllotmentPatchChecker.PlantState.GROWING && allotmentPatchState.isPatchComposted(1)) {
                 allotmentPatchState.setPatchCompleted(1, true);
             }
@@ -1006,6 +1091,11 @@ public class FarmingStepHandler {
                         clearHintArrow();
                         return;
                     }
+                    if (!allotmentPatchState.patchNeedsCompost(1)) {
+                        allotmentPatchState.markComposted(1);
+                        clearHintArrow();
+                        return;
+                    }
                     // Safety check: If already composted (shouldn't reach here due to early return, but just in case)
                     if (allotmentPatchState.isPatchComposted(1)) {
                         // Patch is already composted, mark as completed and return
@@ -1015,7 +1105,7 @@ public class FarmingStepHandler {
                         return; // Don't show compost instruction if already composted
                     }
                     // Patch is GROWING but not composted yet - show compost instruction
-                    plugin.addTextToInfoBox("Use Compost on south patch.");
+                    plugin.addTextToInfoBox(compostInstruction("south patch"));
                     patchHighlighter.highlightSpecificAllotmentPatch(graphics, patchObjectId, useItemColor);
                     Integer compostId = itemHighlighter.selectedCompostID();
                     if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
@@ -1073,6 +1163,11 @@ public class FarmingStepHandler {
         if (teleport == null) {
             // Transitioning between locations.
         } else {
+            if (plantState != TreePatchChecker.PlantState.GROWING
+                    && plantState != TreePatchChecker.PlantState.UNKNOWN) {
+                treePatchNeedsCompost = true;
+            }
+
             switch (plantState) {
                 case HEALTHY:
                     plugin.addTextToInfoBox("Check tree health.");
@@ -1138,8 +1233,14 @@ public class FarmingStepHandler {
                             clearHintArrow();
                             return;
                         }
+                        if (!treePatchNeedsCompost) {
+                            treePatchComposted = true;
+                            treePatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
                         // Patch is GROWING but not composted yet - show compost instruction
-                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        plugin.addTextToInfoBox(compostInstruction("patch"));
                         Integer compostId = itemHighlighter.selectedCompostID();
                         // If compost is not in inventory, set hint arrow to Tool Leprechaun
                         if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
@@ -1208,6 +1309,11 @@ public class FarmingStepHandler {
         if (teleport == null) {
             // Transitioning between locations.
         } else {
+            if (plantState != FruitTreePatchChecker.PlantState.GROWING
+                    && plantState != FruitTreePatchChecker.PlantState.UNKNOWN) {
+                fruitTreePatchNeedsCompost = true;
+            }
+
             switch (plantState) {
                 case HEALTHY:
                     plugin.addTextToInfoBox("Check Fruit tree health.");
@@ -1283,8 +1389,14 @@ public class FarmingStepHandler {
                             clearHintArrow();
                             return;
                         }
+                        if (!fruitTreePatchNeedsCompost) {
+                            fruitTreePatchComposted = true;
+                            fruitTreePatchDone = true;
+                            clearHintArrow();
+                            return;
+                        }
                         // Patch is GROWING but not composted yet - show compost instruction
-                        plugin.addTextToInfoBox("Use Compost on patch.");
+                        plugin.addTextToInfoBox(compostInstruction("patch"));
                         Integer compostId = itemHighlighter.selectedCompostID();
                         // If compost is not in inventory, set hint arrow to Tool Leprechaun
                         if (compostId != null && !itemHighlighter.isItemInInventory(compostId)) {
@@ -1526,6 +1638,7 @@ public class FarmingStepHandler {
         private int currentIndex = 0;
         private final boolean[] completed = new boolean[2]; // Track completion of each patch
         private final boolean[] composted = new boolean[2]; // Track compost state per patch independently
+        private final boolean[] needsCompost = new boolean[2]; // Patch changed during this run and should be composted
         
         /**
          * Gets the current patch index (0 = north patch, 1 = south patch).
@@ -1557,6 +1670,20 @@ public class FarmingStepHandler {
                 throw new IllegalArgumentException("Invalid patch index: " + index);
             }
             return composted[index];
+        }
+
+        public boolean patchNeedsCompost(int index) {
+            if (index < 0 || index >= needsCompost.length) {
+                throw new IllegalArgumentException("Invalid patch index: " + index);
+            }
+            return needsCompost[index];
+        }
+
+        public void markNeedsCompost(int index) {
+            if (index < 0 || index >= needsCompost.length) {
+                throw new IllegalArgumentException("Invalid patch index: " + index);
+            }
+            needsCompost[index] = true;
         }
         
         /**
@@ -1602,6 +1729,8 @@ public class FarmingStepHandler {
             completed[1] = false;
             composted[0] = false;
             composted[1] = false;
+            needsCompost[0] = false;
+            needsCompost[1] = false;
         }
     }
 
@@ -1614,6 +1743,12 @@ public class FarmingStepHandler {
         treePatchComposted = false;
         fruitTreePatchComposted = false;
         hopsPatchComposted = false;
+
+        herbPatchNeedsCompost = false;
+        flowerPatchNeedsCompost = false;
+        treePatchNeedsCompost = false;
+        fruitTreePatchNeedsCompost = false;
+        hopsPatchNeedsCompost = false;
     }
 
     /**

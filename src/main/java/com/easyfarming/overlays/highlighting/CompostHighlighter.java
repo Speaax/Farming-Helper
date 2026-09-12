@@ -3,8 +3,11 @@ package com.easyfarming.overlays.highlighting;
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.PatchStateChecker;
+import com.easyfarming.overlays.utils.WidgetHelper;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 import net.runelite.api.Client;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.widgets.Widget;
 
@@ -21,6 +24,7 @@ public class CompostHighlighter {
     private final PatchHighlighter patchHighlighter;
     private final NPCHighlighter npcHighlighter;
     private final WidgetHighlighter widgetHighlighter;
+    private final WidgetHelper widgetHelper;
     private final PatchStateChecker patchStateChecker;
     private final ColorProvider colorProvider;
     
@@ -28,13 +32,15 @@ public class CompostHighlighter {
     public CompostHighlighter(Client client, EasyFarmingConfig config, 
                              ItemHighlighter itemHighlighter, PatchHighlighter patchHighlighter,
                              NPCHighlighter npcHighlighter, WidgetHighlighter widgetHighlighter,
-                             PatchStateChecker patchStateChecker, ColorProvider colorProvider) {
+                             WidgetHelper widgetHelper, PatchStateChecker patchStateChecker,
+                             ColorProvider colorProvider) {
         this.client = client;
         this.config = config;
         this.itemHighlighter = itemHighlighter;
         this.patchHighlighter = patchHighlighter;
         this.npcHighlighter = npcHighlighter;
         this.widgetHighlighter = widgetHighlighter;
+        this.widgetHelper = widgetHelper;
         this.patchStateChecker = patchStateChecker;
         this.colorProvider = colorProvider;
     }
@@ -46,8 +52,29 @@ public class CompostHighlighter {
                                 boolean fruitTreeRun, int subCase) {
         Integer compostId = itemHighlighter.selectedCompostID();
         Color color = colorProvider.getHighlightUseItemWithAlpha();
+
+        if (itemHighlighter.selectedCompostUsesFertileSoil()) {
+            if (herbRun) {
+                if (subCase == 1) {
+                    patchHighlighter.highlightHerbPatches(graphics, color);
+                } else if (subCase == 2) {
+                    patchHighlighter.highlightFlowerPatches(graphics, color);
+                }
+            }
+
+            if (treeRun) {
+                patchHighlighter.highlightTreePatches(graphics, color);
+            }
+
+            if (fruitTreeRun) {
+                patchHighlighter.highlightFruitTreePatches(graphics, color);
+            }
+
+            highlightFertileSoilCast(graphics);
+            return;
+        }
         
-        if (itemHighlighter.isItemInInventory(compostId)) {
+        if (compostId != null && itemHighlighter.isItemInInventory(compostId)) {
             if (herbRun) {
                 if (subCase == 1) {
                     patchHighlighter.highlightHerbPatches(graphics, color);
@@ -81,6 +108,11 @@ public class CompostHighlighter {
      * Highlights the Tool Leprechaun and interface for withdrawing compost.
      */
     public void withdrawCompost(Graphics2D graphics) {
+        if (itemHighlighter.selectedCompostUsesFertileSoil()) {
+            highlightFertileSoilCast(graphics);
+            return;
+        }
+
         if (!isInterfaceOpen(Constants.INTERFACE_TOOL_LEPRECHAUN, 0)) {
             npcHighlighter.highlightNpc(graphics, "Tool Leprechaun");
         } else {
@@ -94,6 +126,28 @@ public class CompostHighlighter {
             } else if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                 widgetHighlighter.interfaceOverlay(Constants.INTERFACE_TOOL_LEPRECHAUN, 15).render(graphics);
             }
+        }
+    }
+
+    private void highlightFertileSoilCast(Graphics2D graphics) {
+        Color color = colorProvider.getHighlightUseItemWithAlpha();
+        if (FertileSoilHelper.needsLunarSpellbook(client, config)) {
+            widgetHighlighter.interfaceOverlay(
+                    widgetHelper.getSpellbookIconGroupId(),
+                    widgetHelper.getSpellbookIconChildId()).render(graphics);
+            return;
+        }
+
+        if (itemHighlighter.selectedCompostUsesVolcanicAsh()) {
+            itemHighlighter.itemHighlight(graphics, ItemID.FOSSIL_VOLCANIC_ASH, color);
+        }
+
+        if (isInterfaceOpen(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_FERTILE_SOIL)) {
+            widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_FERTILE_SOIL).render(graphics);
+        } else {
+            widgetHighlighter.interfaceOverlay(
+                    widgetHelper.getSpellbookIconGroupId(),
+                    widgetHelper.getSpellbookIconChildId()).render(graphics);
         }
     }
     

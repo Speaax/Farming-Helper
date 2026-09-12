@@ -9,7 +9,9 @@ import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.GameObjectHelper;
 import com.easyfarming.overlays.utils.WidgetHelper;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 import net.runelite.api.Client;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.widgets.Widget;
 
@@ -74,7 +76,12 @@ public class TeleportHighlighter {
             case SPELLBOOK:
                 InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, VarClientID.TOPLEVEL_PANEL);
                 if (tabState == InventoryTabChecker.TabState.SPELLBOOK) {
-                    widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
+                    if (FertileSoilHelper.useSpellbookSwap(plugin.getConfig())
+                            && !widgetHelper.isInterfaceOpen(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId())) {
+                        widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_SPELLBOOK_SWAP).render(graphics);
+                    } else {
+                        widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
+                    }
                 } else {
                     // Highlight the spellbook icon in the tab bar (widget group 161/164, child 6)
                     widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookIconGroupId(), widgetHelper.getSpellbookIconChildId()).render(graphics);

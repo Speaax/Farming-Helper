@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingOverlay;
 import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.gameval.InventoryID;
@@ -330,8 +331,19 @@ public class ItemHighlighter {
                 return ItemID.BUCKET_ULTRACOMPOST;
             case Bottomless:
                 return ItemID.BOTTOMLESS_COMPOST_BUCKET;
+            case Fertile_Soil:
+            case Fertile_Soil_Ash_Covered_Tome:
+                return null;
         }
         return -1;
+    }
+
+    public boolean selectedCompostUsesFertileSoil() {
+        return FertileSoilHelper.usesFertileSoil(config);
+    }
+
+    public boolean selectedCompostUsesVolcanicAsh() {
+        return FertileSoilHelper.usesVolcanicAsh(config);
     }
     
     /**

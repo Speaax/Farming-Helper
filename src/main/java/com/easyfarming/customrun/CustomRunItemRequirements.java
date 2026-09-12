@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 import com.easyfarming.utils.TeleportItemRequirements;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.ItemID;
@@ -66,6 +67,9 @@ public final class CustomRunItemRequirements {
 
             Map<Integer, Integer> req = teleport.getItemRequirements();
             mergeTeleportRequirements(allRequirements, req);
+            if (teleport.getCategory() == Teleport.Category.SPELLBOOK && FertileSoilHelper.useSpellbookSwap(config)) {
+                FertileSoilHelper.mergeSpellbookSwapRunes(allRequirements, 1);
+            }
 
             for (String patchType : patchTypes) {
                 if (PatchTypes.HERB.equals(patchType)) {
@@ -99,19 +103,31 @@ public final class CustomRunItemRequirements {
 
         boolean payForProtection = config != null && config.generalPayForProtection();
         if (!payForProtection) {
-            Integer selectedCompost = selectedCompostId(config);
-            int compostId = selectedCompost != null ? selectedCompost : -1;
-            if (compostId != -1 && compostId != 0) {
-                if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
-                    allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
-                } else {
-                    allRequirements.merge(compostId, compostPatchesTotal, Integer::sum);
+            if (FertileSoilHelper.usesFertileSoil(config)) {
+                allRequirements.merge(ItemID.EARTHRUNE, Constants.FERTILE_SOIL_EARTH_RUNE_COUNT * compostPatchesTotal, Integer::sum);
+                allRequirements.merge(ItemID.NATURERUNE, Constants.FERTILE_SOIL_NATURE_RUNE_COUNT * compostPatchesTotal, Integer::sum);
+                allRequirements.merge(ItemID.ASTRALRUNE, Constants.FERTILE_SOIL_ASTRAL_RUNE_COUNT * compostPatchesTotal, Integer::sum);
+                if (FertileSoilHelper.usesVolcanicAsh(config)) {
+                    allRequirements.merge(ItemID.FOSSIL_VOLCANIC_ASH, Constants.FERTILE_SOIL_VOLCANIC_ASH_COUNT * compostPatchesTotal, Integer::sum);
+                }
+            } else {
+                Integer selectedCompostId = selectedCompostId(config);
+                int compostId = selectedCompostId != null ? selectedCompostId : -1;
+                if (compostId != -1 && compostId != 0) {
+                    if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                        allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
+                    } else {
+                        allRequirements.merge(compostId, compostPatchesTotal, Integer::sum);
+                    }
                 }
             }
         }
 
         if (herbPatchCount > 0) {
             allRequirements.merge(ItemID.GUAM_SEED, herbPatchCount, Integer::sum);
+            if (config != null && config.useHerbSack()) {
+                allRequirements.merge(Constants.BASE_HERB_SACK_ID, 1, Integer::sum);
+            }
         }
         if (flowerPatchCount > 0) {
             allRequirements.merge(ItemID.LIMPWURT_SEED, flowerPatchCount, Integer::sum);
@@ -174,6 +190,9 @@ public final class CustomRunItemRequirements {
                 return ItemID.BUCKET_ULTRACOMPOST;
             case Bottomless:
                 return ItemID.BOTTOMLESS_COMPOST_BUCKET;
+            case Fertile_Soil:
+            case Fertile_Soil_Ash_Covered_Tome:
+                return 0;
             default:
                 return 0;
         }

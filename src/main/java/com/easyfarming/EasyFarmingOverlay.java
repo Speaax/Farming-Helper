@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import com.easyfarming.customrun.CustomRunItemRequirements;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 
 public class EasyFarmingOverlay extends Overlay {
 
@@ -728,6 +729,7 @@ public class EasyFarmingOverlay extends Overlay {
         }
 
         if (!plugin.areItemsCollected()) {
+            boolean needsLunarSpellbook = FertileSoilHelper.needsLunarSpellbook(client, plugin.getConfig());
             // List of items to check
             Map<Integer, Integer> itemsToCheck = null;
             if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
@@ -1071,6 +1073,8 @@ public class EasyFarmingOverlay extends Overlay {
                 } else if (itemId == ItemID.PENDANT_OF_ATES) {
                     boolean hasPendant = inventoryItemCounts.getOrDefault(ItemID.PENDANT_OF_ATES, 0) > 0;
                     inventoryCount = hasPendant ? count : 0;
+                } else if (itemId == Constants.BASE_HERB_SACK_ID) {
+                    inventoryCount = hasAnyItem(inventoryItemCounts, Constants.ANY_HERB_SACK_IDS) ? 1 : 0;
                 }
 
                 // Rune pouch contents are already included in inventoryItemCounts
@@ -1098,7 +1102,9 @@ public class EasyFarmingOverlay extends Overlay {
             // Prompt Check only when the box is present/unknown AND the requirement pass
             // already found unmet seed requirements (no parallel recount).
             boolean promptCheckSeedBox = seedBoxContentsUnknown && unmetSeedRequirement;
-            if (promptCheckSeedBox) {
+            if (needsLunarSpellbook) {
+                plugin.addTextToInfoBox(FertileSoilHelper.SWITCH_TO_LUNAR_SPELLBOOK_INSTRUCTION);
+            } else if (promptCheckSeedBox) {
                 plugin.addTextToInfoBox("Check the Seed Box to read its contents");
                 highlightSeedBoxInInventory(graphics, items);
                 allItemsCollected = false;
@@ -1120,7 +1126,7 @@ public class EasyFarmingOverlay extends Overlay {
                 return Integer.compare(priority1, priority2);
             });
 
-            plugin.setTeleportOverlayActive(allItemsCollected);
+            plugin.setTeleportOverlayActive(allItemsCollected && !needsLunarSpellbook);
 
             // Update InfoBoxes - remove ones that are no longer needed, add/update ones
             // that are
@@ -1186,7 +1192,7 @@ public class EasyFarmingOverlay extends Overlay {
             }
 
             // Check if all items have been collected
-            if (missingItemsWithCounts.isEmpty()) {
+            if (missingItemsWithCounts.isEmpty() && !needsLunarSpellbook) {
                 plugin.setItemsCollected(true);
             } else {
                 plugin.setItemsCollected(false);
@@ -1250,6 +1256,7 @@ public class EasyFarmingOverlay extends Overlay {
                 itemId == ItemID.RAKE ||
                 itemId == ItemID.DIBBER ||
                 itemId == ItemID.FAIRY_ENCHANTED_SECATEURS ||
+                itemId == Constants.BASE_HERB_SACK_ID ||
                 isWateringCan(itemId);
     }
 
@@ -1289,6 +1296,7 @@ public class EasyFarmingOverlay extends Overlay {
         if (itemId == ItemID.BUCKET_COMPOST ||
                 itemId == ItemID.BUCKET_SUPERCOMPOST ||
                 itemId == ItemID.BUCKET_ULTRACOMPOST ||
+                itemId == ItemID.FOSSIL_VOLCANIC_ASH ||
                 Constants.BOTTOMLESS_COMPOST_BUCKET_ITEM_IDS.contains(itemId)) {
             return true;
         }
@@ -1304,6 +1312,15 @@ public class EasyFarmingOverlay extends Overlay {
 
         // Everything else (runes, teleport items, tools, etc.) is considered a teleport
         // item
+        return false;
+    }
+
+    private boolean hasAnyItem(Map<Integer, Integer> itemCounts, List<Integer> itemIds) {
+        for (int itemId : itemIds) {
+            if (itemCounts.getOrDefault(itemId, 0) > 0) {
+                return true;
+            }
+        }
         return false;
     }
 }

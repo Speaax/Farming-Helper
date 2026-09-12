@@ -1,6 +1,7 @@
 package com.easyfarming.core;
 
 import com.easyfarming.EasyFarmingConfig;
+import com.easyfarming.utils.FertileSoilHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -38,7 +39,7 @@ public class Location {
             for (Teleport teleport : teleportOptions) {
                 String opt = teleport.getEnumOption();
                 if (opt != null && selectedEnumOption.equalsIgnoreCase(opt)) {
-                    return teleport;
+                    return effectiveTeleport(teleport);
                 }
             }
             // Custom run may store a teleport id from another patch type at the same location (e.g. tree
@@ -48,12 +49,26 @@ public class Location {
                 for (Teleport teleport : teleportOptions) {
                     String opt = teleport.getEnumOption();
                     if (opt != null && configEnumOption.equalsIgnoreCase(opt)) {
-                        return teleport;
+                        return effectiveTeleport(teleport);
                     }
                 }
             }
         }
-        return teleportOptions.isEmpty() ? null : teleportOptions.get(0);
+        return teleportOptions.isEmpty() ? null : effectiveTeleport(teleportOptions.get(0));
+    }
+
+    private Teleport effectiveTeleport(Teleport selectedTeleport) {
+        if (selectedTeleport != null
+                && selectedTeleport.getCategory() == Teleport.Category.SPELLBOOK
+                && FertileSoilHelper.avoidStandardSpellbookTeleports(config)) {
+            for (Teleport teleport : teleportOptions) {
+                if (teleport.getCategory() != Teleport.Category.SPELLBOOK
+                        && teleport.getCategory() != Teleport.Category.NONE) {
+                    return teleport;
+                }
+            }
+        }
+        return selectedTeleport;
     }
 
     public void setOverrideTeleportEnumOption(String enumOption) {

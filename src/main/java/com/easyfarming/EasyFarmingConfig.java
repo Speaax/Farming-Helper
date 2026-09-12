@@ -71,10 +71,23 @@ public interface EasyFarmingConfig extends Config
 
 	enum OptionEnumCompost
 	{
-		Compost,
-		Supercompost,
-		Ultracompost,
-		Bottomless
+		Compost("Compost"),
+		Supercompost("Supercompost"),
+		Ultracompost("Ultracompost"),
+		Bottomless("Bottomless"),
+		Fertile_Soil("Fertile Soil"),
+		Fertile_Soil_Ash_Covered_Tome("FS + Tome");
+
+		private final String displayName;
+
+		OptionEnumCompost(String displayName) {
+			this.displayName = displayName;
+		}
+
+		@Override
+		public String toString() {
+			return displayName;
+		}
 	}
 	@ConfigItem(
 			position = 5,
@@ -85,11 +98,45 @@ public interface EasyFarmingConfig extends Config
 	)
 	default OptionEnumCompost enumConfigCompost() { return OptionEnumCompost.Bottomless; }
 
+	enum OptionEnumFertileSoilTeleportMode
+	{
+		Avoid_standard_spellbook_teleports("Avoid spells"),
+		Use_Spellbook_Swap("Use Swap");
+
+		private final String displayName;
+
+		OptionEnumFertileSoilTeleportMode(String displayName) {
+			this.displayName = displayName;
+		}
+
+		@Override
+		public String toString() {
+			return displayName;
+		}
+	}
+	@ConfigItem(
+			position = 6,
+			keyName = "fertileSoilTeleportMode",
+			name = "FS teleports",
+			description = "How to handle standard spellbook teleports while using Fertile Soil",
+			section = generalList
+	)
+	default OptionEnumFertileSoilTeleportMode fertileSoilTeleportMode() { return OptionEnumFertileSoilTeleportMode.Avoid_standard_spellbook_teleports; }
+
+	@ConfigItem(
+			position = 7,
+			keyName = "useHerbSack",
+			name = "Use herb sack",
+			description = "Require a herb sack or silklined herb sack for herb runs",
+			section = generalList
+	)
+	default boolean useHerbSack() { return false; }
+
 	@ConfigItem(
 		keyName = "booleanConfigPayForProtection",
 		name = "Pay for protection",
 		description = "Want a reminder to pay for protection? (This currently doesn't check for the required items, only prompts you to pay the farmer.)",
-		position = 6,
+		position = 8,
 		section = generalList
 	)
 	default boolean generalPayForProtection() { return false; }

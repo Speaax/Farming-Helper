@@ -1,5 +1,6 @@
 package com.easyfarming.utils;
 
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.ObjectID;
 import net.runelite.api.gameval.VarbitID;
@@ -99,6 +100,18 @@ public class Constants {
     public static final int SPELL_CHILD_FORTIS_TELEPORT = 46;
     public static final int SPELL_CHILD_WATCHTOWER_TELEPORT = 50;
     public static final int SPELL_CHILD_TELEPORT_TO_HOUSE = 34;
+    public static final int SPELL_CHILD_FERTILE_SOIL = InterfaceID.MagicSpellbook.FERTILE_SOIL & 0xFFFF;
+    public static final int SPELL_CHILD_SPELLBOOK_SWAP = InterfaceID.MagicSpellbook.SPELLBOOK_SWAP & 0xFFFF;
+
+    // Fertile Soil applies supercompost. With the ash covered tome unlock, two volcanic ash
+    // are consumed to upgrade the cast to ultracompost.
+    public static final int FERTILE_SOIL_EARTH_RUNE_COUNT = 15;
+    public static final int FERTILE_SOIL_NATURE_RUNE_COUNT = 2;
+    public static final int FERTILE_SOIL_ASTRAL_RUNE_COUNT = 3;
+    public static final int FERTILE_SOIL_VOLCANIC_ASH_COUNT = 2;
+    public static final int SPELLBOOK_SWAP_ASTRAL_RUNE_COUNT = 3;
+    public static final int SPELLBOOK_SWAP_COSMIC_RUNE_COUNT = 2;
+    public static final int SPELLBOOK_SWAP_LAW_RUNE_COUNT = 1;
 
     public static boolean isKastoriRegion(int regionId) {
         return regionId == REGION_KASTORI
@@ -400,6 +413,12 @@ public class Constants {
     public static final List<Integer> JEWELLERY_BOX_IDS = Collections.unmodifiableList(Arrays.asList(
         29154, 29155, 29156
     ));
+
+    public static final int POH_EXIT_PORTAL_OBJECT_ID = 4525;
+
+    public static final List<Integer> POH_PORTAL_NEXUS_IDS = Collections.unmodifiableList(Arrays.asList(
+        13647
+    ));
     
     /**
      * Decorative object IDs for mounted Xeric's talisman in the POH (used with
@@ -419,9 +438,27 @@ public class Constants {
     public static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
     public static final int BASE_NECKLACE_OF_PASSAGE_ID = ItemID.NECKLACE_OF_PASSAGE_5;
     public static final int BASE_HERB_SEED_ID = ItemID.GUAM_SEED;
+    public static final int BASE_HERB_SACK_ID = ItemID.SLAYER_HERB_SACK;
     public static final int BASE_TREE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
     public static final int BASE_FRUIT_TREE_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
     public static final int BASE_ALLOTMENT_SEED_ID = ItemID.SNAPE_GRASS_SEED;
+
+    public static final List<Integer> HERB_SACK_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.SLAYER_HERB_SACK,
+        ItemID.SLAYER_HERB_SACK_OPEN
+    ));
+
+    public static final List<Integer> SILKLINED_HERB_SACK_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.SLAYER_HERB_SACK_SILK,
+        ItemID.SLAYER_HERB_SACK_SILK_OPEN
+    ));
+
+    public static final List<Integer> ANY_HERB_SACK_IDS = Collections.unmodifiableList(Arrays.asList(
+        ItemID.SLAYER_HERB_SACK,
+        ItemID.SLAYER_HERB_SACK_OPEN,
+        ItemID.SLAYER_HERB_SACK_SILK,
+        ItemID.SLAYER_HERB_SACK_SILK_OPEN
+    ));
     
     // Combination rune mapping
     public static final Map<Integer, List<Integer>> COMBINATION_RUNE_SUBRUNES_MAP;

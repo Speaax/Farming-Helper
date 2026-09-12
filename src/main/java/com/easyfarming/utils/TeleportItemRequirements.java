@@ -19,14 +19,19 @@ public final class TeleportItemRequirements {
     private TeleportItemRequirements() {}
 
     public static List<ItemRequirement> getHouseTeleportItemRequirements(EasyFarmingConfig config) {
-        EasyFarmingConfig.OptionEnumHouseTele selectedOption = config.enumConfigHouseTele();
+        EasyFarmingConfig.OptionEnumHouseTele selectedOption = FertileSoilHelper.effectiveHouseTeleport(config);
         List<ItemRequirement> itemRequirements = new ArrayList<>();
 
         switch (selectedOption) {
             case Law_air_earth_runes:
+                if (FertileSoilHelper.useSpellbookSwap(config)) {
+                    itemRequirements.add(new ItemRequirement(ItemID.ASTRALRUNE, Constants.SPELLBOOK_SWAP_ASTRAL_RUNE_COUNT));
+                    itemRequirements.add(new ItemRequirement(ItemID.COSMICRUNE, Constants.SPELLBOOK_SWAP_COSMIC_RUNE_COUNT));
+                }
                 itemRequirements.add(new ItemRequirement(ItemID.AIRRUNE, 1));
                 itemRequirements.add(new ItemRequirement(ItemID.EARTHRUNE, 1));
-                itemRequirements.add(new ItemRequirement(ItemID.LAWRUNE, 1));
+                itemRequirements.add(new ItemRequirement(ItemID.LAWRUNE,
+                        1 + (FertileSoilHelper.useSpellbookSwap(config) ? Constants.SPELLBOOK_SWAP_LAW_RUNE_COUNT : 0)));
                 break;
 
             case Teleport_To_House:

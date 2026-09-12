@@ -8,8 +8,14 @@ import com.easyfarming.overlays.utils.ColorProvider;
 import com.easyfarming.overlays.utils.GameObjectHelper;
 import com.easyfarming.overlays.utils.WidgetHelper;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FertileSoilHelper;
 import net.runelite.api.Client;
+import net.runelite.api.DecorativeObject;
+import net.runelite.api.GameObject;
+import net.runelite.api.GroundObject;
 import net.runelite.api.Player;
+import net.runelite.api.Tile;
+import net.runelite.api.WorldView;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.ItemID;
@@ -71,21 +77,108 @@ public class NavigationHandler {
     }
     
     /**
-     * Checks if player is in their house (has Portal object).
+     * Checks if player is in their house.
      */
     public void inHouseCheck() {
-        if (gameObjectHelper.getGameObjectIdsByName("Portal").contains(4525)) {
+        if (isPlayerInHouse()) {
             this.currentTeleportCase = 2;
         }
+    }
+
+    private boolean isPlayerInHouse() {
+        return !gameObjectHelper.getGameObjectIdsByName("Portal").isEmpty()
+                || !gameObjectHelper.getGameObjectIdsByName("Portal Nexus").isEmpty()
+                || !gameObjectHelper.getGameObjectIdsByName("Jewellery Box").isEmpty()
+                || !gameObjectHelper.getGameObjectIdsByName("Jewellery box").isEmpty()
+                || !gameObjectHighlighter.findGameObjectsByID(Constants.POH_EXIT_PORTAL_OBJECT_ID).isEmpty()
+                || hasAnyGameObject(Constants.POH_PORTAL_NEXUS_IDS)
+                || hasAnyGameObject(Constants.JEWELLERY_BOX_IDS)
+                || hasAnyDecorativeObject(Constants.XERICS_TALISMAN_IDS)
+                || liveSceneHasPohObject();
+    }
+
+    private boolean hasAnyGameObject(List<Integer> objectIds) {
+        for (int objectId : objectIds) {
+            if (!gameObjectHighlighter.findGameObjectsByID(objectId).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasAnyDecorativeObject(List<Integer> objectIds) {
+        for (int objectId : objectIds) {
+            if (!gameObjectHighlighter.findDecorativeObjectsByID(objectId).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean liveSceneHasPohObject() {
+        WorldView worldView = getPlayerWorldView();
+        if (worldView == null || worldView.getScene() == null) {
+            return false;
+        }
+
+        Tile[][][] tiles = worldView.getScene().getTiles();
+        for (int plane = 0; plane < tiles.length; plane++) {
+            for (int x = 0; x < Constants.SCENE_SIZE; x++) {
+                for (int y = 0; y < Constants.SCENE_SIZE; y++) {
+                    Tile tile = tiles[plane][x][y];
+                    if (tile == null) {
+                        continue;
+                    }
+
+                    for (GameObject gameObject : tile.getGameObjects()) {
+                        if (gameObject != null && isPohGameObject(gameObject.getId())) {
+                            return true;
+                        }
+                    }
+
+                    GroundObject groundObject = tile.getGroundObject();
+                    if (groundObject != null && isPohGameObject(groundObject.getId())) {
+                        return true;
+                    }
+
+                    DecorativeObject decorativeObject = tile.getDecorativeObject();
+                    if (decorativeObject != null && Constants.XERICS_TALISMAN_IDS.contains(decorativeObject.getId())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isPohGameObject(int objectId) {
+        return objectId == Constants.POH_EXIT_PORTAL_OBJECT_ID
+                || Constants.POH_PORTAL_NEXUS_IDS.contains(objectId)
+                || Constants.JEWELLERY_BOX_IDS.contains(objectId);
+    }
+
+    private WorldView getPlayerWorldView() {
+        Player localPlayer = client.getLocalPlayer();
+        if (localPlayer != null && localPlayer.getWorldView() != null) {
+            return localPlayer.getWorldView();
+        }
+        return client.getTopLevelWorldView();
     }
     
     /**
      * Handles navigation to player's house.
      */
     public void gettingToHouse(Graphics2D graphics) {
-        EasyFarmingConfig.OptionEnumHouseTele teleportOption = config.enumConfigHouseTele();
+        EasyFarmingConfig.OptionEnumHouseTele teleportOption = FertileSoilHelper.effectiveHouseTeleport(config);
         Color leftColor = colorProvider.getLeftClickColorWithAlpha();
         Color rightColor = colorProvider.getRightClickColorWithAlpha();
+
+        inHouseCheck();
+        if (currentTeleportCase == 2) {
+            return;
+        }
+
+        plugin.addTextToInfoBox(getHouseTeleportInstruction());
         
         switch (teleportOption) {
             case Law_air_earth_runes:
@@ -98,8 +191,13 @@ public class NavigationHandler {
                         widgetHighlighter.interfaceOverlay(widgetHelper.getSpellbookIconGroupId(), widgetHelper.getSpellbookIconChildId()).render(graphics);
                         break;
                     case SPELLBOOK:
-                        // Highlight the "Teleport to House" spell using correct child ID from widget inspector
-                        widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_TELEPORT_TO_HOUSE).render(graphics);
+                        if (FertileSoilHelper.useSpellbookSwap(config)
+                                && !widgetHelper.isInterfaceOpen(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_TELEPORT_TO_HOUSE)) {
+                            widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_SPELLBOOK_SWAP).render(graphics);
+                        } else {
+                            // Highlight the "Teleport to House" spell using correct child ID from widget inspector
+                            widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_TELEPORT_TO_HOUSE).render(graphics);
+                        }
                         inHouseCheck();
                         break;
                 }
@@ -281,6 +379,16 @@ public class NavigationHandler {
         }
         
         // Default to normal teleport highlighting
+        if (requiresHouseNavigation(teleport) && currentTeleportCase == 1) {
+            inHouseCheck();
+            if (currentTeleportCase == 2) {
+                handleHouseDestinationTeleport(graphics, teleport, location, currentRegionId);
+                return;
+            }
+            gettingToHouse(graphics);
+            return;
+        }
+
         teleportHighlighter.highlightTeleportMethod(teleport, graphics);
     }
     
@@ -298,6 +406,10 @@ public class NavigationHandler {
                 return;
             }
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+
+            if (requiresHouseNavigation(teleport)) {
+                inHouseCheck();
+            }
             
             // Use adaptive detection to determine if we should proceed to farming
             if (shouldProceedToFarming(location, teleport)) {
@@ -310,7 +422,7 @@ public class NavigationHandler {
             } else {
                 // Use adaptive highlighting based on current situation
                 adaptiveHighlighting(location, teleport, graphics, patchType);
-                plugin.addTextToInfoBox(teleport.getDescription());
+                plugin.addTextToInfoBox(getNavigationInstruction(teleport));
                 return;
             }
             
@@ -344,6 +456,78 @@ public class NavigationHandler {
                     }
                     break;
             }
+        }
+    }
+
+    private boolean requiresHouseNavigation(Teleport teleport) {
+        if (teleport == null) {
+            return false;
+        }
+        switch (teleport.getCategory()) {
+            case PORTAL_NEXUS:
+            case JEWELLERY_BOX:
+            case MOUNTED_XERICS:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private String getNavigationInstruction(Teleport teleport) {
+        if (requiresHouseNavigation(teleport)) {
+            inHouseCheck();
+        }
+        if (requiresHouseNavigation(teleport) && currentTeleportCase == 1) {
+            return getHouseTeleportInstruction();
+        }
+        return teleport.getDescription();
+    }
+
+    private void handleHouseDestinationTeleport(Graphics2D graphics, Teleport teleport, Location location, int currentRegionId) {
+        switch (teleport.getCategory()) {
+            case PORTAL_NEXUS:
+                handlePortalNexusTeleport(graphics, teleport, location, currentRegionId);
+                break;
+            case JEWELLERY_BOX:
+                handleJewelleryBoxTeleport(graphics, teleport, location, currentRegionId);
+                break;
+            case MOUNTED_XERICS:
+                handleMountedXericsTeleport(graphics, teleport, location, currentRegionId);
+                break;
+            default:
+                teleportHighlighter.highlightTeleportMethod(teleport, graphics);
+                break;
+        }
+    }
+
+    private String getHouseTeleportInstruction() {
+        EasyFarmingConfig.OptionEnumHouseTele teleportOption = FertileSoilHelper.effectiveHouseTeleport(config);
+        switch (teleportOption) {
+            case Law_air_earth_runes:
+                InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, VarClientID.TOPLEVEL_PANEL);
+                switch (tabState) {
+                    case INVENTORY:
+                    case REST:
+                        return "Open spellbook for Teleport to House.";
+                    case SPELLBOOK:
+                        if (FertileSoilHelper.useSpellbookSwap(config)
+                                && !widgetHelper.isInterfaceOpen(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_TELEPORT_TO_HOUSE)) {
+                            return "Cast Spellbook Swap for Teleport to House.";
+                        }
+                        return "Cast Teleport to House.";
+                    default:
+                        return "Cast Teleport to House.";
+                }
+            case Teleport_To_House:
+                return "Use Teleport to House tablet.";
+            case Construction_cape:
+                return "Use Construction cape to teleport home.";
+            case Construction_cape_t:
+                return "Use trimmed Construction cape to teleport home.";
+            case Max_cape:
+                return "Use Max cape to teleport home.";
+            default:
+                return "Teleport to your house.";
         }
     }
     
@@ -439,6 +623,7 @@ public class NavigationHandler {
                 if (!widgetHelper.isInterfaceOpen(17, 0)) {
                     List<Integer> portalNexusIds = gameObjectHelper.getGameObjectIdsByName("Portal Nexus");
                     gameObjectHighlighter.renderGameObjectHighlights(graphics, portalNexusIds, leftColor);
+                    gameObjectHighlighter.renderGameObjectHighlights(graphics, Constants.POH_PORTAL_NEXUS_IDS, leftColor);
                 } else {
                     Widget widget = client.getWidget(Constants.INTERFACE_PORTAL_NEXUS, Constants.INTERFACE_PORTAL_NEXUS_CHILD);
                     int index = widgetHelper.getChildIndexPortalNexus(location.getName());
@@ -568,7 +753,12 @@ public class NavigationHandler {
                 }
                 break;
             case SPELLBOOK:
-                widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
+                if (FertileSoilHelper.useSpellbookSwap(config)
+                        && !widgetHelper.isInterfaceOpen(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId())) {
+                    widgetHighlighter.interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, Constants.SPELL_CHILD_SPELLBOOK_SWAP).render(graphics);
+                } else {
+                    widgetHighlighter.interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
+                }
                 if (currentRegionId == teleport.getRegionId()) {
                     this.currentTeleportCase = 1;
                     isAtDestination = true;
