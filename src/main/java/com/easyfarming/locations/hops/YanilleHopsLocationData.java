@@ -71,6 +71,22 @@ public class YanilleHopsLocationData {
             )
         ));
 
+        // Watchtower Teleport tablet (diary destination Yanille)
+        location.addTeleportOption(new Teleport(
+            "Watchtower_Tele_Tab",
+            Teleport.Category.ITEM,
+            "Teleport to Yanille with Watchtower Tele Tab (requires hard Ardougne Diary destination), and run north to hops patch.",
+            ItemID.POH_TABLET_WATCHTOWERTELEPORT,
+            "",
+            0,
+            0,
+            10288,
+            YANILLE_HOPS_PATCH_POINT,
+            Collections.singletonList(
+                new ItemRequirement(ItemID.POH_TABLET_WATCHTOWERTELEPORT, 1)
+            )
+        ));
+
         // Yanille Teleport (Watchtower teleport with diary goes to Yanille)
         location.addTeleportOption(new Teleport(
             "Yanille",

@@ -569,6 +569,7 @@ public interface EasyFarmingConfig extends Config
 	{
 		Portal_Nexus,
 		Watchtower_Teleport,
+		Watchtower_Tele_Tab,
 		Yanille,
 		Yanille_Tele_Tab,
 		Normal_POH_Tele_Tab,
