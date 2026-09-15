@@ -313,13 +313,7 @@ public class FarmingStepHandler {
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, leftColor);
                         break;
                     case NEEDS_WATER:
-                        plugin.addTextToInfoBox("Water the hops patch.");
-                        patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
-                        // Highlight all watering can variants
-                        for (int canId : Constants.WATERING_CAN_IDS) {
-                            itemHighlighter.itemHighlight(graphics, canId, useItemColor);
-                        }
-                        break;
+                        // First growth cycle cannot disease; skip watering and proceed to compost (#101).
                     case GROWING:
                         // Check persistent state FIRST - if already composted, mark as done and return
                         if (hopsPatchComposted) {
@@ -340,7 +334,7 @@ public class FarmingStepHandler {
                             clearHintArrow();
                             return;
                         }
-                        // Patch is GROWING but not composted yet - show compost instruction
+                        // Patch is GROWING/NEEDS_WATER but not composted yet - show compost instruction
                         plugin.addTextToInfoBox("Use Compost on patch.");
                         patchHighlighter.highlightSpecificHopsPatch(graphics, patchObjectId, useItemColor);
                         Integer compostId = itemHighlighter.selectedCompostID();
