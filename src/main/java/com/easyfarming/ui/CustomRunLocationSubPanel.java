@@ -1,7 +1,10 @@
 package com.easyfarming.ui;
 
 import com.easyfarming.EasyFarmingPlugin;
+import com.easyfarming.core.Location;
+import com.easyfarming.core.Teleport;
 import com.easyfarming.customrun.LocationCatalog;
+import com.easyfarming.customrun.NavigationTextOverrides;
 import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.customrun.RunLocation;
 import net.runelite.client.ui.ColorScheme;
@@ -137,6 +140,16 @@ public class CustomRunLocationSubPanel extends JPanel {
             if (onChanged != null) onChanged.run();
         });
         teleportRow.add(teleportCombo);
+
+        JButton editNavTextButton = new JButton("\u270E");
+        editNavTextButton.setToolTipText("Edit navigation text for this teleport");
+        editNavTextButton.setFocusable(false);
+        editNavTextButton.setMargin(new Insets(2, 6, 2, 6));
+        editNavTextButton.setForeground(Color.WHITE);
+        editNavTextButton.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        editNavTextButton.addActionListener(e -> openNavigationTextEditor());
+        teleportRow.add(editNavTextButton);
+
         contentPanel.add(teleportRow, BorderLayout.SOUTH);
 
         add(contentPanel, BorderLayout.CENTER);
@@ -170,6 +183,95 @@ public class CustomRunLocationSubPanel extends JPanel {
             teleportCombo.setSelectedIndex(0);
             runLocation.setTeleportOption(opts.get(0));
         }
+    }
+
+    private void openNavigationTextEditor() {
+        Object selected = teleportCombo.getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+        String teleportOption = (String) selected;
+        Teleport teleport = findTeleport(teleportOption);
+        if (teleport == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Could not find teleport details for " + teleportOption.replace('_', ' ') + ".",
+                    "Edit navigation text",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        NavigationTextOverrides overrides = plugin.getNavigationTextOverrides();
+        String defaultText = teleport.getDescription() != null ? teleport.getDescription() : "";
+        String currentText = overrides.resolve(locationName, teleport);
+
+        JTextArea textArea = new JTextArea(currentText, 5, 40);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
+        panel.add(new JLabel("Navigation text for " + locationName + " · " + teleportOption.replace('_', ' ')), BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        Object[] options = {"Save", "Reset to default", "Cancel"};
+        int result = JOptionPane.showOptionDialog(
+                this,
+                panel,
+                "Edit navigation text",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (result == 0) {
+            String edited = textArea.getText() != null ? textArea.getText().trim() : "";
+            if (edited.isEmpty() || edited.equals(defaultText)) {
+                overrides.clearOverride(locationName, teleportOption);
+            } else {
+                overrides.setOverride(locationName, teleportOption, edited);
+            }
+        } else if (result == 1) {
+            overrides.clearOverride(locationName, teleportOption);
+        }
+    }
+
+    private Teleport findTeleport(String teleportOption) {
+        LocationCatalog catalog = plugin.getLocationCatalog();
+        List<String> patchTypes = runLocation.getPatchTypes();
+        if (patchTypes != null) {
+            for (String patchType : patchTypes) {
+                Location loc = catalog.getLocationForPatch(locationName, patchType);
+                Teleport match = findTeleportOnLocation(loc, teleportOption);
+                if (match != null) {
+                    return match;
+                }
+            }
+        }
+        List<String> available = catalog.getPatchTypesAtLocation(locationName);
+        if (available != null) {
+            for (String patchType : available) {
+                Location loc = catalog.getLocationForPatch(locationName, patchType);
+                Teleport match = findTeleportOnLocation(loc, teleportOption);
+                if (match != null) {
+                    return match;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Teleport findTeleportOnLocation(Location loc, String teleportOption) {
+        if (loc == null || teleportOption == null) {
+            return null;
+        }
+        for (Teleport teleport : loc.getTeleportOptions()) {
+            if (teleportOption.equals(teleport.getEnumOption())) {
+                return teleport;
+            }
+        }
+        return null;
     }
 
     private void refreshPatchIcons() {

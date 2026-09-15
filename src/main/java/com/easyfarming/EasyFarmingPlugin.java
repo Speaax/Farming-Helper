@@ -2,6 +2,7 @@ package com.easyfarming;
 
 import com.easyfarming.customrun.CustomRunStorage;
 import com.easyfarming.customrun.LocationCatalog;
+import com.easyfarming.customrun.NavigationTextOverrides;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
@@ -43,6 +44,7 @@ public class EasyFarmingPlugin extends Plugin
 
 	private LocationCatalog locationCatalog;
 	private CustomRunStorage customRunStorage;
+	private NavigationTextOverrides navigationTextOverrides;
 
 	public LocationCatalog getLocationCatalog() {
 		if (locationCatalog == null) {
@@ -56,6 +58,13 @@ public class EasyFarmingPlugin extends Plugin
 			customRunStorage = new CustomRunStorage(configManager, gson);
 		}
 		return customRunStorage;
+	}
+
+	public NavigationTextOverrides getNavigationTextOverrides() {
+		if (navigationTextOverrides == null) {
+			navigationTextOverrides = new NavigationTextOverrides(configManager, gson);
+		}
+		return navigationTextOverrides;
 	}
 
 	public void runOnClientThread(Runnable task) {
