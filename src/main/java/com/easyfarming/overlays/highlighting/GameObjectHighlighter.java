@@ -23,6 +23,8 @@ import java.util.Map;
  * Handles highlighting of game objects in the world.
  * Caches scene lookups per (objectId, region, plane) to avoid full scene scans every frame,
  * which caused severe FPS drops when e.g. showing "Rake weeds" overlay (issue #63).
+ * Multi-tile GameObjects are kept only on their SceneMinLocation tile so allotment/hops
+ * patches are not redrawn once per occupied tile (issue #101).
  */
 public class GameObjectHighlighter {
     private final Client client;
@@ -81,7 +83,11 @@ public class GameObjectHighlighter {
                     continue;
                 }
                 for (GameObject gameObject : tile.getGameObjects()) {
-                    if (gameObject != null && objectIdMatches(gameObject.getId(), objectID)) {
+                    // Multi-tile objects appear on every occupied tile; only keep the SW/min anchor
+                    // (same pattern as RuneLite DevToolsOverlay) to avoid drawing N overlapping clickboxes.
+                    if (gameObject != null
+                            && isGameObjectAnchorTile(gameObject.getSceneMinLocation(), tile.getSceneLocation())
+                            && objectIdMatches(gameObject.getId(), objectID)) {
                         gameObjects.add(gameObject);
                     }
                 }
@@ -89,6 +95,17 @@ public class GameObjectHighlighter {
         }
         objectCache.put(objectID, gameObjects);
         return gameObjects;
+    }
+
+    /**
+     * Returns true when {@code tileSceneLocation} is the southwest/min tile of a (possibly multi-tile)
+     * game object. Package-visible for unit tests.
+     */
+    static boolean isGameObjectAnchorTile(net.runelite.api.Point sceneMinLocation,
+                                          net.runelite.api.Point tileSceneLocation) {
+        return sceneMinLocation != null
+                && tileSceneLocation != null
+                && sceneMinLocation.equals(tileSceneLocation);
     }
 
     /**

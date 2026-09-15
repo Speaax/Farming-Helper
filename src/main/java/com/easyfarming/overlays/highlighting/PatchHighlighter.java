@@ -53,6 +53,22 @@ public class PatchHighlighter {
             }
         }
     }
+
+    /**
+     * Highlights only the allotment patch object IDs for {@code locationName} (north/south where applicable).
+     */
+    public void highlightAllotmentPatchesForLocation(Graphics2D graphics, String locationName, Color color) {
+        List<Integer> patchIds = Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.get(locationName);
+        if (patchIds == null) {
+            return;
+        }
+        for (Integer patchId : patchIds) {
+            if (patchId == null) {
+                continue;
+            }
+            gameObjectHighlighter.renderGameObjectHighlight(graphics, patchId, color);
+        }
+    }
     
     /**
      * Highlights a specific allotment patch by object ID.
@@ -171,7 +187,7 @@ public class PatchHighlighter {
                 break;
             case PatchTypes.ALLOTMENT:
                 if (isHerbLocation(locationName)) {
-                    highlightAllotmentPatches(graphics, leftClickColor);
+                    highlightAllotmentPatchesForLocation(graphics, locationName, leftClickColor);
                 }
                 break;
             case PatchTypes.TREE:
