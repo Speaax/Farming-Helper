@@ -12,16 +12,20 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * One location as its own sub-panel: location name header (draggable for reorder), patch icons, teleport dropdown below.
- * Header can be collapsed to minimize the panel.
+ * Selected patch icons show in visit order and can be dragged to reorder; header can be collapsed to minimize the panel.
  */
 public class CustomRunLocationSubPanel extends JPanel {
     private static final int PATCH_ICON_SIZE = 36;
     private static final int GRIMY_RANARR_WEED = 207;
+    private static final int PATCH_DRAG_THRESHOLD_PX = 6;
+    private static final String CLIENT_PROP_PATCH_TYPE = "patchType";
 
     private final EasyFarmingPlugin plugin;
     private final ItemManager itemManager;
@@ -36,6 +40,10 @@ public class CustomRunLocationSubPanel extends JPanel {
     private final JLabel expandCollapseLabel = new JLabel("\u25B6");
     /** When true, programmatic refresh is in progress; do not fire onChanged to avoid re-entry loop. */
     private boolean refreshingFromRun = false;
+
+    private String draggedPatchType = null;
+    private Point patchDragPressPoint = null;
+    private boolean patchDragMoved = false;
 
     public CustomRunLocationSubPanel(EasyFarmingPlugin plugin, ItemManager itemManager, String locationName,
                                     RunLocation runLocation, Runnable onChanged) {
@@ -67,9 +75,9 @@ public class CustomRunLocationSubPanel extends JPanel {
         expandCollapseLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         expandCollapseLabel.setToolTipText("Expand");
         expandCollapseLabel.setBorder(new EmptyBorder(0, 0, 0, 6));
-        expandCollapseLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        expandCollapseLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 toggleExpanded();
             }
         });
@@ -80,9 +88,9 @@ public class CustomRunLocationSubPanel extends JPanel {
             gripLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
             gripLabel.setCursor(new Cursor(Cursor.MOVE_CURSOR));
             gripLabel.setToolTipText("Drag to reorder");
-            gripLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            gripLabel.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mousePressed(java.awt.event.MouseEvent e) {
+                public void mousePressed(MouseEvent e) {
                     onDragStart.accept(locationName);
                 }
             });
@@ -93,9 +101,9 @@ public class CustomRunLocationSubPanel extends JPanel {
         nameLabel.setFont(FontManager.getRunescapeBoldFont());
         if (onDragStart != null) {
             nameLabel.setCursor(new Cursor(Cursor.MOVE_CURSOR));
-            nameLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            nameLabel.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mousePressed(java.awt.event.MouseEvent e) {
+                public void mousePressed(MouseEvent e) {
                     onDragStart.accept(locationName);
                 }
             });
@@ -168,10 +176,30 @@ public class CustomRunLocationSubPanel extends JPanel {
         patchIconsPanel.removeAll();
         LocationCatalog catalog = plugin.getLocationCatalog();
         List<String> available = catalog.getPatchTypesAtLocation(locationName);
-        List<String> selected = runLocation.getPatchTypes() != null ? runLocation.getPatchTypes() : new ArrayList<>();
+        if (available == null) {
+            available = new ArrayList<>();
+        }
+        List<String> selected = runLocation.getPatchTypes() != null
+                ? runLocation.getPatchTypes()
+                : new ArrayList<>();
+
+        // Selected patches first in visit order, then unselected available types.
+        List<String> displayOrder = new ArrayList<>();
+        for (String patchType : selected) {
+            if (available.contains(patchType)) {
+                displayOrder.add(patchType);
+            }
+        }
         for (String patchType : available) {
-            JButton iconBtn = makePatchIconButton(patchType, selected.contains(patchType));
-            patchIconsPanel.add(iconBtn);
+            if (!selected.contains(patchType)) {
+                displayOrder.add(patchType);
+            }
+        }
+
+        boolean canReorder = selected.size() > 1;
+        for (String patchType : displayOrder) {
+            boolean isSelected = selected.contains(patchType);
+            patchIconsPanel.add(makePatchIconButton(patchType, isSelected, canReorder && isSelected));
         }
         patchIconsPanel.revalidate();
         patchIconsPanel.repaint();
@@ -187,10 +215,14 @@ public class CustomRunLocationSubPanel extends JPanel {
         }
     }
 
-    private JButton makePatchIconButton(String patchType, boolean selected) {
+    private JButton makePatchIconButton(String patchType, boolean selected, boolean draggable) {
         int itemId = itemIdForPatchType(patchType);
         String tooltip = displayName(patchType);
+        if (draggable) {
+            tooltip = tooltip + " — drag to reorder visit order";
+        }
         JButton btn = new JButton();
+        btn.putClientProperty(CLIENT_PROP_PATCH_TYPE, patchType);
         btn.setPreferredSize(new Dimension(PATCH_ICON_SIZE, PATCH_ICON_SIZE));
         btn.setFocusable(false);
         btn.setToolTipText(tooltip);
@@ -198,26 +230,133 @@ public class CustomRunLocationSubPanel extends JPanel {
         btn.setForeground(Color.WHITE);
         btn.setOpaque(true);
         btn.setBorderPainted(false);
+        if (draggable) {
+            btn.setCursor(new Cursor(Cursor.MOVE_CURSOR));
+        }
         if (itemManager != null) {
             itemManager.getImage(itemId).addTo(btn);
         } else {
-            btn.setText(tooltip);
+            btn.setText(displayName(patchType));
         }
-        btn.addActionListener(e -> {
-            List<String> types = runLocation.getPatchTypes();
-            if (types == null) {
-                types = new ArrayList<>();
-                runLocation.setPatchTypes(types);
+
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (!SwingUtilities.isLeftMouseButton(e)) {
+                    return;
+                }
+                patchDragPressPoint = e.getPoint();
+                patchDragMoved = false;
+                draggedPatchType = draggable ? patchType : null;
             }
-            if (types.contains(patchType)) {
-                types.remove(patchType);
-            } else {
-                types.add(patchType);
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (!SwingUtilities.isLeftMouseButton(e)) {
+                    return;
+                }
+                try {
+                    if (draggedPatchType != null && patchDragMoved) {
+                        String dropBefore = findPatchTypeAtScreenPoint(e.getLocationOnScreen());
+                        if (dropBefore != null && !dropBefore.equals(draggedPatchType)) {
+                            reorderPatch(draggedPatchType, dropBefore);
+                        }
+                    } else if (!patchDragMoved) {
+                        togglePatchType(patchType);
+                    }
+                } finally {
+                    draggedPatchType = null;
+                    patchDragPressPoint = null;
+                    patchDragMoved = false;
+                }
             }
-            btn.setBackground(types.contains(patchType) ? new Color(30, 60, 30) : ColorScheme.DARKER_GRAY_COLOR);
-            if (onChanged != null) onChanged.run();
+        });
+        btn.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (draggedPatchType == null || patchDragPressPoint == null) {
+                    return;
+                }
+                int dx = e.getX() - patchDragPressPoint.x;
+                int dy = e.getY() - patchDragPressPoint.y;
+                if (Math.abs(dx) + Math.abs(dy) >= PATCH_DRAG_THRESHOLD_PX) {
+                    patchDragMoved = true;
+                }
+            }
         });
         return btn;
+    }
+
+    private String findPatchTypeAtScreenPoint(Point screenPoint) {
+        Point inPanel = new Point(screenPoint);
+        SwingUtilities.convertPointFromScreen(inPanel, patchIconsPanel);
+        Component at = patchIconsPanel.getComponentAt(inPanel);
+        while (at != null && at != patchIconsPanel) {
+            Object prop = (at instanceof JComponent)
+                    ? ((JComponent) at).getClientProperty(CLIENT_PROP_PATCH_TYPE)
+                    : null;
+            if (prop instanceof String) {
+                List<String> selected = runLocation.getPatchTypes();
+                if (selected != null && selected.contains((String) prop)) {
+                    return (String) prop;
+                }
+                return null;
+            }
+            at = at.getParent();
+        }
+        return null;
+    }
+
+    private void togglePatchType(String patchType) {
+        if (refreshingFromRun) {
+            return;
+        }
+        List<String> types = runLocation.getPatchTypes();
+        if (types == null) {
+            types = new ArrayList<>();
+            runLocation.setPatchTypes(types);
+        }
+        if (types.contains(patchType)) {
+            types.remove(patchType);
+        } else {
+            types.add(patchType);
+        }
+        refreshPatchIcons();
+        if (onChanged != null) {
+            onChanged.run();
+        }
+    }
+
+    /**
+     * Moves {@code movedType} so it appears immediately before {@code dropBeforeType} in visit order.
+     * Package-visible for unit tests.
+     */
+    static void reorderPatchTypes(List<String> types, String movedType, String dropBeforeType) {
+        if (types == null || movedType == null || dropBeforeType == null) {
+            return;
+        }
+        if (!types.contains(movedType) || !types.contains(dropBeforeType) || movedType.equals(dropBeforeType)) {
+            return;
+        }
+        types.remove(movedType);
+        int insertIndex = types.indexOf(dropBeforeType);
+        if (insertIndex < 0) {
+            types.add(movedType);
+        } else {
+            types.add(insertIndex, movedType);
+        }
+    }
+
+    private void reorderPatch(String movedType, String dropBeforeType) {
+        List<String> types = runLocation.getPatchTypes();
+        if (types == null) {
+            return;
+        }
+        reorderPatchTypes(types, movedType, dropBeforeType);
+        refreshPatchIcons();
+        if (onChanged != null) {
+            onChanged.run();
+        }
     }
 
     private static int itemIdForPatchType(String patchType) {
