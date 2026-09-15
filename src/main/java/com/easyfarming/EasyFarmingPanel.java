@@ -82,6 +82,13 @@ public class EasyFarmingPanel extends PluginPanel {
         }
     }
 
+    /** Refresh the active-location step-edit pencil when the live instruction changes. */
+    public void refreshCurrentStepEditors() {
+        if (currentDetailPanel instanceof CustomRunDetailPanel) {
+            ((CustomRunDetailPanel) currentDetailPanel).refreshStepEditButtons();
+        }
+    }
+
     public void showRunDetail(CustomRun customRun) {
         if (currentDetailPanel != null) {
             cardContainer.remove(currentDetailPanel);

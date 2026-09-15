@@ -3,6 +3,7 @@ package com.easyfarming.ui;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
+import com.easyfarming.customrun.CurrentStepInstruction;
 import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.NavigationTextOverrides;
 import com.easyfarming.customrun.PatchTypes;
@@ -37,6 +38,7 @@ public class CustomRunLocationSubPanel extends JPanel {
     private final Runnable onChanged;
 
     private final JComboBox<String> teleportCombo;
+    private final JButton editStepTextButton;
     private final JPanel patchIconsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
     private final JPanel contentPanel = new JPanel(new BorderLayout());
     private boolean expanded = false;
@@ -118,11 +120,11 @@ public class CustomRunLocationSubPanel extends JPanel {
         patchIconsPanel.setOpaque(false);
         contentPanel.add(patchIconsPanel, BorderLayout.CENTER);
 
-        JPanel teleportRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
+        JPanel teleportRow = new JPanel(new BorderLayout(8, 0));
         teleportRow.setOpaque(false);
+        teleportRow.setBorder(new EmptyBorder(6, 0, 6, 0));
         JLabel teleLabel = new JLabel("Teleport");
         teleLabel.setForeground(Color.WHITE);
-        teleportRow.add(teleLabel);
         teleportCombo = new JComboBox<>();
         refreshTeleportOptions();
         teleportCombo.setRenderer(new DefaultListCellRenderer() {
@@ -139,16 +141,24 @@ public class CustomRunLocationSubPanel extends JPanel {
             if (sel != null) runLocation.setTeleportOption((String) sel);
             if (onChanged != null) onChanged.run();
         });
-        teleportRow.add(teleportCombo);
+        // Cap preferred width so long teleport names cannot push the pencil off the narrow panel.
+        teleportCombo.setPrototypeDisplayValue("Camelot Teleport");
 
-        JButton editNavTextButton = new JButton("\u270E");
-        editNavTextButton.setToolTipText("Edit navigation text for this teleport");
-        editNavTextButton.setFocusable(false);
-        editNavTextButton.setMargin(new Insets(2, 6, 2, 6));
-        editNavTextButton.setForeground(Color.WHITE);
-        editNavTextButton.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        editNavTextButton.addActionListener(e -> openNavigationTextEditor());
-        teleportRow.add(editNavTextButton);
+        JPanel teleportFields = new JPanel(new BorderLayout(8, 0));
+        teleportFields.setOpaque(false);
+        teleportFields.add(teleLabel, BorderLayout.WEST);
+        teleportFields.add(teleportCombo, BorderLayout.CENTER);
+        teleportRow.add(teleportFields, BorderLayout.CENTER);
+
+        editStepTextButton = new JButton("\u270E");
+        editStepTextButton.setToolTipText("Edit text for the current step");
+        editStepTextButton.setFocusable(false);
+        editStepTextButton.setMargin(new Insets(2, 6, 2, 6));
+        editStepTextButton.setForeground(Color.WHITE);
+        editStepTextButton.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        editStepTextButton.addActionListener(e -> openCurrentStepTextEditor());
+        editStepTextButton.setVisible(false);
+        teleportRow.add(editStepTextButton, BorderLayout.EAST);
 
         contentPanel.add(teleportRow, BorderLayout.SOUTH);
 
@@ -159,7 +169,17 @@ public class CustomRunLocationSubPanel extends JPanel {
     }
 
     private void toggleExpanded() {
-        expanded = !expanded;
+        setExpanded(!expanded);
+    }
+
+    /**
+     * Expand or collapse this location panel. No-op when already in the requested state.
+     */
+    public void setExpanded(boolean expand) {
+        if (this.expanded == expand) {
+            return;
+        }
+        this.expanded = expand;
         contentPanel.setVisible(expanded);
         expandCollapseLabel.setText(expanded ? "\u25BC" : "\u25B6");
         expandCollapseLabel.setToolTipText(expanded ? "Collapse" : "Expand");
@@ -167,8 +187,34 @@ public class CustomRunLocationSubPanel extends JPanel {
         repaint();
     }
 
+    public boolean isExpanded() {
+        return expanded;
+    }
+
     public String getLocationName() {
         return locationName;
+    }
+
+    /**
+     * Pencil is shown only while a custom run is active and this panel is the active location.
+     * Package-visible for unit tests.
+     */
+    static boolean shouldShowStepEditPencil(boolean customRunActive, String activeLocationName, String panelLocationName) {
+        return customRunActive
+                && activeLocationName != null
+                && activeLocationName.equals(panelLocationName);
+    }
+
+    /** Refresh pencil visibility from the live custom-run / current-location state. */
+    public void refreshStepEditVisibility() {
+        boolean runActive = plugin.getFarmingTeleportOverlay().isCustomRunMode();
+        String activeLocation = plugin.getFarmingTeleportOverlay().getActiveLocationName();
+        boolean show = shouldShowStepEditPencil(runActive, activeLocation, locationName);
+        if (editStepTextButton.isVisible() != show) {
+            editStepTextButton.setVisible(show);
+            revalidate();
+            repaint();
+        }
     }
 
     private void refreshTeleportOptions() {
@@ -185,24 +231,77 @@ public class CustomRunLocationSubPanel extends JPanel {
         }
     }
 
-    private void openNavigationTextEditor() {
-        Object selected = teleportCombo.getSelectedItem();
-        if (selected == null) {
+    private void openCurrentStepTextEditor() {
+        CurrentStepInstruction step = plugin.getCurrentStepInstruction();
+        if (step == null || !locationName.equals(step.getLocationName())) {
             return;
         }
-        String teleportOption = (String) selected;
+        if (step.getKind() == CurrentStepInstruction.Kind.NAVIGATION) {
+            openNavigationTextEditor(step.getTeleportOption(), step.getDefaultText());
+        } else {
+            openFarmingStepTextEditor(step.getDefaultText());
+        }
+    }
+
+    private void openFarmingStepTextEditor(String defaultText) {
+        NavigationTextOverrides overrides = plugin.getNavigationTextOverrides();
+        String currentText = overrides.resolveStep(defaultText);
+
+        JTextArea textArea = new JTextArea(currentText, 5, 40);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
+        panel.add(new JLabel("Step text for " + locationName), BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        Object[] options = {"Save", "Reset to default", "Cancel"};
+        int result = JOptionPane.showOptionDialog(
+                this,
+                panel,
+                "Edit step text",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (result == 0) {
+            String edited = textArea.getText() != null ? textArea.getText().trim() : "";
+            String baseline = defaultText != null ? defaultText : "";
+            if (edited.isEmpty() || edited.equals(baseline)) {
+                overrides.clearStepOverride(defaultText);
+            } else {
+                overrides.setStepOverride(defaultText, edited);
+            }
+        } else if (result == 1) {
+            overrides.clearStepOverride(defaultText);
+        }
+    }
+
+    private void openNavigationTextEditor(String teleportOption, String defaultTextFromStep) {
+        if (teleportOption == null) {
+            Object selected = teleportCombo.getSelectedItem();
+            if (selected == null) {
+                return;
+            }
+            teleportOption = (String) selected;
+        }
         Teleport teleport = findTeleport(teleportOption);
         if (teleport == null) {
             JOptionPane.showMessageDialog(
                     this,
                     "Could not find teleport details for " + teleportOption.replace('_', ' ') + ".",
-                    "Edit navigation text",
+                    "Edit step text",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         NavigationTextOverrides overrides = plugin.getNavigationTextOverrides();
-        String defaultText = teleport.getDescription() != null ? teleport.getDescription() : "";
+        String defaultText = defaultTextFromStep != null && !defaultTextFromStep.isEmpty()
+                ? defaultTextFromStep
+                : (teleport.getDescription() != null ? teleport.getDescription() : "");
         String currentText = overrides.resolve(locationName, teleport);
 
         JTextArea textArea = new JTextArea(currentText, 5, 40);
@@ -218,7 +317,7 @@ public class CustomRunLocationSubPanel extends JPanel {
         int result = JOptionPane.showOptionDialog(
                 this,
                 panel,
-                "Edit navigation text",
+                "Edit step text",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 null,

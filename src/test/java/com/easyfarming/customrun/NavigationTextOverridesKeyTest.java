@@ -21,4 +21,20 @@ public class NavigationTextOverridesKeyTest {
         assertEquals("|", NavigationTextOverrides.key(null, null));
         assertEquals("Falador|", NavigationTextOverrides.key("Falador", null));
     }
+
+    @Test
+    public void stepKeyPrefixesDefaultText() {
+        assertEquals("step|Harvest Herbs.", NavigationTextOverrides.stepKey("Harvest Herbs."));
+        assertEquals("step|", NavigationTextOverrides.stepKey(null));
+    }
+
+    @Test
+    public void stepKeyDoesNotCollideWithNavKeys() {
+        assertEquals(
+                "Seers Village|Portal_Nexus_Camelot",
+                NavigationTextOverrides.key("Seers Village", "Portal_Nexus_Camelot"));
+        assertEquals(
+                "step|Teleport to Farming guild using Skills necklace.",
+                NavigationTextOverrides.stepKey("Teleport to Farming guild using Skills necklace."));
+    }
 }

@@ -306,11 +306,11 @@ public class NavigationHandler {
                 if (location.getFarmLimps()) {
                     // This will be handled by the calling code
                 }
-                plugin.addTextToInfoBox(plugin.getNavigationTextOverrides().resolve(location.getName(), teleport));
+                plugin.setNavigationInstruction(location.getName(), teleport);
             } else {
                 // Use adaptive highlighting based on current situation
                 adaptiveHighlighting(location, teleport, graphics, patchType);
-                plugin.addTextToInfoBox(plugin.getNavigationTextOverrides().resolve(location.getName(), teleport));
+                plugin.setNavigationInstruction(location.getName(), teleport);
                 return;
             }
             

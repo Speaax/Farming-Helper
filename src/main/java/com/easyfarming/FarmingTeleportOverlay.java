@@ -55,6 +55,16 @@ public class FarmingTeleportOverlay extends Overlay {
     public String getActiveCustomRunName() {
         return activeCustomRunName;
     }
+
+    /** Name of the location currently being run, or null if none. */
+    public String getActiveLocationName() {
+        if (!customRunMode || customRunLocations.isEmpty() || currentLocationIndex >= customRunLocations.size()) {
+            return null;
+        }
+        RunLocation rl = customRunLocations.get(currentLocationIndex);
+        return rl != null ? rl.getLocationName() : null;
+    }
+
     private int currentPatchTypeIndex = 0;
     
     // Location tracking
@@ -449,6 +459,7 @@ public class FarmingTeleportOverlay extends Overlay {
         navigationHandler.isAtDestination = false;
         
         plugin.setItemsCollected(false);
+        plugin.clearCurrentStepInstruction();
 
         SwingUtilities.invokeLater(() -> {
             if (plugin.panel != null) {

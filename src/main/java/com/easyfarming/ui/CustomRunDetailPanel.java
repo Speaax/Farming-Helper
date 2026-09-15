@@ -54,6 +54,8 @@ public class CustomRunDetailPanel extends JPanel {
     private boolean inRowChangedOrRefresh = false;
     /** When true, hide locations that have no enabled patches (reduces clutter). */
     private boolean hideEmptyLocations = false;
+    /** Last location auto-expanded during an active run; used to expand/collapse only on location change. */
+    private String lastAutoExpandedLocation = null;
 
     public CustomRunDetailPanel(EasyFarmingPlugin plugin, EasyFarmingPanel parentPanel,
                                 CustomRun customRun,
@@ -345,10 +347,14 @@ public class CustomRunDetailPanel extends JPanel {
                 } else {
                     sub.refreshFromRunLocation();
                 }
+                sub.refreshStepEditVisibility();
                 locationsContainer.add(sub);
                 locationsContainer.add(Box.createRigidArea(new Dimension(0, 6)));
             }
         }
+        // Panels may have been recreated collapsed; re-apply active expand/collapse.
+        lastAutoExpandedLocation = null;
+        syncExpandedLocationToActiveRun();
         locationsContainer.revalidate();
         locationsContainer.repaint();
     }
@@ -450,8 +456,50 @@ public class CustomRunDetailPanel extends JPanel {
                 && customRun.getName() != null
                 && customRun.getName().equals(plugin.getFarmingTeleportOverlay().getActiveCustomRunName());
         skipStepButton.setVisible(active);
+        refreshStepEditButtons();
         revalidate();
         repaint();
+    }
+
+    /** Show the step-edit pencil only on the active location while this run is live. */
+    public void refreshStepEditButtons() {
+        for (CustomRunLocationSubPanel sub : subPanelsByLocation.values()) {
+            sub.refreshStepEditVisibility();
+        }
+        syncExpandedLocationToActiveRun();
+    }
+
+    /**
+     * While a custom run is active, expand the current location and collapse the others.
+     * Only runs when the active location changes so manual expand/collapse mid-stop is not fought every frame.
+     */
+    private void syncExpandedLocationToActiveRun() {
+        boolean runActive = plugin.getFarmingTeleportOverlay().isCustomRunMode()
+                && customRun.getName() != null
+                && customRun.getName().equals(plugin.getFarmingTeleportOverlay().getActiveCustomRunName());
+        if (!runActive) {
+            lastAutoExpandedLocation = null;
+            return;
+        }
+        String activeLocation = plugin.getFarmingTeleportOverlay().getActiveLocationName();
+        if (activeLocation == null || activeLocation.equals(lastAutoExpandedLocation)) {
+            return;
+        }
+        lastAutoExpandedLocation = activeLocation;
+        CustomRunLocationSubPanel activePanel = null;
+        for (CustomRunLocationSubPanel sub : subPanelsByLocation.values()) {
+            boolean isActive = CustomRunLocationSubPanel.shouldShowStepEditPencil(true, activeLocation, sub.getLocationName());
+            sub.setExpanded(isActive);
+            if (isActive) {
+                activePanel = sub;
+            }
+        }
+        if (activePanel != null) {
+            CustomRunLocationSubPanel toReveal = activePanel;
+            SwingUtilities.invokeLater(() -> toReveal.scrollRectToVisible(toReveal.getBounds()));
+        }
+        locationsContainer.revalidate();
+        locationsContainer.repaint();
     }
 
     /** Saves the config state as it exists on button press: name, tool requirements, and all locations from UI. */

@@ -1,12 +1,15 @@
 package com.easyfarming;
 
 import com.easyfarming.customrun.CustomRunStorage;
+import com.easyfarming.customrun.CurrentStepInstruction;
 import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.NavigationTextOverrides;
+import com.easyfarming.core.Teleport;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
 import javax.inject.Inject;
+import javax.swing.SwingUtilities;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -65,6 +68,46 @@ public class EasyFarmingPlugin extends Plugin
 			navigationTextOverrides = new NavigationTextOverrides(configManager, gson);
 		}
 		return navigationTextOverrides;
+	}
+
+	@Getter
+	private CurrentStepInstruction currentStepInstruction;
+	private String lastNotifiedStepIdentity = "";
+
+	/**
+	 * Shows navigation instruction text (with overrides) and records it as the editable current step.
+	 */
+	public void setNavigationInstruction(String locationName, Teleport teleport) {
+		NavigationTextOverrides overrides = getNavigationTextOverrides();
+		String defaultText = teleport != null && teleport.getDescription() != null ? teleport.getDescription() : "";
+		String resolved = overrides.resolve(locationName, teleport);
+		if (farmingHelperOverlayInfoBox != null) {
+			farmingHelperOverlayInfoBox.setText(resolved);
+		}
+		currentStepInstruction = CurrentStepInstruction.navigation(
+				locationName,
+				teleport != null ? teleport.getEnumOption() : null,
+				defaultText);
+		maybeNotifyCurrentStepUi();
+	}
+
+	public void clearCurrentStepInstruction() {
+		currentStepInstruction = null;
+		lastNotifiedStepIdentity = "";
+		if (panel != null) {
+			SwingUtilities.invokeLater(panel::refreshCurrentStepEditors);
+		}
+	}
+
+	private void maybeNotifyCurrentStepUi() {
+		String identity = currentStepInstruction != null ? currentStepInstruction.identity() : "";
+		if (identity.equals(lastNotifiedStepIdentity)) {
+			return;
+		}
+		lastNotifiedStepIdentity = identity;
+		if (panel != null) {
+			SwingUtilities.invokeLater(panel::refreshCurrentStepEditors);
+		}
 	}
 
 	public void runOnClientThread(Runnable task) {
@@ -219,7 +262,17 @@ public class EasyFarmingPlugin extends Plugin
 	}
 
     public void addTextToInfoBox(String text) {
-		farmingHelperOverlayInfoBox.setText(text);
+		String defaultText = text != null ? text : "";
+		String resolved = getNavigationTextOverrides().resolveStep(defaultText);
+		if (farmingHelperOverlayInfoBox != null) {
+			farmingHelperOverlayInfoBox.setText(resolved);
+		}
+		String locationName = null;
+		if (farmingTeleportOverlay != null && farmingTeleportOverlay.isCustomRunMode()) {
+			locationName = farmingTeleportOverlay.getActiveLocationName();
+		}
+		currentStepInstruction = CurrentStepInstruction.farming(locationName, defaultText);
+		maybeNotifyCurrentStepUi();
 	}
 
     public void addDebugTextToInfoBox(String debugText) {

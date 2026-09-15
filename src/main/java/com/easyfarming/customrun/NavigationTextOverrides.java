@@ -10,13 +10,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Persists per-location, per-teleport navigation instruction text overrides.
- * Keys are {@code locationName|teleportEnumOption} so shared teleport methods
- * (e.g. Camelot) can have different text at Seers Village vs Catherby.
+ * Persists instruction text overrides for navigation and farming steps.
+ * <ul>
+ *   <li>Nav keys: {@code locationName|teleportEnumOption} so shared teleport methods
+ *       (e.g. Camelot) can differ at Seers Village vs Catherby.</li>
+ *   <li>Farming/step keys: {@code step|defaultText} so e.g. "Harvest Herbs." can be customized.</li>
+ * </ul>
  */
 public class NavigationTextOverrides {
     private static final String CONFIG_GROUP = "farminghelper";
     private static final String KEY_NAV_TEXT_OVERRIDES = "navTextOverrides";
+    private static final String STEP_PREFIX = "step|";
     private static final Type MAP_TYPE = new TypeToken<HashMap<String, String>>() {}.getType();
 
     private final ConfigManager configManager;
@@ -36,6 +40,11 @@ public class NavigationTextOverrides {
             teleportEnumOption = "";
         }
         return locationName + "|" + teleportEnumOption;
+    }
+
+    /** Package-visible for unit tests. */
+    static String stepKey(String defaultText) {
+        return STEP_PREFIX + (defaultText != null ? defaultText : "");
     }
 
     public Map<String, String> loadAll() {
@@ -88,5 +97,37 @@ public class NavigationTextOverrides {
             return override;
         }
         return teleport.getDescription() != null ? teleport.getDescription() : "";
+    }
+
+    public String getStepOverride(String defaultText) {
+        return loadAll().get(stepKey(defaultText));
+    }
+
+    public void setStepOverride(String defaultText, String text) {
+        Map<String, String> map = loadAll();
+        String k = stepKey(defaultText);
+        if (text == null || text.trim().isEmpty()) {
+            map.remove(k);
+        } else {
+            map.put(k, text);
+        }
+        saveAll(map);
+    }
+
+    public void clearStepOverride(String defaultText) {
+        Map<String, String> map = loadAll();
+        map.remove(stepKey(defaultText));
+        saveAll(map);
+    }
+
+    /**
+     * Returns the step override if present, otherwise {@code defaultText} (or empty if null).
+     */
+    public String resolveStep(String defaultText) {
+        String override = getStepOverride(defaultText);
+        if (override != null && !override.isEmpty()) {
+            return override;
+        }
+        return defaultText != null ? defaultText : "";
     }
 }
