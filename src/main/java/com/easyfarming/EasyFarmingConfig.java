@@ -505,6 +505,7 @@ public interface EasyFarmingConfig extends Config
 
 	enum FruitTreeOptionEnumKastoriTeleport implements OptionEnumTeleport
 	{
+		Quetzal_whistle,
 		Quetzal_Transport,
 		Pendant_of_Ates,
 		None

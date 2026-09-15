@@ -31,6 +31,21 @@ public class KastoriFruitTreeLocationData {
         );
 
         location.addTeleportOption(new Teleport(
+                "Quetzal_whistle",
+                Teleport.Category.ITEM,
+                "Use the quetzal whistle to fly to Kastori, then run north to the fruit tree patch.",
+                ItemID.HG_QUETZALWHISTLE_BASIC,
+                "",
+                0,
+                0,
+                Constants.REGION_KASTORI,
+                KASTORI_FRUIT_TREE_PATCH_POINT,
+                Collections.singletonList(
+                        new ItemRequirement(ItemID.HG_QUETZALWHISTLE_BASIC, 1)
+                )
+        ));
+
+        location.addTeleportOption(new Teleport(
                 "Quetzal_Transport",
                 Teleport.Category.SPELLBOOK,
                 "Teleport to Civitas with Civitas teleport spell, then use the Quetzal Transport System to Kastori and run north to the fruit tree patch.",
