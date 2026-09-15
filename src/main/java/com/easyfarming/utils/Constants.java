@@ -19,6 +19,17 @@ public class Constants {
     public static final int REGION_ARDOUGNE_ALT = 10548; // Alternative region ID for Ardougne farming area
     public static final int REGION_CATHERBY = 11062;
     public static final int REGION_FALADOR = 12083;
+    /**
+     * Falador Park tree patch (Heskel). Distinct from {@link #REGION_FALADOR} herb/allotment south of the city.
+     * Primary + extra region IDs from RuneLite {@code FarmingWorld}.
+     */
+    public static final int REGION_FALADOR_PARK = 11828;
+    public static final int REGION_FALADOR_PARK_ALT = 12084;
+    /**
+     * Taverley tree patch (Alain). Primary + extra region IDs from RuneLite {@code FarmingWorld}.
+     */
+    public static final int REGION_TAVERLEY = 11573;
+    public static final int REGION_TAVERLEY_ALT = 11829;
     public static final int REGION_FARMING_GUILD = 4922;
     public static final int REGION_HARMONY = 15148;
     public static final int REGION_KOUREND = 6967;

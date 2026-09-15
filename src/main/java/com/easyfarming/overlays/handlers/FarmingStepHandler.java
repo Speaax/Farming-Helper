@@ -1375,9 +1375,15 @@ public class FarmingStepHandler {
         }
     }
 
-    private static String getTreeLocationNameFromRegionId(int regionId) {
+    /**
+     * Maps the player's region to a tree-run location name.
+     * Package-visible for unit tests.
+     */
+    static String getTreeLocationNameFromRegionId(int regionId) {
         switch (regionId) {
             case Constants.REGION_FALADOR:
+            case Constants.REGION_FALADOR_PARK:
+            case Constants.REGION_FALADOR_PARK_ALT:
                 return "Falador";
             case Constants.REGION_FARMING_GUILD:
                 return "Farming Guild";
@@ -1388,7 +1394,8 @@ public class FarmingStepHandler {
                 return "Lumbridge";
             case 12853:
                 return "Varrock";
-            case 11828:
+            case Constants.REGION_TAVERLEY:
+            case Constants.REGION_TAVERLEY_ALT:
                 return "Taverley";
             case Constants.REGION_AUBURNVALE:
             case Constants.REGION_AUBURNVALE_ALT1:
