@@ -8,22 +8,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Factory for creating Location instances from LocationData.
- * This allows locations to be defined as data rather than code.
- * 
- * Part of an incomplete refactor; do not modify without coordinating.
- * 
- * @deprecated This is part of an incomplete refactor. The factory pattern is still being used,
- *             but the architecture may change in future refactors. Prefer using
- *             {@link com.easyfarming.core.Teleport} as the canonical teleport model.
+ * Canonical factory that builds runtime {@link com.easyfarming.core.Location}
+ * instances from declarative {@link LocationData}.
+ *
+ * <p>Pipeline: {@code *LocationData} / {@link LocationData} → {@link LocationFactory}
+ * → {@link com.easyfarming.core.Location} → {@link com.easyfarming.customrun.LocationCatalog}.
+ *
+ * @see LocationData
+ * @see TeleportData
+ * @see com.easyfarming.core.Location
  */
-@Deprecated
 public class LocationFactory {
     
     /**
-     * Creates a com.easyfarming.core.Location from LocationData.
-     * This is the adapter method that bridges the new data-driven approach
-     * with the current Location class structure.
+     * Creates a {@link com.easyfarming.core.Location} from {@link LocationData},
+     * including converted {@link com.easyfarming.core.Teleport} options.
      */
     public static Location createLocation(LocationData locationData, EasyFarmingConfig config) {
         Location location = new Location(
@@ -41,7 +40,7 @@ public class LocationFactory {
     }
     
     /**
-     * Converts TeleportData to com.easyfarming.core.Teleport.
+     * Converts {@link TeleportData} to {@link com.easyfarming.core.Teleport}.
      */
     private static Teleport convertTeleportData(TeleportData teleportData) {
         // Get item requirements directly (no conversion needed)
@@ -62,7 +61,7 @@ public class LocationFactory {
     }
     
     /**
-     * Creates multiple locations from a list of LocationData.
+     * Creates multiple {@link com.easyfarming.core.Location} instances from a list of {@link LocationData}.
      */
     public static List<Location> createLocations(List<LocationData> locationDataList, EasyFarmingConfig config) {
         return locationDataList.stream()
@@ -70,4 +69,3 @@ public class LocationFactory {
             .collect(Collectors.toList());
     }
 }
-

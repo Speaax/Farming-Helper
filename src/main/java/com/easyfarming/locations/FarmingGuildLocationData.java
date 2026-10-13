@@ -30,7 +30,7 @@ public class FarmingGuildLocationData {
      * Creates Location for Farming Guild.
      * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
-     *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     *                              (typically from TeleportItemRequirements.getHouseTeleportItemRequirements())
      * @param fairyRingSupplier Supplier that provides fairy ring item requirements
      *                          (Dramen staff if Lumbridge Elite diary not complete)
      * @return A Location instance for Farming Guild

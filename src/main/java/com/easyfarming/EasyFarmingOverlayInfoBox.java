@@ -7,6 +7,7 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 
@@ -21,6 +22,7 @@ import java.awt.Graphics2D;
  * are restricted to {@code LayoutableRenderableEntity} and cannot host a raw {@code JButton}.
  * Sidebar buttons are also easier to target with the mouse while playing.
  */
+@Singleton
 public class EasyFarmingOverlayInfoBox extends OverlayPanel {
     private final Client client;
     private final EasyFarmingPlugin plugin;

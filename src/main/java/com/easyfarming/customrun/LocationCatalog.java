@@ -1,7 +1,6 @@
 package com.easyfarming.customrun;
 
 import com.easyfarming.EasyFarmingConfig;
-import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.core.Location;
 import com.easyfarming.core.Teleport;
@@ -35,7 +34,10 @@ import com.easyfarming.locations.tree.NemusRetreatTreeLocationData;
 import com.easyfarming.locations.tree.TaverleyTreeLocationData;
 import com.easyfarming.locations.tree.VarrockTreeLocationData;
 import com.easyfarming.utils.TeleportItemRequirements;
+import net.runelite.api.Client;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,8 +48,10 @@ import static java.util.Collections.singletonList;
  * Catalog of all locations with their teleport options and patch types,
  * built from the plugin's herb/tree/fruit tree/hops runs. Used for custom run UI and overlay.
  */
+@Singleton
 public class LocationCatalog {
-    private final EasyFarmingPlugin plugin;
+    private final EasyFarmingConfig config;
+    private final Client client;
 
     /** (locationName, patchType) -> Location from the appropriate run. */
     private final Map<String, Map<String, Location>> locationByPatch = new HashMap<>();
@@ -58,8 +62,10 @@ public class LocationCatalog {
     /** All unique location names in stable order. */
     private final List<String> allLocationNames = new ArrayList<>();
 
-    public LocationCatalog(EasyFarmingPlugin plugin) {
-        this.plugin = plugin;
+    @Inject
+    public LocationCatalog(EasyFarmingConfig config, Client client) {
+        this.config = config;
+        this.client = client;
         rebuild();
     }
 
@@ -71,11 +77,10 @@ public class LocationCatalog {
         allLocationNames.clear();
 
         Set<String> seenNames = new LinkedHashSet<>();
-        EasyFarmingConfig config = plugin.getConfig();
         Supplier<List<ItemRequirement>> houseTeleportSupplier = () -> TeleportItemRequirements.getHouseTeleportItemRequirements(config);
-        Supplier<List<ItemRequirement>> fairyRingSupplier = () -> TeleportItemRequirements.getFairyRingItemRequirements(config, plugin.getClient());
+        Supplier<List<ItemRequirement>> fairyRingSupplier = () -> TeleportItemRequirements.getFairyRingItemRequirements(config, client);
 
-        // Herb locations (order matches HerbRunItemAndLocation.setupLocations: Farming Guild, Ardougne, Catherby, Falador, Harmony, Kourend, Morytania, Troll Stronghold, Weiss, Civitas)
+        // Herb locations (stable order: Farming Guild, Ardougne, Catherby, Falador, Harmony, Kourend, Morytania, Troll Stronghold, Weiss, Civitas)
         Location farmingGuild = FarmingGuildLocationData.create(config, houseTeleportSupplier, fairyRingSupplier);
         seenNames.add(farmingGuild.getName());
         putLocationForPatch(farmingGuild.getName(), PatchTypes.HERB, farmingGuild);
@@ -156,7 +161,7 @@ public class LocationCatalog {
         addTeleports(civitas.getName(), civitas);
         addPatchTypes(civitas.getName(), Arrays.asList(PatchTypes.HERB, PatchTypes.FLOWER, PatchTypes.ALLOTMENT));
 
-        // Tree locations (order matches TreeRunItemAndLocation.setupLocations: Farming Guild, Falador, Taverley, Lumbridge, Varrock, Gnome Stronghold, Nemus Retreat)
+        // Tree locations (stable order: Farming Guild, Falador, Taverley, Lumbridge, Varrock, Gnome Stronghold, Nemus Retreat)
         Location farmingGuildTree = FarmingGuildTreeLocationData.create(config, houseTeleportSupplier, fairyRingSupplier);
         seenNames.add(farmingGuildTree.getName());
         putLocationForPatch(farmingGuildTree.getName(), PatchTypes.TREE, farmingGuildTree);
@@ -199,7 +204,7 @@ public class LocationCatalog {
         addTeleports(nemusRetreatTree.getName(), nemusRetreatTree);
         addPatchTypes(nemusRetreatTree.getName(), singletonList(PatchTypes.TREE));
 
-        // Fruit tree locations (order matches FruitTreeRunItemAndLocation.setupLocations: Farming Guild, Brimhaven, Catherby, Lletya, Gnome Stronghold, Tree Gnome Village, Kastori)
+        // Fruit tree locations (stable order: Farming Guild, Brimhaven, Catherby, Lletya, Gnome Stronghold, Tree Gnome Village, Kastori)
         Location farmingGuildFruitTree = FarmingGuildFruitTreeLocationData.create(config, houseTeleportSupplier, fairyRingSupplier);
         seenNames.add(farmingGuildFruitTree.getName());
         putLocationForPatch(farmingGuildFruitTree.getName(), PatchTypes.FRUIT_TREE, farmingGuildFruitTree);
@@ -242,7 +247,7 @@ public class LocationCatalog {
         addTeleports(kastoriFruitTree.getName(), kastoriFruitTree);
         addPatchTypes(kastoriFruitTree.getName(), singletonList(PatchTypes.FRUIT_TREE));
 
-        // Hops locations (order matches HopsRunItemAndLocation.setupLocations: Lumbridge, Seers Village, Yanille, Entrana, Aldarin)
+        // Hops locations (stable order: Lumbridge, Seers Village, Yanille, Entrana, Aldarin)
         Location lumbridgeHops = LumbridgeHopsLocationData.create(config, houseTeleportSupplier);
         seenNames.add(lumbridgeHops.getName());
         putLocationForPatch(lumbridgeHops.getName(), PatchTypes.HOPS, lumbridgeHops);

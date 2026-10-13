@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.runelite.client.config.ConfigManager;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.List;
 /**
  * Persists custom runs to Runelite config (JSON under a single key).
  */
+@Singleton
 public class CustomRunStorage {
     private static final String CONFIG_GROUP = "farminghelper";
     private static final String KEY_CUSTOM_RUNS = "customRuns";
@@ -19,6 +22,7 @@ public class CustomRunStorage {
     private final ConfigManager configManager;
     private final Gson gson;
 
+    @Inject
     public CustomRunStorage(ConfigManager configManager, Gson gson) {
         this.configManager = configManager;
         this.gson = gson;

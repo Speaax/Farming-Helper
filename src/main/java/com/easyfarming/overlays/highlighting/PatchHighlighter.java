@@ -4,8 +4,7 @@ import com.easyfarming.EasyFarmingOverlay;
 import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.utils.Constants;
 import net.runelite.api.Client;
-import net.runelite.api.GameObject;
-import net.runelite.client.ui.overlay.Overlay;
+import net.runelite.api.coords.WorldPoint;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -27,6 +26,7 @@ public class PatchHighlighter {
     }
     
     public void highlightHerbPatches(Graphics2D graphics, Color color) {
+        gameObjectHighlighter.invalidateCache();
         for (Integer patchId : farmingHelperOverlay.getHerbPatchIds()) {
             gameObjectHighlighter.renderGameObjectHighlight(graphics, patchId, color);
         }
@@ -36,7 +36,40 @@ public class PatchHighlighter {
      * Highlights a specific herb patch by object ID (for current location).
      */
     public void highlightSpecificHerbPatch(Graphics2D graphics, int objectId, Color color) {
-        gameObjectHighlighter.renderGameObjectHighlight(graphics, objectId, color);
+        highlightSpecificHerbPatch(graphics, objectId, color, null);
+    }
+
+    /**
+     * Highlights a specific herb patch by object ID, then alternate empty/weed IDs, then a
+     * WorldPoint tile area when the scene has no matching object (Trollheim/Weiss plant-seed).
+     */
+    public void highlightSpecificHerbPatch(Graphics2D graphics, int objectId, Color color, WorldPoint fallbackPoint) {
+        // Patch multilocs change visual id between weeds/growing/harvestable; drop stale cache
+        // so a prior empty lookup (common on Civitas harvestable herbs) cannot stick.
+        gameObjectHighlighter.invalidateCache();
+        boolean found = gameObjectHighlighter.renderGameObjectHighlight(graphics, objectId, color);
+        if (!found) {
+            List<Integer> alternates = Constants.HERB_PATCH_ALTERNATE_IDS_BY_PRIMARY.get(objectId);
+            if (alternates != null) {
+                for (Integer alternateId : alternates) {
+                    if (alternateId == null) {
+                        continue;
+                    }
+                    if (gameObjectHighlighter.renderGameObjectHighlight(graphics, alternateId, color)) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!found && fallbackPoint != null) {
+            gameObjectHighlighter.highlightWorldPointArea(
+                graphics,
+                fallbackPoint,
+                Constants.HERB_PATCH_TILE_SIZE,
+                Constants.HERB_PATCH_TILE_SIZE,
+                color);
+        }
     }
 
     public void highlightFlowerPatches(Graphics2D graphics, Color color) {

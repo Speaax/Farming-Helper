@@ -6,7 +6,6 @@ import net.runelite.api.widgets.Widget;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,30 +41,14 @@ public class FarmerHighlighter {
      * Highlights tree farmers.
      */
     public void highlightTreeFarmers(Graphics2D graphics) {
-        highlightFarmers(graphics, Arrays.asList(
-            "Alain",         // taverley
-            "Aub",           // Nemus Retreat
-            "Fayeth",        // Lumbridge
-            "Heskel",        // Falador
-            "Prissy Scilla", // Gnome Stronghold
-            "Rosie",         // Farming Guild
-            "Treznor"        // Varrock
-        ));
+        highlightFarmers(graphics, Constants.TREE_FARMER_NAMES);
     }
     
     /**
      * Highlights fruit tree farmers.
      */
     public void highlightFruitTreeFarmers(Graphics2D graphics) {
-        highlightFarmers(graphics, Arrays.asList(
-            "Bolongo", // Gnome Stronghold
-            "Ellena",  // Catherby
-            "Ehecatl", // Kastori
-            "Garth",   // Brimhaven
-            "Gileth",  // Tree Gnome Village
-            "Liliwen", // Lletya
-            "Nikkie"   // Farming Guild
-        ));
+        highlightFarmers(graphics, Constants.FRUIT_TREE_FARMER_NAMES);
     }
     
     private boolean isInterfaceOpen(int groupId, int childId) {

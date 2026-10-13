@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * NOTE: This class is part of an incomplete refactoring effort.
- * 
- * This class and related classes in the locations.* package were designed to replace
- * the current ItemsAndLocations.* package structure, but the migration was never completed.
- * 
- * Part of an incomplete refactor; do not modify without coordinating.
- * 
- * @deprecated This is part of an incomplete refactor. The data-driven approach using this class
- *             is still being used, but the architecture may change in future refactors.
+ * Canonical declarative definition of a farming location and its teleport options.
+ *
+ * <p>Location definitions in {@code locations.*} are built as {@code LocationData}
+ * (or via per-site {@code *LocationData} helpers), converted to runtime
+ * {@link com.easyfarming.core.Location} instances by {@link LocationFactory},
+ * and consumed by {@link com.easyfarming.customrun.LocationCatalog}.
+ *
+ * @see LocationFactory
+ * @see TeleportData
+ * @see com.easyfarming.core.Location
  */
-@Deprecated
 public class LocationData {
     private final String name;
     private final boolean farmLimps;
@@ -46,4 +46,3 @@ public class LocationData {
     public Function<EasyFarmingConfig, EasyFarmingConfig.OptionEnumTeleport> getConfigFunction() { return configFunction; }
     public List<TeleportData> getTeleportOptions() { return teleportOptions; }
 }
-

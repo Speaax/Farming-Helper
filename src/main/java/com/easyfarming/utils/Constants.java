@@ -52,7 +52,21 @@ public class Constants {
     public static final int REGION_AUBURNVALE_ALT2 = 5684;
     public static final int REGION_GNOME_STRONGHOLD = 9782;
     public static final int REGION_GNOME_STRONGHOLD_ALT = 9781;
-    
+    /** Lletya fruit tree patch. */
+    public static final int REGION_LLETYA = 9265;
+    /** Tree Gnome Village fruit tree (spirit tree region); distinct from {@link #REGION_GNOME_STRONGHOLD}. */
+    public static final int REGION_TREE_GNOME_VILLAGE = 10033;
+    /** Lumbridge tree patch. */
+    public static final int REGION_LUMBRIDGE = 12850;
+    /** Lumbridge hops patch (north of Lumbridge). Distinct from {@link #REGION_LUMBRIDGE} tree region. */
+    public static final int REGION_LUMBRIDGE_HOPS = 12851;
+    public static final int REGION_SEERS_VILLAGE = 10551;
+    public static final int REGION_YANILLE = 10288;
+    public static final int REGION_ENTRANA = 11060;
+    public static final int REGION_ALDARIN = 5421;
+    /** Varrock tree patch. */
+    public static final int REGION_VARROCK = 12853;
+
     // Patch state varbits. RuneLite names them generically (FARMING_TRANSMIT_*) - each transmit
     // letter is reused by multiple patches depending on the location/patch type.
     public static final int VARBIT_HERB_PATCH_STANDARD = VarbitID.FARMING_TRANSMIT_D;             // 4774
@@ -81,6 +95,31 @@ public class Constants {
     public static final int VARBIT_SUPERCOMPOST_STORED = VarbitID.FARMING_TOOLS_SUPERCOMPOST;             // 1443
     public static final int VARBIT_ULTRACOMPOST_STORED = VarbitID.FARMING_TOOLS_ULTRACOMPOST;             // 5732
     public static final int VARBIT_BOTTOMLESS_COMPOST = VarbitID.FARMING_TOOLS_BOTTOMLESS_BUCKET_TYPE;    // 7915
+
+    // Farming NPC names (exact in-game names for highlight / hint-arrow matching)
+    public static final String NPC_TOOL_LEPRECHAUN = "Tool Leprechaun";
+
+    /** Tree patch farmers (protection / remove). */
+    public static final List<String> TREE_FARMER_NAMES = Collections.unmodifiableList(Arrays.asList(
+        "Alain",         // Taverley
+        "Aub",           // Nemus Retreat
+        "Fayeth",        // Lumbridge
+        "Heskel",        // Falador
+        "Prissy Scilla", // Gnome Stronghold
+        "Rosie",         // Farming Guild
+        "Treznor"        // Varrock
+    ));
+
+    /** Fruit tree patch farmers (protection / remove). */
+    public static final List<String> FRUIT_TREE_FARMER_NAMES = Collections.unmodifiableList(Arrays.asList(
+        "Bolongo", // Gnome Stronghold
+        "Ellena",  // Catherby
+        "Ehecatl", // Kastori
+        "Garth",   // Brimhaven
+        "Gileth",  // Tree Gnome Village
+        "Liliwen", // Lletya
+        "Nikkie"   // Farming Guild
+    ));
     
     // Interface IDs
     public static final int INTERFACE_SPELLBOOK_RESIZABLE = 161;
@@ -254,6 +293,30 @@ public class Constants {
         patchMap.put("Civitas illa Fortis", 50697);
         HERB_PATCH_IDS_BY_LOCATION = Collections.unmodifiableMap(patchMap);
     }
+
+    /**
+     * Empty/weeded herb soil object IDs keyed by the catalog multilocal ID.
+     * Troll Stronghold ({@code MYARM_HERBPATCH}=18816) and Weiss ({@code MY2ARM_HERBPATCH}=33176)
+     * expose empty/weeded soil as {@code MYARM_REALPATCH_*} scene objects that are not always
+     * resolvable via the multilocal parent — so plant-seed highlight must try these explicitly.
+     */
+    public static final Map<Integer, List<Integer>> HERB_PATCH_ALTERNATE_IDS_BY_PRIMARY;
+
+    static {
+        List<Integer> myArmEmptyWeeds = Collections.unmodifiableList(Arrays.asList(
+            ObjectID.MYARM_REALPATCH_EMPTY_ACTIVE,   // 18818
+            ObjectID.MYARM_REALPATCH_WEEDS3_ACTIVE,  // 18819
+            ObjectID.MYARM_REALPATCH_WEEDS2_ACTIVE,  // 18820
+            ObjectID.MYARM_REALPATCH_WEEDS1_ACTIVE   // 18821
+        ));
+        Map<Integer, List<Integer>> altMap = new HashMap<>();
+        altMap.put(ObjectID.MYARM_HERBPATCH, myArmEmptyWeeds);   // 18816 Troll Stronghold
+        altMap.put(33176, myArmEmptyWeeds);                      // MY2ARM_HERBPATCH Weiss
+        HERB_PATCH_ALTERNATE_IDS_BY_PRIMARY = Collections.unmodifiableMap(altMap);
+    }
+
+    /** Herb patches are typically a 2x2 tile footprint when falling back to WorldPoint highlight. */
+    public static final int HERB_PATCH_TILE_SIZE = 2;
     
     // Flower patch IDs per location
     // Format: single patch ID for each location

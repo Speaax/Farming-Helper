@@ -2,14 +2,17 @@ package com.easyfarming;
 
 import com.easyfarming.customrun.CustomRunStorage;
 import com.easyfarming.customrun.CurrentStepInstruction;
+import com.easyfarming.customrun.GameMessageBuffer;
+import com.easyfarming.customrun.ItemGatheringState;
 import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.NavigationTextOverrides;
 import com.easyfarming.core.Teleport;
+import com.easyfarming.ui.CurrentStepPanelRefresher;
+import com.easyfarming.ui.PluginUiLifecycle;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
-import java.awt.image.BufferedImage;
+import java.util.Objects;
 import javax.inject.Inject;
-import javax.swing.SwingUtilities;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +22,6 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.ui.NavigationButton;
-import net.runelite.client.util.ImageUtil;
-import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -36,8 +36,6 @@ import net.runelite.client.eventbus.EventBus;
 public class EasyFarmingPlugin extends Plugin
 {
 	@Inject
-	private ItemManager itemManager;
-	@Inject
 	private ConfigManager configManager;
 	@Inject
 	private Gson gson;
@@ -45,34 +43,32 @@ public class EasyFarmingPlugin extends Plugin
     @Inject
 	private Client client;
 
+	@Inject
 	private LocationCatalog locationCatalog;
+	@Inject
 	private CustomRunStorage customRunStorage;
+	@Inject
 	private NavigationTextOverrides navigationTextOverrides;
+	@Inject
+	private GameMessageBuffer gameMessageBuffer;
+	@Inject
+	private CurrentStepPanelRefresher currentStepPanelRefresher;
 
 	public LocationCatalog getLocationCatalog() {
-		if (locationCatalog == null) {
-			locationCatalog = new LocationCatalog(this);
-		}
 		return locationCatalog;
 	}
 
 	public CustomRunStorage getCustomRunStorage() {
-		if (customRunStorage == null) {
-			customRunStorage = new CustomRunStorage(configManager, gson);
-		}
 		return customRunStorage;
 	}
 
 	public NavigationTextOverrides getNavigationTextOverrides() {
-		if (navigationTextOverrides == null) {
-			navigationTextOverrides = new NavigationTextOverrides(configManager, gson);
-		}
 		return navigationTextOverrides;
 	}
 
 	@Getter
 	private CurrentStepInstruction currentStepInstruction;
-	private String lastNotifiedStepIdentity = "";
+	private CurrentStepInstruction lastNotifiedStepInstruction;
 
 	/**
 	 * Shows navigation instruction text (with overrides) and records it as the editable current step.
@@ -93,21 +89,16 @@ public class EasyFarmingPlugin extends Plugin
 
 	public void clearCurrentStepInstruction() {
 		currentStepInstruction = null;
-		lastNotifiedStepIdentity = "";
-		if (panel != null) {
-			SwingUtilities.invokeLater(panel::refreshCurrentStepEditors);
-		}
+		lastNotifiedStepInstruction = null;
+		currentStepPanelRefresher.refreshCurrentStepEditors(panel);
 	}
 
 	private void maybeNotifyCurrentStepUi() {
-		String identity = currentStepInstruction != null ? currentStepInstruction.identity() : "";
-		if (identity.equals(lastNotifiedStepIdentity)) {
+		if (Objects.equals(currentStepInstruction, lastNotifiedStepInstruction)) {
 			return;
 		}
-		lastNotifiedStepIdentity = identity;
-		if (panel != null) {
-			SwingUtilities.invokeLater(panel::refreshCurrentStepEditors);
-		}
+		lastNotifiedStepInstruction = currentStepInstruction;
+		currentStepPanelRefresher.refreshCurrentStepEditors(panel);
 	}
 
 	public void runOnClientThread(Runnable task) {
@@ -116,7 +107,7 @@ public class EasyFarmingPlugin extends Plugin
 
 	@Getter
     @Setter
-    private boolean isTeleportOverlayActive = false;
+    private volatile boolean isTeleportOverlayActive = false;
 
     @Inject
 	private EasyFarmingOverlayInfoBox farmingHelperOverlayInfoBox;
@@ -125,23 +116,17 @@ public class EasyFarmingPlugin extends Plugin
 		return farmingHelperOverlayInfoBox;
 	}
 
-	@Getter
-    private String lastMessage = "";
     @Subscribe
     public void onChatMessage(ChatMessage event) {
-        String message = event.getMessage();
-        
-        // Store last message for other purposes (compost detection, etc.)
-        if (event.getType() == ChatMessageType.GAMEMESSAGE) {
-            lastMessage = message;
-        }
-        else if (event.getType() == ChatMessageType.SPAM) {
-            lastMessage = message;
-        }
+		gameMessageBuffer.onChatMessage(event);
     }
 
+	public String getLastMessage() {
+		return gameMessageBuffer.getLastMessage();
+	}
+
     public boolean checkMessage(String targetMessage, String lastMessage) {
-		return lastMessage.trim().equalsIgnoreCase(targetMessage.trim());
+		return gameMessageBuffer.checkMessage(targetMessage, lastMessage);
 	}
 
 	/**
@@ -149,7 +134,7 @@ public class EasyFarmingPlugin extends Plugin
 	 * next patch at the same location so a compost line from the previous patch is not applied to the next.
 	 */
 	public void clearLastMessage() {
-		lastMessage = "";
+		gameMessageBuffer.clearLastMessage();
 	}
 
 	/**
@@ -167,11 +152,35 @@ public class EasyFarmingPlugin extends Plugin
 	}
 
 	/**
+	 * Clears item-checklist / teleport-active state so the next run rebuilds requirements
+	 * from the current inventory instead of inheriting the previous run's "all collected" flag.
+	 */
+	public void resetItemGatheringState() {
+		itemGatheringState.reset();
+		isTeleportOverlayActive = false;
+		if (farmingHelperOverlay != null) {
+			farmingHelperOverlay.clearAllInfoBoxes();
+		}
+	}
+
+	/**
+	 * Begins a new run's gathering cycle. Invalidates any prior "items collected" completion
+	 * even if a stale overlay frame still holds the old flag.
+	 */
+	public void beginItemGatheringForNewRun() {
+		itemGatheringState.beginNewRun();
+		isTeleportOverlayActive = false;
+		if (farmingHelperOverlay != null) {
+			farmingHelperOverlay.clearAllInfoBoxes();
+		}
+	}
+
+	/**
 	 * Marks the item-gathering phase complete and enables teleport/navigation overlays.
 	 * Used when the run has "Skip item checklist" enabled, or when the user skips that step.
 	 */
 	public void completeItemGatheringPhase() {
-		itemsCollected = true;
+		itemGatheringState.setCollected(true);
 		isTeleportOverlayActive = true;
 		if (farmingHelperOverlay != null) {
 			farmingHelperOverlay.clearAllInfoBoxes();
@@ -186,17 +195,13 @@ public class EasyFarmingPlugin extends Plugin
 
 
 	@Getter
-    @Inject
+	@Inject
 	private FarmingTeleportOverlay farmingTeleportOverlay;
-	@Inject
-	private FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
 
-	private EasyFarmingPanel farmingHelperPanel;
 	public EasyFarmingPanel panel;
-	private NavigationButton navButton;
 
 	@Inject
-	private ClientToolbar clientToolbar;
+	private PluginUiLifecycle pluginUiLifecycle;
 
 	@Inject
 	private EasyFarmingConfig config;
@@ -227,7 +232,7 @@ public class EasyFarmingPlugin extends Plugin
 
 	@Getter
     @Setter
-    private boolean isOverlayActive = true;
+    private volatile boolean isOverlayActive = false;
 
 	@Inject
 	private EasyFarmingOverlay farmingHelperOverlay;
@@ -237,10 +242,18 @@ public class EasyFarmingPlugin extends Plugin
 		return farmingHelperOverlay;
 	}
 
-	@Setter
-    private boolean itemsCollected = false;
+	/**
+	 * Gathering completion is scoped to the current run id so a stuck {@code true} from run A
+	 * cannot skip the checklist on run B.
+	 */
+	private final ItemGatheringState itemGatheringState = new ItemGatheringState();
+
 	public boolean areItemsCollected() {
-		return itemsCollected;
+		return itemGatheringState.isCollected();
+	}
+
+	public void setItemsCollected(boolean collected) {
+		itemGatheringState.setCollected(collected);
 	}
 
 	@Provides
@@ -256,6 +269,7 @@ public class EasyFarmingPlugin extends Plugin
 	}
 
 	@Provides
+	@javax.inject.Singleton
 	EasyFarmingOverlay provideEasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, InfoBoxManager infoBoxManager)
 	{
 		return new EasyFarmingOverlay(client, plugin, itemManager, infoBoxManager);
@@ -282,23 +296,7 @@ public class EasyFarmingPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
-		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, infoBoxManager);
-
-		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, itemManager);
-		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
-
-		navButton = NavigationButton.builder()
-				.tooltip("Easy Farming")
-				.icon(icon)
-				.priority(6)
-				.panel(panel)
-				.build();
-		clientToolbar.addNavigation(navButton);
-
-		overlayManager.add(farmingHelperOverlay);
-		overlayManager.add(farmingTeleportSceneOverlay);
-		overlayManager.add(farmingTeleportOverlay);
-		overlayManager.add(farmingHelperOverlayInfoBox);
+		panel = pluginUiLifecycle.start(this);
 
 		// set overlay to inactive
 		isOverlayActive = false;
@@ -308,15 +306,7 @@ public class EasyFarmingPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
-		if (navButton != null) {
-			clientToolbar.removeNavigation(navButton);
-		}
-
-		overlayManager.remove(farmingHelperOverlay);
-		overlayManager.remove(farmingTeleportSceneOverlay);
-		overlayManager.remove(farmingTeleportOverlay);
-		overlayManager.remove(farmingHelperOverlayInfoBox);
-
+		pluginUiLifecycle.stop();
 		eventBus.unregister(this);
 	}
 }

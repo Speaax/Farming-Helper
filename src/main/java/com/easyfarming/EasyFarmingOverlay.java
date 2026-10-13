@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.HashSet;
 import java.util.Set;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import net.runelite.api.*;
 import net.runelite.api.gameval.InterfaceID;
@@ -26,7 +27,9 @@ import java.util.Iterator;
 
 import com.easyfarming.customrun.CustomRunItemRequirements;
 import com.easyfarming.utils.Constants;
+import com.easyfarming.utils.FairyRingStaffRequirements;
 
+@Singleton
 public class EasyFarmingOverlay extends Overlay {
 
     private final Client client;
@@ -673,19 +676,32 @@ public class EasyFarmingOverlay extends Overlay {
     }
 
     /**
+     * Real worn-container slots only. {@link EquipmentInventorySlot} also includes
+     * kit-only entries (ARMS/HAIR/JAW) whose indices are unused holes in the container;
+     * skipping them avoids reading garbage at those indices.
+     */
+    private static final EquipmentInventorySlot[] WORN_ITEM_SLOTS = {
+            EquipmentInventorySlot.HEAD,
+            EquipmentInventorySlot.CAPE,
+            EquipmentInventorySlot.AMULET,
+            EquipmentInventorySlot.WEAPON,
+            EquipmentInventorySlot.BODY,
+            EquipmentInventorySlot.SHIELD,
+            EquipmentInventorySlot.LEGS,
+            EquipmentInventorySlot.GLOVES,
+            EquipmentInventorySlot.BOOTS,
+            EquipmentInventorySlot.RING,
+            EquipmentInventorySlot.AMMO
+    };
+
+    /**
      * Scans equipped items and returns a map of item IDs to their counts.
      * Equipped items are counted as 1 each (equipment slots can only hold 1 item).
-     * Uses EquipmentInventorySlot with ItemContainer for reliable detection of all
-     * equipped items,
-     * including rings and other items that may not be detected by
-     * PlayerComposition.
      */
     private Map<Integer, Integer> getEquippedItems() {
         Map<Integer, Integer> equippedItems = new HashMap<>();
 
-        // Get the equipment ItemContainer using the equipment container ID
-        // Equipment container ID is 94 in RuneLite
-        ItemContainer equipment = client.getItemContainer(94);
+        ItemContainer equipment = client.getItemContainer(InventoryID.WORN);
         if (equipment == null) {
             return equippedItems;
         }
@@ -695,22 +711,15 @@ public class EasyFarmingOverlay extends Overlay {
             return equippedItems;
         }
 
-        // Iterate through all EquipmentInventorySlot values to check each slot
-        for (EquipmentInventorySlot slot : EquipmentInventorySlot.values()) {
-            try {
-                int slotIdx = slot.getSlotIdx();
-                // Ensure the slot index is within bounds
-                if (slotIdx >= 0 && slotIdx < items.length) {
-                    Item item = items[slotIdx];
-                    if (item != null && item.getId() > 0) {
-                        int itemId = item.getId();
-                        // Count each equipped item as 1
-                        equippedItems.put(itemId, equippedItems.getOrDefault(itemId, 0) + 1);
-                    }
-                }
-            } catch (Exception e) {
-                // Skip invalid slots gracefully
+        for (EquipmentInventorySlot slot : WORN_ITEM_SLOTS) {
+            int slotIdx = slot.getSlotIdx();
+            if (slotIdx < 0 || slotIdx >= items.length) {
                 continue;
+            }
+            Item item = items[slotIdx];
+            if (item != null && item.getId() > 0) {
+                int itemId = item.getId();
+                equippedItems.put(itemId, equippedItems.getOrDefault(itemId, 0) + 1);
             }
         }
 
@@ -727,22 +736,20 @@ public class EasyFarmingOverlay extends Overlay {
             return null;
         }
 
-        if (!plugin.areItemsCollected()) {
-            // List of items to check
-            Map<Integer, Integer> itemsToCheck = null;
-            if (plugin.getFarmingTeleportOverlay().isCustomRunMode()
-                    && !plugin.getFarmingTeleportOverlay().getCustomRunLocations().isEmpty()) {
-                itemsToCheck = CustomRunItemRequirements.buildRequirements(
-                        plugin.getLocationCatalog(),
-                        plugin.getConfig(),
-                        client,
-                        plugin.getFarmingTeleportOverlay().getCustomRunLocations(),
-                        plugin.getCustomRunIncludeSecateurs(),
-                        plugin.getCustomRunIncludeDibber(),
-                        plugin.getCustomRunIncludeRake());
-            }
-            if (itemsToCheck == null) {
-                return null;
+        // Gate on explicit GATHERING phase (not a sticky collected boolean).
+        if (plugin.getFarmingTeleportOverlay().isGatheringPhase()) {
+            Map<Integer, Integer> itemsToCheck = CustomRunItemRequirements.buildRequirements(
+                    plugin.getLocationCatalog(),
+                    plugin.getConfig(),
+                    client,
+                    plugin.getFarmingTeleportOverlay().getCustomRunLocations(),
+                    plugin.getCustomRunIncludeSecateurs(),
+                    plugin.getCustomRunIncludeDibber(),
+                    plugin.getCustomRunIncludeRake());
+            if (itemsToCheck == null || itemsToCheck.isEmpty()) {
+                plugin.addTextToInfoBox("Grab all the items needed");
+                plugin.setTeleportOverlayActive(false);
+                return panelComponent.render(graphics);
             }
 
             ItemContainer inventory = client.getItemContainer(InventoryID.INV);
@@ -969,10 +976,9 @@ public class EasyFarmingOverlay extends Overlay {
                 // Start with inventory count from single scan
                 int inventoryCount = inventoryItemCounts.getOrDefault(itemId, 0);
 
-                // Lunar staff (9084) satisfies dramen staff requirement for fairy rings
+                // Dramen / Lunar / unfinished Lunar stages all satisfy fairy rings
                 if (itemId == ItemID.DRAMEN_STAFF) {
-                    int lunarCount = inventoryItemCounts.getOrDefault(ItemID.LUNAR_MOONCLAN_LIMINAL_STAFF, 0);
-                    inventoryCount += lunarCount;
+                    inventoryCount = FairyRingStaffRequirements.countFairyRingStaffs(inventoryItemCounts);
                 }
 
                 // Special handling for bottomless compost bucket - check for filled variants in inventory
@@ -1120,8 +1126,6 @@ public class EasyFarmingOverlay extends Overlay {
                 return Integer.compare(priority1, priority2);
             });
 
-            plugin.setTeleportOverlayActive(allItemsCollected);
-
             // Update InfoBoxes - remove ones that are no longer needed, add/update ones
             // that are
             Set<Integer> currentMissingItemIds = new HashSet<>();
@@ -1151,7 +1155,9 @@ public class EasyFarmingOverlay extends Overlay {
                     BufferedImage itemImage = itemManager.getImage(itemId);
                     if (itemImage != null) {
                         String itemName = itemManager.getItemComposition(itemId).getName();
-                        if (isTreeSapling(itemId)) {
+                        if (itemId == ItemID.DRAMEN_STAFF) {
+                            itemName = "Dramen/Lunar staff";
+                        } else if (isTreeSapling(itemId)) {
                             itemName = missingCount == 1 ? "tree sapling" : "tree saplings";
                         } else if (isFruitTreeSapling(itemId)) {
                             itemName = missingCount == 1 ? "fruit tree sapling" : "fruit tree saplings";
@@ -1185,10 +1191,12 @@ public class EasyFarmingOverlay extends Overlay {
                 }
             }
 
-            // Check if all items have been collected
-            if (missingItemsWithCounts.isEmpty()) {
-                plugin.setItemsCollected(true);
+            // Only leave GATHERING when every requirement is met (or seed-box path allows).
+            // Phase transition is authoritative — do not rely on a sticky boolean alone.
+            if (allItemsCollected) {
+                plugin.getFarmingTeleportOverlay().finishGatheringPhase();
             } else {
+                plugin.setTeleportOverlayActive(false);
                 plugin.setItemsCollected(false);
             }
 
@@ -1196,7 +1204,7 @@ public class EasyFarmingOverlay extends Overlay {
             return panelComponent.render(graphics);
         }
 
-        // If items are collected, clear all InfoBoxes
+        // Not in gathering phase — clear checklist UI
         clearAllInfoBoxes();
         return null;
     }

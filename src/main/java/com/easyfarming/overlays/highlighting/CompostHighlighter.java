@@ -82,7 +82,7 @@ public class CompostHighlighter {
      */
     public void withdrawCompost(Graphics2D graphics) {
         if (!isInterfaceOpen(Constants.INTERFACE_TOOL_LEPRECHAUN, 0)) {
-            npcHighlighter.highlightNpc(graphics, "Tool Leprechaun");
+            npcHighlighter.highlightNpc(graphics, Constants.NPC_TOOL_LEPRECHAUN);
         } else {
             Integer compostId = itemHighlighter.selectedCompostID();
             if (compostId == ItemID.BUCKET_COMPOST) {

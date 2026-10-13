@@ -2,6 +2,7 @@ package com.easyfarming;
 
 import java.awt.*;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -13,6 +14,7 @@ import com.easyfarming.utils.Constants;
  * Draws teleport-related scene highlights (e.g. Spirit Tree object) at ABOVE_SCENE
  * so they appear correctly on the game scene/map instead of above widgets.
  */
+@Singleton
 public class FarmingTeleportSceneOverlay extends Overlay {
     private final GameObjectHighlighter gameObjectHighlighter;
 

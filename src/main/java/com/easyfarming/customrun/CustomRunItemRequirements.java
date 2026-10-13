@@ -34,7 +34,7 @@ public final class CustomRunItemRequirements {
             boolean includeDibber,
             boolean includeRake) {
         Map<Integer, Integer> allRequirements = new HashMap<>();
-        if (catalog == null || runLocations == null || runLocations.isEmpty()) {
+        if (runLocations == null || runLocations.isEmpty()) {
             return allRequirements;
         }
 
@@ -49,50 +49,59 @@ public final class CustomRunItemRequirements {
         for (RunLocation rl : runLocations) {
             String name = rl.getLocationName();
             List<String> patchTypes = rl.getPatchTypes();
-            if (name == null || patchTypes == null || patchTypes.isEmpty()) continue;
-
-            Location loc = catalog.getLocationForPatch(name, patchTypes.get(0));
-            if (loc == null) continue;
-            String teleportOption = rl.getTeleportOption();
-            if (teleportOption == null) continue;
-            Teleport teleport = null;
-            for (Teleport t : loc.getTeleportOptions()) {
-                if (t != null && t.getEnumOption() != null && teleportOption.equalsIgnoreCase(t.getEnumOption())) {
-                    teleport = t;
-                    break;
-                }
+            if (name == null || patchTypes == null || patchTypes.isEmpty()) {
+                continue;
             }
-            if (teleport == null) continue;
 
-            Map<Integer, Integer> req = teleport.getItemRequirements();
-            mergeTeleportRequirements(allRequirements, req);
-
+            // Always count patch supplies from the run definition. Do not gate this on catalog
+            // lookup — a missed Location used to `continue` and drop all seeds/compost for the
+            // location, so the checklist only required a spade and immediately "completed".
             for (String patchType : patchTypes) {
                 if (PatchTypes.HERB.equals(patchType)) {
                     herbPatchCount++;
                     compostPatchesTotal++;
-                }
-                if (PatchTypes.FLOWER.equals(patchType)) {
+                } else if (PatchTypes.FLOWER.equals(patchType)) {
                     flowerPatchCount++;
                     compostPatchesTotal++;
-                }
-                if (PatchTypes.ALLOTMENT.equals(patchType)) {
+                } else if (PatchTypes.ALLOTMENT.equals(patchType)) {
                     List<Integer> patchIds = Constants.ALLOTMENT_PATCH_IDS_BY_LOCATION.get(name);
                     int n = (patchIds != null && !patchIds.isEmpty()) ? patchIds.size() : 2;
                     allotmentPatchCount += n;
                     compostPatchesTotal += n;
-                }
-                if (PatchTypes.TREE.equals(patchType)) {
+                } else if (PatchTypes.TREE.equals(patchType)) {
                     treePatchCount++;
                     compostPatchesTotal++;
-                }
-                if (PatchTypes.FRUIT_TREE.equals(patchType)) {
+                } else if (PatchTypes.FRUIT_TREE.equals(patchType)) {
                     fruitTreePatchCount++;
                     compostPatchesTotal++;
-                }
-                if (PatchTypes.HOPS.equals(patchType)) {
+                } else if (PatchTypes.HOPS.equals(patchType)) {
                     hopsPatchCount++;
                     compostPatchesTotal++;
+                }
+            }
+
+            // Teleport items: resolve Location from any enabled patch type at this name.
+            if (catalog != null) {
+                Location loc = null;
+                for (String patchType : patchTypes) {
+                    loc = catalog.getLocationForPatch(name, patchType);
+                    if (loc != null) {
+                        break;
+                    }
+                }
+                String teleportOption = rl.getTeleportOption();
+                if (loc != null && teleportOption != null) {
+                    Teleport teleport = null;
+                    for (Teleport t : loc.getTeleportOptions()) {
+                        if (t != null && t.getEnumOption() != null
+                                && teleportOption.equalsIgnoreCase(t.getEnumOption())) {
+                            teleport = t;
+                            break;
+                        }
+                    }
+                    if (teleport != null) {
+                        mergeTeleportRequirements(allRequirements, teleport.getItemRequirements());
+                    }
                 }
             }
         }
@@ -101,7 +110,7 @@ public final class CustomRunItemRequirements {
         if (!payForProtection) {
             Integer selectedCompost = selectedCompostId(config);
             int compostId = selectedCompost != null ? selectedCompost : -1;
-            if (compostId != -1 && compostId != 0) {
+            if (compostId != -1 && compostId != 0 && compostPatchesTotal > 0) {
                 if (compostId == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                     allRequirements.merge(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1, Integer::sum);
                 } else {
@@ -158,7 +167,7 @@ public final class CustomRunItemRequirements {
     }
 
     /**
-     * Returns the selected compost item ID from config. Logic matches ItemAndLocation.selectedCompostID().
+     * Returns the selected compost item ID from config.
      */
     private static Integer selectedCompostId(EasyFarmingConfig config) {
         if (config == null) {

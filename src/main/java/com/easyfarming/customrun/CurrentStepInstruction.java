@@ -1,5 +1,7 @@
 package com.easyfarming.customrun;
 
+import java.util.Objects;
+
 /**
  * Snapshot of the instruction currently shown in the farming info overlay,
  * used by the active-location pencil to edit the live step.
@@ -53,5 +55,25 @@ public final class CurrentStepInstruction {
                     + (teleportOption != null ? teleportOption : "");
         }
         return "farm|" + (locationName != null ? locationName : "") + "|" + defaultText;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CurrentStepInstruction)) {
+            return false;
+        }
+        CurrentStepInstruction that = (CurrentStepInstruction) o;
+        return kind == that.kind
+                && Objects.equals(locationName, that.locationName)
+                && Objects.equals(teleportOption, that.teleportOption)
+                && Objects.equals(defaultText, that.defaultText);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kind, locationName, teleportOption, defaultText);
     }
 }

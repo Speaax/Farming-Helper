@@ -4,7 +4,9 @@ import net.runelite.api.Client;
 import net.runelite.api.coords.WorldPoint;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class AreaCheck {
     private Client client;
 

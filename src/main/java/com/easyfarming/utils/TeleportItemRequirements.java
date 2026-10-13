@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Static utility for house teleport and fairy ring item requirements,
- * extracted from ItemAndLocation for use by LocationCatalog and other callers.
+ * shared by LocationCatalog and location *LocationData creators.
  */
 public final class TeleportItemRequirements {
 

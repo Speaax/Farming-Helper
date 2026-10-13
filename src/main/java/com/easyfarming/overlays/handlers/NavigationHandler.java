@@ -17,6 +17,7 @@ import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.widgets.Widget;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,7 @@ import java.util.Objects;
 /**
  * Handles teleport navigation logic for getting to locations and houses.
  */
+@Singleton
 public class NavigationHandler {
     private final Client client;
     private final EasyFarmingPlugin plugin;

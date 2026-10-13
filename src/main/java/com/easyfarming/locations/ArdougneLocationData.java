@@ -32,7 +32,7 @@ public class ArdougneLocationData {
      * Creates Location for Ardougne.
      * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
-     *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     *                              (typically from TeleportItemRequirements.getHouseTeleportItemRequirements())
      * @return A Location instance for Ardougne
      */
     public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {

@@ -7,17 +7,16 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * NOTE: This class is part of an incomplete refactoring effort.
- * 
- * This class and related classes in the locations.* package were designed to replace
- * the current ItemsAndLocations.* package structure, but the migration was never completed.
- * 
- * Part of an incomplete refactor; do not modify without coordinating.
- * 
- * @deprecated This is part of an incomplete refactor. Prefer using {@link com.easyfarming.core.Teleport}
- *             as the canonical teleport model. This class may be removed in a future refactor.
+ * Canonical declarative teleport option attached to a {@link LocationData}.
+ *
+ * <p>Converted to runtime {@link com.easyfarming.core.Teleport} by {@link LocationFactory}
+ * (or via {@link #toTeleport()}). Prefer defining teleports as {@code TeleportData}
+ * in {@code locations.*}; use {@code core.Teleport} at runtime.
+ *
+ * @see LocationData
+ * @see LocationFactory
+ * @see com.easyfarming.core.Teleport
  */
-@Deprecated
 public class TeleportData {
     private final String enumOption;
     private final Teleport.Category category;
@@ -65,4 +64,3 @@ public class TeleportData {
     public WorldPoint getPoint() { return point; }
     public Supplier<List<ItemRequirement>> getItemRequirementsSupplier() { return itemRequirementsSupplier; }
 }
-

@@ -6,9 +6,12 @@ import net.runelite.api.DecorativeObject;
 import net.runelite.api.GameObject;
 import net.runelite.api.GroundObject;
 import net.runelite.api.ObjectComposition;
+import net.runelite.api.Perspective;
 import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
 import net.runelite.api.WorldView;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.ui.overlay.Overlay;
 import com.easyfarming.utils.Constants;
 
@@ -43,6 +46,17 @@ public class GameObjectHighlighter {
     public GameObjectHighlighter(Client client, EasyFarmingPlugin plugin) {
         this.client = client;
         this.plugin = plugin;
+    }
+
+    /**
+     * Clears scene object caches. Call when farming patch visuals change (e.g. weeds →
+     * growing → harvestable) so a prior empty/stale lookup cannot stick for the region visit.
+     */
+    public void invalidateCache() {
+        objectCache.clear();
+        decorativeObjectCache.clear();
+        groundObjectCache.clear();
+        lastSceneKey = -1;
     }
 
     /**
@@ -199,32 +213,32 @@ public class GameObjectHighlighter {
     }
 
     /**
-     * Returns true if the scene object id matches the target (including impostor/resolved composition).
-     * Farming patches can use different scene IDs depending on state; composition id matches the base object.
-     * Checks both directions: scene object may be a variant of target, or target may be a variant of scene object.
+     * Returns true if the scene object id matches the target (including multilocs / impostors).
+     * Farming patches keep a stable base id on the TileObject; the visible harvestable model is an
+     * impostor. Match base↔base, current impostor, and impostor-id arrays (RuneLite ObjectIndicators).
      */
     private boolean objectIdMatches(int sceneId, int targetId) {
         if (sceneId == targetId) {
             return true;
         }
         try {
-            // Is the scene object a variant of the target? (scene's base == target)
-            ObjectComposition comp = client.getObjectDefinition(sceneId);
-            if (comp != null) {
-                while (comp.getImpostor() != null) {
-                    comp = comp.getImpostor();
+            ObjectComposition sceneComp = client.getObjectDefinition(sceneId);
+            if (sceneComp != null) {
+                if (impostorIdsContain(sceneComp, targetId)) {
+                    return true;
                 }
-                if (comp.getId() == targetId) {
+                ObjectComposition current = resolveCurrentImpostor(sceneComp);
+                if (current != null && current.getId() == targetId) {
                     return true;
                 }
             }
-            // Is the target a variant of the scene object? (target's base == scene) - e.g. Farming Guild herb 33979
-            comp = client.getObjectDefinition(targetId);
-            if (comp != null) {
-                while (comp.getImpostor() != null) {
-                    comp = comp.getImpostor();
+            ObjectComposition targetComp = client.getObjectDefinition(targetId);
+            if (targetComp != null) {
+                if (impostorIdsContain(targetComp, sceneId)) {
+                    return true;
                 }
-                if (comp.getId() == sceneId) {
+                ObjectComposition current = resolveCurrentImpostor(targetComp);
+                if (current != null && current.getId() == sceneId) {
                     return true;
                 }
             }
@@ -232,6 +246,34 @@ public class GameObjectHighlighter {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private static boolean impostorIdsContain(ObjectComposition comp, int id) {
+        int[] impostorIds = comp.getImpostorIds();
+        if (impostorIds == null) {
+            return false;
+        }
+        for (int impostorId : impostorIds) {
+            if (impostorId == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static ObjectComposition resolveCurrentImpostor(ObjectComposition comp) {
+        if (comp == null) {
+            return null;
+        }
+        try {
+            if (comp.getImpostorIds() != null) {
+                ObjectComposition impostor = comp.getImpostor();
+                return impostor != null ? impostor : comp;
+            }
+        } catch (Exception ignored) {
+            // Impostor resolution can NPE when multilocs are unset
+        }
+        return comp;
     }
     
     /**
@@ -243,7 +285,9 @@ public class GameObjectHighlighter {
     }
 
     /**
-     * Draws highlight for any tile object. Uses convex hull when clickbox is null (e.g. empty tree patch ready for sapling).
+     * Draws highlight for any tile object. Uses convex hull when clickbox is null (e.g. empty tree
+     * patch ready for sapling). Falls back to tile polys when both are null — common for some
+     * harvestable herb multilocs (e.g. Civitas / Ortus Farm) where clickbox is missing.
      */
     public void drawTileObjectClickbox(Graphics2D graphics, TileObject tileObject, Color color) {
         if (tileObject == null) {
@@ -265,24 +309,122 @@ public class GameObjectHighlighter {
                 graphics.draw(shape);
                 graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() / 5));
                 graphics.fill(shape);
+                return;
             }
+            drawTileFootprintFallback(graphics, tileObject, color);
         } catch (Exception e) {
             // Ignore errors when object is transitioning (e.g. patch just cleared)
+            try {
+                drawTileFootprintFallback(graphics, tileObject, color);
+            } catch (Exception ignored) {
+                // still transitioning
+            }
+        }
+    }
+
+    /**
+     * Highlights the object's tile footprint when clickbox/hull are unavailable.
+     */
+    private void drawTileFootprintFallback(Graphics2D graphics, TileObject tileObject, Color color) {
+        WorldPoint worldPoint = tileObject.getWorldLocation();
+        if (worldPoint == null) {
+            return;
+        }
+        WorldView wv = client.getTopLevelWorldView();
+        if (wv == null) {
+            return;
+        }
+        LocalPoint localPoint = LocalPoint.fromWorld(wv, worldPoint);
+        if (localPoint == null) {
+            return;
+        }
+
+        int sizeX = 1;
+        int sizeY = 1;
+        try {
+            ObjectComposition comp = client.getObjectDefinition(tileObject.getId());
+            ObjectComposition visual = resolveCurrentImpostor(comp);
+            if (visual != null) {
+                sizeX = Math.max(1, visual.getSizeX());
+                sizeY = Math.max(1, visual.getSizeY());
+            }
+        } catch (Exception ignored) {
+            // keep 1x1
+        }
+
+        Color fill = new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.max(1, color.getAlpha() / 5));
+        for (int dx = 0; dx < sizeX; dx++) {
+            for (int dy = 0; dy < sizeY; dy++) {
+                LocalPoint tileLocal = localPoint.plus(
+                        dx * Perspective.LOCAL_TILE_SIZE,
+                        dy * Perspective.LOCAL_TILE_SIZE);
+                Polygon poly = Perspective.getCanvasTilePoly(client, tileLocal);
+                if (poly == null) {
+                    continue;
+                }
+                graphics.setColor(color);
+                graphics.draw(poly);
+                graphics.setColor(fill);
+                graphics.fill(poly);
+            }
         }
     }
     
     /**
      * Draws highlights for all scene objects matching {@code objectId} without allocating an overlay.
+     *
+     * @return true if at least one matching object was found in the scene
      */
-    public void renderGameObjectHighlight(Graphics2D graphics, int objectId, Color color) {
+    public boolean renderGameObjectHighlight(Graphics2D graphics, int objectId, Color color) {
+        boolean found = false;
         for (GameObject gameObject : findGameObjectsByID(objectId)) {
             drawGameObjectClickbox(graphics, gameObject, color);
+            found = true;
         }
         for (DecorativeObject decorativeObject : findDecorativeObjectsByID(objectId)) {
             drawTileObjectClickbox(graphics, decorativeObject, color);
+            found = true;
         }
         for (GroundObject groundObject : findGroundObjectsByID(objectId)) {
             drawTileObjectClickbox(graphics, groundObject, color);
+            found = true;
+        }
+        return found;
+    }
+
+    /**
+     * Highlights a rectangular tile area around {@code worldPoint} (SW corner). Used when a
+     * farming patch object cannot be resolved (common for empty Trollheim/Weiss herb soil).
+     */
+    public void highlightWorldPointArea(Graphics2D graphics, WorldPoint worldPoint, int sizeX, int sizeY, Color color) {
+        if (graphics == null || worldPoint == null || color == null) {
+            return;
+        }
+        WorldView wv = client.getTopLevelWorldView();
+        if (wv == null) {
+            return;
+        }
+        LocalPoint localPoint = LocalPoint.fromWorld(wv, worldPoint);
+        if (localPoint == null) {
+            return;
+        }
+        int tilesX = Math.max(1, sizeX);
+        int tilesY = Math.max(1, sizeY);
+        Color fill = new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.max(1, color.getAlpha() / 5));
+        for (int dx = 0; dx < tilesX; dx++) {
+            for (int dy = 0; dy < tilesY; dy++) {
+                LocalPoint tileLocal = localPoint.plus(
+                        dx * Perspective.LOCAL_TILE_SIZE,
+                        dy * Perspective.LOCAL_TILE_SIZE);
+                Polygon poly = Perspective.getCanvasTilePoly(client, tileLocal);
+                if (poly == null) {
+                    continue;
+                }
+                graphics.setColor(color);
+                graphics.draw(poly);
+                graphics.setColor(fill);
+                graphics.fill(poly);
+            }
         }
     }
 

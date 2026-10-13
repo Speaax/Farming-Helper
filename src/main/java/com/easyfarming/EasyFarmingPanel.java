@@ -102,15 +102,25 @@ public class EasyFarmingPanel extends PluginPanel {
      * Starts the given custom run: overlay runs in custom mode with the run's locations and patch order.
      */
     public void startCustomRun(CustomRun customRun) {
-        SwingUtilities.invokeLater(() -> {
-            plugin.setOverlayActive(true);
-            farmingTeleportOverlay.startCustomRun(customRun);
-            EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
-            if (overlay != null) {
-                overlayManager.add(overlay);
-            }
-            overlayManager.add(farmingTeleportOverlay);
-            onCustomRunStarted();
+        // Apply run state on the client thread BEFORE re-enabling overlays, so render cannot
+        // see empty locations / stale itemsCollected from the previous run.
+        plugin.runOnClientThread(() -> {
+            FarmingTeleportOverlay teleportOverlay = plugin.getFarmingTeleportOverlay();
+            teleportOverlay.startCustomRun(customRun);
+            SwingUtilities.invokeLater(() -> {
+                plugin.setOverlayActive(true);
+                EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
+                if (overlay != null) {
+                    overlayManager.add(overlay);
+                }
+                overlayManager.add(teleportOverlay);
+                // removeOverlay() drops the instruction panel; re-register it for every new run.
+                EasyFarmingOverlayInfoBox infoBox = plugin.getEasyFarmingOverlayInfoBox();
+                if (infoBox != null) {
+                    overlayManager.add(infoBox);
+                }
+                onCustomRunStarted();
+            });
         });
     }
 }

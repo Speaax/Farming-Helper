@@ -2,6 +2,7 @@ package com.easyfarming;
 
 import java.awt.*;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
@@ -10,6 +11,7 @@ import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import com.easyfarming.core.Teleport;
 import com.easyfarming.core.Location;
+import com.easyfarming.customrun.CustomRunPhase;
 import com.easyfarming.customrun.LocationCatalog;
 import com.easyfarming.customrun.PatchTypes;
 import com.easyfarming.customrun.CustomRun;
@@ -21,6 +23,7 @@ import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class FarmingTeleportOverlay extends Overlay {
     private final Client client;
     private final EasyFarmingPlugin plugin;
@@ -38,14 +41,24 @@ public class FarmingTeleportOverlay extends Overlay {
     @Inject
     private FarmingTeleportSceneOverlay farmingTeleportSceneOverlay;
     
-    // Custom run state
-    private boolean customRunMode = false;
-    private List<RunLocation> customRunLocations = new ArrayList<>();
+    // Custom run state (written from EDT start/stop, read from client render thread)
+    private volatile boolean customRunMode = false;
+    private volatile CustomRunPhase runPhase = CustomRunPhase.IDLE;
+    private volatile List<RunLocation> customRunLocations = new ArrayList<>();
     /** Name of the custom run currently active (so UI can show Stop on the correct run). */
-    private String activeCustomRunName = null;
+    private volatile String activeCustomRunName = null;
 
     public boolean isCustomRunMode() {
         return customRunMode;
+    }
+
+    public CustomRunPhase getRunPhase() {
+        return runPhase;
+    }
+
+    /** True while the item checklist should be shown (and navigation must wait). */
+    public boolean isGatheringPhase() {
+        return customRunMode && runPhase == CustomRunPhase.GATHERING;
     }
 
     public List<RunLocation> getCustomRunLocations() {
@@ -295,43 +308,43 @@ public class FarmingTeleportOverlay extends Overlay {
         switch (patchType) {
             case PatchTypes.HERB:
                 farmingStepHandler.herbSteps(graphics, teleport);
-                if (farmingStepHandler.herbPatchDone) {
-                    farmingStepHandler.herbPatchDone = false;
+                if (farmingStepHandler.isHerbPatchDone()) {
+                    farmingStepHandler.setHerbPatchDone(false);
                     moveToNextPatchOrLocation();
                 }
                 break;
             case PatchTypes.FLOWER:
                 farmingStepHandler.flowerSteps(graphics, farmLimps);
-                if (farmingStepHandler.flowerPatchDone) {
-                    farmingStepHandler.flowerPatchDone = false;
+                if (farmingStepHandler.isFlowerPatchDone()) {
+                    farmingStepHandler.setFlowerPatchDone(false);
                     moveToNextPatchOrLocation();
                 }
                 break;
             case PatchTypes.ALLOTMENT:
                 farmingStepHandler.allotmentSteps(graphics, teleport);
-                if (farmingStepHandler.allotmentPatchDone) {
-                    farmingStepHandler.allotmentPatchDone = false;
+                if (farmingStepHandler.isAllotmentPatchDone()) {
+                    farmingStepHandler.setAllotmentPatchDone(false);
                     moveToNextPatchOrLocation();
                 }
                 break;
             case PatchTypes.TREE:
                 farmingStepHandler.treeSteps(graphics, teleport);
-                if (farmingStepHandler.treePatchDone) {
-                    farmingStepHandler.treePatchDone = false;
+                if (farmingStepHandler.isTreePatchDone()) {
+                    farmingStepHandler.setTreePatchDone(false);
                     moveToNextPatchOrLocation();
                 }
                 break;
             case PatchTypes.FRUIT_TREE:
                 farmingStepHandler.fruitTreeSteps(graphics, teleport);
-                if (farmingStepHandler.fruitTreePatchDone) {
-                    farmingStepHandler.fruitTreePatchDone = false;
+                if (farmingStepHandler.isFruitTreePatchDone()) {
+                    farmingStepHandler.setFruitTreePatchDone(false);
                     moveToNextPatchOrLocation();
                 }
                 break;
             case PatchTypes.HOPS:
                 farmingStepHandler.hopsSteps(graphics, teleport);
-                if (farmingStepHandler.hopsPatchDone) {
-                    farmingStepHandler.hopsPatchDone = false;
+                if (farmingStepHandler.isHopsPatchDone()) {
+                    farmingStepHandler.setHopsPatchDone(false);
                     moveToNextPatchOrLocation();
                 }
                 break;
@@ -349,13 +362,7 @@ public class FarmingTeleportOverlay extends Overlay {
         List<String> patchTypes = rl.getPatchTypes();
         if (patchTypes != null && currentPatchTypeIndex + 1 < patchTypes.size()) {
             currentPatchTypeIndex++;
-            farmingStepHandler.herbPatchDone = false;
-            farmingStepHandler.flowerPatchDone = false;
-            farmingStepHandler.allotmentPatchDone = false;
-            farmingStepHandler.treePatchDone = false;
-            farmingStepHandler.fruitTreePatchDone = false;
-            farmingStepHandler.hopsPatchDone = false;
-            farmingStepHandler.resetCompostStates();
+            farmingStepHandler.resetForNextLocation();
             plugin.clearLastMessage();
             return;
         }
@@ -372,16 +379,7 @@ public class FarmingTeleportOverlay extends Overlay {
         currentPatchTypeIndex = 0;
         farmLimps = false;
         
-        // Reset farming step handler states
-        farmingStepHandler.herbPatchDone = false;
-        farmingStepHandler.flowerPatchDone = false;
-        farmingStepHandler.allotmentPatchDone = false;
-        farmingStepHandler.treePatchDone = false;
-        farmingStepHandler.fruitTreePatchDone = false;
-        farmingStepHandler.hopsPatchDone = false;
-        
-        // Reset persistent compost states
-        farmingStepHandler.resetCompostStates();
+        farmingStepHandler.resetForNextLocation();
         plugin.clearLastMessage();
         
         // Reset navigation handler state for the new location
@@ -408,8 +406,8 @@ public class FarmingTeleportOverlay extends Overlay {
         if (!customRunMode || farmingStepHandler == null) {
             return;
         }
-        if (!plugin.areItemsCollected()) {
-            plugin.completeItemGatheringPhase();
+        if (isGatheringPhase()) {
+            finishGatheringPhase();
             return;
         }
         if (!isAtDestination) {
@@ -435,7 +433,8 @@ public class FarmingTeleportOverlay extends Overlay {
         plugin.setTeleportOverlayActive(false);
         
         customRunMode = false;
-        customRunLocations.clear();
+        runPhase = CustomRunPhase.IDLE;
+        customRunLocations = new ArrayList<>();
         activeCustomRunName = null;
         currentPatchTypeIndex = 0;
         currentLocationIndex = 0;
@@ -443,22 +442,14 @@ public class FarmingTeleportOverlay extends Overlay {
         isAtDestination = false;
         farmLimps = false;
         
-        farmingStepHandler.herbPatchDone = false;
-        farmingStepHandler.flowerPatchDone = false;
-        farmingStepHandler.allotmentPatchDone = false;
-        farmingStepHandler.treePatchDone = false;
-        farmingStepHandler.fruitTreePatchDone = false;
-        farmingStepHandler.hopsPatchDone = false;
+        farmingStepHandler.resetForNextLocation();
         farmingStepHandler.clearHintArrow();
-        
-        // Reset persistent compost states
-        farmingStepHandler.resetCompostStates();
         plugin.clearLastMessage();
         
         navigationHandler.currentTeleportCase = 1;
         navigationHandler.isAtDestination = false;
         
-        plugin.setItemsCollected(false);
+        plugin.resetItemGatheringState();
         plugin.clearCurrentStepInstruction();
 
         SwingUtilities.invokeLater(() -> {
@@ -472,23 +463,20 @@ public class FarmingTeleportOverlay extends Overlay {
         if (run == null || run.getLocations() == null) {
             return;
         }
+        // New run id invalidates any prior "items collected" so run B cannot inherit run A's flag.
+        plugin.beginItemGatheringForNewRun();
         // Use run's config/saved state for required items (no fallbacks)
         plugin.setCustomRunToolInclusion(
             run.isIncludeSecateurs(),
             run.isIncludeDibber(),
             run.isIncludeRake());
-        farmingStepHandler.herbPatchDone = false;
-        farmingStepHandler.flowerPatchDone = false;
-        farmingStepHandler.allotmentPatchDone = false;
-        farmingStepHandler.treePatchDone = false;
-        farmingStepHandler.fruitTreePatchDone = false;
-        farmingStepHandler.hopsPatchDone = false;
+        farmingStepHandler.resetForNextLocation();
         farmingStepHandler.clearHintArrow();
-        farmingStepHandler.resetCompostStates();
         plugin.clearLastMessage();
         customRunMode = true;
         activeCustomRunName = run.getName();
-        customRunLocations = new ArrayList<>(run.getLocations());
+        // Deep-ish copy so removeOverlay never mutates the saved CustomRun's list.
+        customRunLocations = copyRunLocations(run.getLocations());
         currentLocationIndex = 0;
         currentPatchTypeIndex = 0;
         startSubCases = false;
@@ -497,21 +485,60 @@ public class FarmingTeleportOverlay extends Overlay {
         navigationHandler.currentTeleportCase = 1;
         navigationHandler.isAtDestination = false;
         if (run.isSkipItemGathering()) {
+            runPhase = CustomRunPhase.NAVIGATING;
             plugin.completeItemGatheringPhase();
         } else {
-            plugin.setItemsCollected(false);
+            runPhase = CustomRunPhase.GATHERING;
             plugin.setTeleportOverlayActive(false);
         }
     }
 
+    /**
+     * Called when the item checklist is satisfied (or skipped). Enables navigation.
+     */
+    public void finishGatheringPhase() {
+        if (!customRunMode) {
+            return;
+        }
+        runPhase = CustomRunPhase.NAVIGATING;
+        plugin.completeItemGatheringPhase();
+    }
+
+    private static List<RunLocation> copyRunLocations(List<RunLocation> source) {
+        List<RunLocation> copy = new ArrayList<>();
+        if (source == null) {
+            return copy;
+        }
+        for (RunLocation rl : source) {
+            if (rl == null) {
+                continue;
+            }
+            copy.add(new RunLocation(
+                    rl.getLocationName(),
+                    rl.getTeleportOption(),
+                    rl.getPatchTypes()));
+        }
+        return copy;
+    }
+
     @Override
     public Dimension render(Graphics2D graphics) {
+        // Checklist phase: do not navigate yet.
+        if (runPhase != CustomRunPhase.NAVIGATING) {
+            return null;
+        }
         if (!plugin.isTeleportOverlayActive()) {
             return null;
         }
         
         // Guard against rendering before player is fully loaded
         if (client.getLocalPlayer() == null) {
+            return null;
+        }
+
+        // Do not treat "overlays registered before startCustomRun fills locations" as run-end.
+        // That race previously called removeOverlay() and wiped a run that was still starting.
+        if (!customRunMode) {
             return null;
         }
         

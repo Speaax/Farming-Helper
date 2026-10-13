@@ -30,7 +30,7 @@ public class TrollStrongholdLocationData {
      * Creates Location for Troll Stronghold.
      * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
-     *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     *                              (typically from TeleportItemRequirements.getHouseTeleportItemRequirements())
      * @return A Location instance for Troll Stronghold
      */
     public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {

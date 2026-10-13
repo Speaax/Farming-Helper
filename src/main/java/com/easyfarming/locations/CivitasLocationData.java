@@ -32,7 +32,7 @@ public class CivitasLocationData {
      * Creates Location for Civitas illa Fortis.
      * @param config The EasyFarmingConfig instance
      * @param houseTeleportSupplier Supplier that provides house teleport item requirements
-     *                              (typically from ItemAndLocation.getHouseTeleportItemRequirements())
+     *                              (typically from TeleportItemRequirements.getHouseTeleportItemRequirements())
      * @return A Location instance for Civitas illa Fortis
      */
     public static Location create(EasyFarmingConfig config, Supplier<List<ItemRequirement>> houseTeleportSupplier) {
